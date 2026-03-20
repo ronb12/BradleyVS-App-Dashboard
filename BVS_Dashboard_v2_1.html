@@ -258,7 +258,7 @@
 <div class="container">
   <div class="page-title">
     <h1>App Portfolio Dashboard</h1>
-    <p>28 apps · Live revenue tracking · Full portfolio management</p>
+    <p>27 apps · Live revenue tracking · Full portfolio management</p>
   </div>
 
   <div class="tabs">
@@ -275,9 +275,9 @@
   <!-- ══════════════ OVERVIEW ══════════════ -->
   <div id="panel-overview" class="panel active">
     <div class="kpi-grid">
-      <div class="kpi-card" style="--card-color:#3b82f6"><div class="kpi-icon">📱</div><div class="kpi-value">26</div><div class="kpi-label">Total Apps</div></div>
+      <div class="kpi-card" style="--card-color:#3b82f6"><div class="kpi-icon">📱</div><div class="kpi-value">27</div><div class="kpi-label">Total Apps</div></div>
       <div class="kpi-card" style="--card-color:#22c55e"><div class="kpi-icon">✅</div><div class="kpi-value">20</div><div class="kpi-label">Live & Active</div></div>
-      <div class="kpi-card" style="--card-color:#f97316"><div class="kpi-icon">🔧</div><div class="kpi-value">6</div><div class="kpi-label">In Maintenance</div></div>
+      <div class="kpi-card" style="--card-color:#f97316"><div class="kpi-icon">🔧</div><div class="kpi-value">7</div><div class="kpi-label">In Maintenance</div></div>
       <div class="kpi-card" style="--card-color:#a855f7"><div class="kpi-icon">💰</div><div class="kpi-value" id="kpiSubs">0</div><div class="kpi-label">Total Subscribers</div></div>
       <div class="kpi-card" style="--card-color:#fbbf24"><div class="kpi-icon">💵</div><div class="kpi-value" id="kpiMonthly">$0</div><div class="kpi-label">Monthly Revenue</div></div>
       <div class="kpi-card" style="--card-color:#ef4444"><div class="kpi-icon">🔔</div><div class="kpi-value" id="kpiAlerts">0</div><div class="kpi-label">Maintenance Alerts</div></div>
@@ -323,7 +323,7 @@
   <div id="panel-apps" class="panel">
     <div class="toolbar">
       <input class="search-box" type="text" placeholder="🔍 Search apps..." oninput="renderApps()" id="searchInput">
-      <button class="filter-btn active" onclick="setFilter('all',this)">All (28)</button>
+      <button class="filter-btn active" onclick="setFilter('all',this)">All (27)</button>
       <button class="filter-btn" onclick="setFilter('live',this)">✅ Live</button>
       <button class="filter-btn" onclick="setFilter('maint',this)">🔧 Maint.</button>
       <button class="filter-btn" onclick="setFilter('alert',this)">🔔 Alerts</button>
@@ -430,7 +430,7 @@
       <div style="text-align:right">
         <div style="margin-bottom:10px;"><button type="button" class="btn-secondary" onclick="adminLogout()">Log out</button></div>
         <div class="goal-label">Total Apps</div>
-        <div style="font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;color:var(--accent2)" id="admin-total-apps">28</div>
+        <div style="font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;color:var(--accent2)" id="admin-total-apps">27</div>
       </div>
     </div>
 
@@ -572,7 +572,6 @@ const APPS = [
   {id:21,name:"NurseMaster",             desc:"Nursing Study App",              url:null,                                                      status:"maint",cat:"Education",   price:14.99,pri:"High",    maintOffset:null},
   {id:22,name:"Bradley Digital Mktg Hub",desc:"Digital Marketing App",          url:null,                                                      status:"maint",cat:"Marketing",   price:39.99,pri:"High",    maintOffset:null},
   {id:23,name:"K.A.S Roblox",            desc:"Roblox Game",                    url:null,                                                      status:"maint",cat:"Gaming",      price:null, pri:"Low",     maintOffset:null},
-  {id:24,name:"BarberBook",              desc:"Barber Shop Booking App",        url:null,                                                      status:"maint",cat:"Business",    price:19.99,pri:"Medium",  maintOffset:null},
   {id:25,name:"80's Jitterbug",          desc:"Retro 360 Photo Booth App",      url:"https://jitterbug80s.web.app/",                           status:"live", cat:"Events",      price:null, pri:"High",    maintOffset:49},
   {id:26,name:"Guilty Pleasure Treats",  desc:"Baking Shop App",                url:"https://guilty-pleasure-treats.vercel.app/",              status:"maint",cat:"E-Commerce",  price:14.99,pri:"Medium",  maintOffset:null},
   {id:27,name:"BarberBook Pro",              desc:"Complete Barber Shop Management", url:"BarberBook_Pro.html",                                      status:"live", cat:"Business",    price:49.99,pri:"High",    maintOffset:50},
@@ -1022,7 +1021,6 @@ function renderRoadmap() {
     {id:12,blocker:"Fix connection error",launch:"Apr 2026",effort:"Medium"},
     {id:9, blocker:"Complete AI builder",  launch:"Apr 2026",effort:"High"},
     {id:22,blocker:"Submit to App Store",  launch:"May 2026",effort:"High"},
-    {id:24,blocker:"Submit to App Store",  launch:"May 2026",effort:"Medium"},
     {id:21,blocker:"Complete app build",   launch:"May 2026",effort:"High"},
     {id:11,blocker:"Test all features",    launch:"Jun 2026",effort:"High"},
     {id:20,blocker:"Fix maintenance issues",launch:"May 2026",effort:"Low"},
