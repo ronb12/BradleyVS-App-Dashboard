@@ -483,6 +483,38 @@
         <div class="progress-bar-wrap" style="margin-top:8px;"><div class="progress-bar" id="healthBar" style="width:0%"></div></div>
       </div>
     </div>
+    <div style="margin-top:1.25rem;">
+      <div class="section-title">🤖 Automated Maintenance Checks</div>
+      <div class="goal-banner" style="margin-bottom:0;">
+        <div class="goal-top" style="position:relative;z-index:1;">
+          <div>
+            <div class="goal-label">GitHub + Firebase + Runtime Health</div>
+            <div style="font-size:0.82rem;color:var(--text2);margin-top:4px;">100% Firebase manifest match (data/firebase-hosting-manifest.json), GitHub repo signals, deployment reachability, Playwright runtime report (data/latest-runtime-check.json from CI), and maintenance dates.</div>
+          </div>
+          <button id="runMaintenanceBtn" class="btn-primary" onclick="runMaintenanceChecks()">Run Checks</button>
+        </div>
+        <div id="maintenanceCheckSummary" style="font-size:0.78rem;color:var(--text3);margin-bottom:0.75rem;position:relative;z-index:1;">No checks run yet.</div>
+        <div class="table-wrap" style="position:relative;z-index:1;">
+          <table style="min-width:860px;">
+            <thead>
+              <tr>
+                <th>App</th>
+                <th>Repo Match</th>
+                <th>Repo Updated</th>
+                <th>Deployment</th>
+                <th>Firebase 100%</th>
+                <th>Runtime</th>
+                <th>Maint. Date</th>
+                <th>Needs Action</th>
+              </tr>
+            </thead>
+            <tbody id="maintenanceCheckBody">
+              <tr><td colspan="8" style="color:var(--text3);font-size:0.82rem;">Run checks to generate automated maintenance results.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </div>
 
 </div>
@@ -531,6 +563,13 @@ const state = {
 state.subs[17] = 1;
 
 let currentFilter = 'all', sortCol = 0, sortAsc = true, modalAppId = null;
+const maintenanceState = {
+  running:false,
+  lastRunAt:null,
+  results:[],
+  firebaseMeta:{ match100:null, onlyInApps:[], onlyInManifest:[], manifestLoaded:false, manifestError:null },
+  runtimeMeta:{ loaded:false, generatedAt:null, error:null },
+};
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 const $ = id => document.getElementById(id);
@@ -573,6 +612,7 @@ function showTab(id, btn) {
   if (id==='marketing') renderMarketing();
   if (id==='versions') renderVersionsPanel();
   if (id==='roadmap') renderRoadmap();
+  if (id==='admin') renderAdminPanel();
   setTimeout(animateFadeIns, 50);
 }
 
@@ -1046,6 +1086,325 @@ function exportJSON() {
   URL.revokeObjectURL(url);
 }
 
+function normalizeRepoKey(v) {
+  return (v || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+/** Normalize deploy URLs for set equality (Firebase manifest + runtime matching). */
+function normalizeHostingUrl(url) {
+  if (!url || !/^https?:\/\//i.test(url)) return null;
+  try {
+    const u = new URL(url.trim());
+    let path = u.pathname.replace(/\/+$/, '');
+    if (!path) path = '';
+    return `${u.origin}${path}${u.search}`.toLowerCase();
+  } catch {
+    return null;
+  }
+}
+
+function isFirebaseHostingUrl(url) {
+  if (!url || !/^https?:\/\//i.test(url)) return false;
+  try {
+    const h = new URL(url).hostname.toLowerCase();
+    return h.endsWith('.web.app') || h.endsWith('.firebaseapp.com');
+  } catch {
+    return false;
+  }
+}
+
+function hostingUrlSetFromApps() {
+  const s = new Set();
+  APPS.forEach(a => {
+    if (isFirebaseHostingUrl(a.url)) {
+      const n = normalizeHostingUrl(a.url);
+      if (n) s.add(n);
+    }
+  });
+  return s;
+}
+
+async function fetchJson(path) {
+  const res = await fetch(path, { cache: 'no-store' });
+  if (!res.ok) return null;
+  return res.json();
+}
+
+function parseFirebaseManifest(data) {
+  if (!data || !Array.isArray(data.hostingUrls)) return null;
+  const set = new Set();
+  data.hostingUrls.forEach(u => {
+    const n = normalizeHostingUrl(u);
+    if (n) set.add(n);
+  });
+  return set;
+}
+
+function runtimeResultForApp(app, runtimePayload) {
+  if (!runtimePayload || !Array.isArray(runtimePayload.results)) return null;
+  const target = normalizeHostingUrl(app.url);
+  if (!target) return null;
+  for (const r of runtimePayload.results) {
+    if (normalizeHostingUrl(r.url) === target) return r;
+  }
+  return null;
+}
+
+function daysSince(isoDate) {
+  if (!isoDate) return null;
+  const ms = Date.now() - new Date(isoDate).getTime();
+  return Math.floor(ms / 86400000);
+}
+
+function extractGithubRepoName(url) {
+  if (!url || !url.includes('github.io')) return null;
+  try {
+    const u = new URL(url);
+    const firstSegment = u.pathname.split('/').filter(Boolean)[0];
+    return firstSegment || null;
+  } catch {
+    return null;
+  }
+}
+
+function buildRepoIndex(repos) {
+  const index = new Map();
+  repos.forEach(repo => index.set(normalizeRepoKey(repo.name), repo));
+  return index;
+}
+
+function findRepoForApp(app, repoIndex) {
+  const fromGithubUrl = extractGithubRepoName(app.url);
+  const candidates = [
+    fromGithubUrl,
+    app.name,
+    app.name.replace(/&/g, 'and'),
+    app.name.replace(/'/g, ''),
+    app.name.replace(/\./g, ''),
+    app.name.replace(/\s+/g, '-'),
+  ].filter(Boolean);
+
+  for (const c of candidates) {
+    const exact = repoIndex.get(normalizeRepoKey(c));
+    if (exact) return exact;
+  }
+
+  const appKey = normalizeRepoKey(app.name);
+  for (const repo of repoIndex.values()) {
+    const repoKey = normalizeRepoKey(repo.name);
+    if (repoKey.includes(appKey) || appKey.includes(repoKey)) return repo;
+  }
+  return null;
+}
+
+async function checkDeployment(url) {
+  if (!url) return { status:'none', label:'No URL', platform:'none', runtimeChecked:false };
+  if (!/^https?:\/\//i.test(url)) return { status:'local', label:'Local file', platform:'local', runtimeChecked:false };
+
+  let parsed;
+  try { parsed = new URL(url); } catch { return { status:'fail', label:'Invalid URL', platform:'unknown', runtimeChecked:false }; }
+  const host = parsed.hostname.toLowerCase();
+  const isFirebase = host.endsWith('.web.app') || host.endsWith('.firebaseapp.com');
+  const isVercel = host.endsWith('.vercel.app');
+  const isGithubPages = host.endsWith('.github.io');
+
+  const platform = isFirebase ? 'firebase' : (isVercel ? 'vercel' : (isGithubPages ? 'github-pages' : 'web'));
+
+  try {
+    // Basic uptime probe (this does not validate app runtime correctness).
+    await fetch(url, { method:'HEAD', mode:'no-cors', cache:'no-store' });
+
+    if (isFirebase) {
+      // Firebase-specific probe: hosting init endpoint often exists for deployed sites.
+      try {
+        const initRes = await fetch(`${parsed.origin}/__/firebase/init.json`, { cache:'no-store' });
+        if (initRes.ok) {
+          return { status:'ok', label:'Reachable + Firebase init', platform, runtimeChecked:false };
+        }
+      } catch {
+        // Keep as reachable even if init probe fails; many valid sites still block this endpoint.
+      }
+      return { status:'ok', label:'Reachable (Firebase)', platform, runtimeChecked:false };
+    }
+
+    return { status:'ok', label:'Reachable', platform, runtimeChecked:false };
+  } catch {
+    return { status:'fail', label:'Unreachable', platform, runtimeChecked:false };
+  }
+}
+
+async function fetchRonb12Repos() {
+  const res = await fetch('https://api.github.com/users/ronb12/repos?per_page=100&sort=updated', {
+    headers: { 'Accept': 'application/vnd.github+json' }
+  });
+  if (!res.ok) throw new Error('GitHub API request failed');
+  return res.json();
+}
+
+function renderMaintenanceChecks() {
+  const body = $('maintenanceCheckBody');
+  const summary = $('maintenanceCheckSummary');
+  if (!body || !summary) return;
+
+  if (!maintenanceState.results.length) {
+    summary.textContent = maintenanceState.running ? 'Running checks...' : 'No checks run yet.';
+    body.innerHTML = `<tr><td colspan="8" style="color:var(--text3);font-size:0.82rem;">${maintenanceState.running ? 'Running checks...' : 'Run checks to generate automated maintenance results.'}</td></tr>`;
+    return;
+  }
+
+  const fm = maintenanceState.firebaseMeta;
+  const rt = maintenanceState.runtimeMeta;
+  const attentionCount = maintenanceState.results.filter(r => r.needsAction).length;
+  const staleCount = maintenanceState.results.filter(r => typeof r.repoDays === 'number' && r.repoDays > 30).length;
+  const deployFailCount = maintenanceState.results.filter(r => r.deploy.status === 'fail').length;
+  const matchedCount = maintenanceState.results.filter(r => !!r.repo).length;
+  const stamp = maintenanceState.lastRunAt ? new Date(maintenanceState.lastRunAt).toLocaleString() : 'n/a';
+
+  const fbLabel = !fm.manifestLoaded ? 'Manifest: not loaded' : (fm.match100 ? 'Firebase manifest: 100% ✓' : 'Firebase manifest: MISMATCH ✗');
+  let rtLabel = 'Runtime: no report';
+  if (rt.loaded && rt.generatedAt) {
+    const okN = maintenanceState.results.filter(r => r.runtime && r.runtime.ok).length;
+    const hasR = maintenanceState.results.filter(r => r.runtime !== null).length;
+    const badN = hasR - okN;
+    rtLabel = `Runtime: ${okN} clean / ${hasR} scanned (${badN} with errors) · ${new Date(rt.generatedAt).toLocaleString()}`;
+  } else if (rt.error) {
+    rtLabel = 'Runtime: report fetch failed (open via http server or run CI)';
+  }
+
+  summary.textContent = `Last run: ${stamp} | ${fbLabel} | ${rtLabel} | Repo: ${matchedCount}/${APPS.length} | Stale repos (>30d): ${staleCount} | Unreachable: ${deployFailCount} | Needs action: ${attentionCount}`;
+
+  body.innerHTML = maintenanceState.results.map(r => {
+    const repoTxt = r.repo ? r.repo.name : (r.app.url && r.app.url.includes('github.io') ? 'No match' : '—');
+    const repoColor = r.repo ? 'var(--green)' : (r.app.url && r.app.url.includes('github.io') ? 'var(--red)' : 'var(--text3)');
+    const updatedTxt = typeof r.repoDays === 'number' ? `${r.repoDays}d ago` : 'n/a';
+    const updatedColor = typeof r.repoDays === 'number' && r.repoDays > 30 ? 'var(--orange)' : 'var(--text2)';
+    const maintColor = r.overdue ? 'var(--red)' : 'var(--text2)';
+    const actionTxt = r.needsAction ? 'Yes' : 'No';
+    const actionColor = r.needsAction ? 'var(--red)' : 'var(--green)';
+    const deployColor = r.deploy.status === 'ok' ? 'var(--green)' : (r.deploy.status === 'fail' ? 'var(--red)' : 'var(--text2)');
+    const deployLabel = `${r.deploy.label}${r.deploy.platform ? ` (${r.deploy.platform})` : ''}`;
+
+    let fbCell = '🟢 OK';
+    let fbColor = 'var(--green)';
+    if (!isFirebaseHostingUrl(r.app.url)) {
+      fbCell = '—'; fbColor = 'var(--text3)';
+    } else if (!fm.manifestLoaded) {
+      fbCell = '⚠ No manifest'; fbColor = 'var(--orange)';
+    } else if (!fm.match100) {
+      fbCell = '✗ Not 100%'; fbColor = 'var(--red)';
+    }
+
+    let rtCell = '—';
+    let rtColor = 'var(--text3)';
+    if (r.app.url && /^https?:\/\//i.test(r.app.url)) {
+      if (!r.runtime) {
+        rtCell = rt.loaded ? 'No row' : 'No CI scan';
+        rtColor = 'var(--orange)';
+      } else if (r.runtime.ok) {
+        rtCell = '✓ Clean';
+        rtColor = 'var(--green)';
+      } else {
+        const n = (r.runtime.consoleErrors?.length||0)+(r.runtime.pageErrors?.length||0)+(r.runtime.failedRequests?.length||0);
+        rtCell = `✗ ${n} issues`;
+        rtColor = 'var(--red)';
+      }
+    }
+
+    return `<tr>
+      <td style="font-size:0.8rem;font-weight:600;">${r.app.name}</td>
+      <td style="font-size:0.78rem;color:${repoColor};font-family:'DM Mono',monospace;">${repoTxt}</td>
+      <td style="font-size:0.78rem;color:${updatedColor};font-family:'DM Mono',monospace;">${updatedTxt}</td>
+      <td style="font-size:0.78rem;color:${deployColor};font-family:'DM Mono',monospace;">${deployLabel}</td>
+      <td style="font-size:0.78rem;color:${fbColor};font-family:'DM Mono',monospace;">${fbCell}</td>
+      <td style="font-size:0.78rem;color:${rtColor};font-family:'DM Mono',monospace;">${rtCell}</td>
+      <td style="font-size:0.78rem;color:${maintColor};font-family:'DM Mono',monospace;">${formatDate(getMaintDate(r.app.maintOffset))}</td>
+      <td style="font-size:0.78rem;color:${actionColor};font-family:'DM Mono',monospace;font-weight:700;">${actionTxt}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function runMaintenanceChecks() {
+  if (maintenanceState.running) return;
+  const btn = $('runMaintenanceBtn');
+  maintenanceState.running = true;
+  if (btn) { btn.disabled = true; btn.textContent = 'Checking...'; btn.style.opacity = '0.7'; }
+  renderMaintenanceChecks();
+
+  try {
+    const [repos, manifestData, runtimePayload] = await Promise.all([
+      fetchRonb12Repos(),
+      fetchJson('./data/firebase-hosting-manifest.json'),
+      fetchJson('./data/latest-runtime-check.json'),
+    ]);
+
+    const repoIndex = buildRepoIndex(repos);
+    const appFbSet = hostingUrlSetFromApps();
+    const manifestSet = parseFirebaseManifest(manifestData);
+
+    maintenanceState.firebaseMeta = { match100:null, onlyInApps:[], onlyInManifest:[], manifestLoaded:false, manifestError:null };
+    if (!manifestData) {
+      maintenanceState.firebaseMeta.manifestError = 'Could not load firebase-hosting-manifest.json (use a local server or GitHub Pages).';
+    } else if (!manifestSet) {
+      maintenanceState.firebaseMeta.manifestError = 'Invalid manifest: expected { hostingUrls: string[] }';
+    } else {
+      maintenanceState.firebaseMeta.manifestLoaded = true;
+      const onlyInApps = [...appFbSet].filter(u => !manifestSet.has(u));
+      const onlyInManifest = [...manifestSet].filter(u => !appFbSet.has(u));
+      maintenanceState.firebaseMeta.onlyInApps = onlyInApps;
+      maintenanceState.firebaseMeta.onlyInManifest = onlyInManifest;
+      maintenanceState.firebaseMeta.match100 = onlyInApps.length === 0 && onlyInManifest.length === 0;
+    }
+
+    maintenanceState.runtimeMeta = { loaded:false, generatedAt:null, error:null };
+    if (runtimePayload && Array.isArray(runtimePayload.results)) {
+      maintenanceState.runtimeMeta.loaded = true;
+      maintenanceState.runtimeMeta.generatedAt = runtimePayload.generatedAt || null;
+    } else {
+      maintenanceState.runtimeMeta.error = 'No valid latest-runtime-check.json (run Actions workflow: Web app runtime check).';
+    }
+
+    const fm = maintenanceState.firebaseMeta;
+    const results = [];
+
+    for (const app of APPS) {
+      const repo = findRepoForApp(app, repoIndex);
+      const deploy = await checkDeployment(app.url);
+      const repoDays = repo ? daysSince(repo.pushed_at || repo.updated_at) : null;
+      const overdue = isOverdue(app.maintOffset);
+      const staleRepo = !!(repo && typeof repoDays === 'number' && repoDays > 30);
+      const deployIssue = deploy.status === 'fail';
+      const hasGithubUrl = !!(app.url && app.url.includes('github.io'));
+      const repoIssue = hasGithubUrl && !repo;
+
+      const isFb = isFirebaseHostingUrl(app.url);
+      const firebaseIssue = isFb && (!fm.manifestLoaded || fm.match100 !== true);
+
+      const rtRow = runtimeResultForApp(app, runtimePayload);
+      const runtimeIssue = !!(rtRow && rtRow.ok === false);
+
+      const needsAction = overdue || staleRepo || deployIssue || repoIssue || firebaseIssue || runtimeIssue;
+      results.push({
+        app, repo, repoDays, deploy, overdue, needsAction,
+        runtime: rtRow,
+      });
+    }
+
+    maintenanceState.results = results;
+    maintenanceState.lastRunAt = Date.now();
+  } catch (err) {
+    maintenanceState.results = [];
+    maintenanceState.lastRunAt = Date.now();
+    maintenanceState.firebaseMeta = { match100:null, onlyInApps:[], onlyInManifest:[], manifestLoaded:false, manifestError:'—' };
+    maintenanceState.runtimeMeta = { loaded:false, generatedAt:null, error:'—' };
+    const summary = $('maintenanceCheckSummary');
+    if (summary) summary.textContent = 'Maintenance check failed. Verify internet and GitHub API access.';
+  } finally {
+    maintenanceState.running = false;
+    if (btn) { btn.disabled = false; btn.textContent = 'Run Checks'; btn.style.opacity = '1'; }
+    renderMaintenanceChecks();
+  }
+}
+
 
 window.addEventListener('DOMContentLoaded', () => {
   const now = new Date();
@@ -1054,6 +1413,8 @@ window.addEventListener('DOMContentLoaded', () => {
   $('footerDate').textContent = ds;
   renderApps();
   updateAll();
+  renderAdminPanel();
+  renderMaintenanceChecks();
   setTimeout(animateFadeIns, 100);
 });
 </script>

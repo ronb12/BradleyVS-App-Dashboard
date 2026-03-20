@@ -1,0 +1,6 @@
+.DS_Store
+node_modules/
+monitor/playwright-report/
+monitor/test-results/
+monitor/.cache/
+monitor/urls.json

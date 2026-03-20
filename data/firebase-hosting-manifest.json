@@ -1,0 +1,20 @@
+{
+  "description": "Canonical Firebase Hosting URLs tracked in the portfolio. Must exactly match every *.web.app / *.firebaseapp.com entry in BVS_Dashboard_v2_1.html APPS (normalized). Update this file when you add/remove Firebase apps.",
+  "version": 1,
+  "hostingUrls": [
+    "https://amplifi-a54d9.web.app/index.html",
+    "https://bradley-gigrunner.web.app/",
+    "https://bradley-health.web.app/",
+    "https://bradleys-travel-planner.web.app/",
+    "https://bradleyvs.web.app/",
+    "https://dreambuild-2024-app.web.app/",
+    "https://fitflow-pro-dreambuild.web.app/",
+    "https://homeflow-pro-1760475179.web.app/",
+    "https://jitterbug80s.web.app/",
+    "https://mindglow-wellness.web.app/",
+    "https://mobile-debt-tracker.web.app/index.html",
+    "https://parentlink-2024-app.web.app/",
+    "https://procureflow-demo.web.app/login/",
+    "https://taskpilot-ronb12.web.app/"
+  ]
+}

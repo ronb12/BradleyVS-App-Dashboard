@@ -1,0 +1,12 @@
+{
+  "name": "bvs-dashboard-runtime-monitor",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "extract": "node extract-urls.mjs",
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.51.0"
+  }
+}
