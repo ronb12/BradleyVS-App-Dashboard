@@ -4,8 +4,11 @@
 
 **GitHub Pages (optional mirror):** [https://ronb12.github.io/BradleyVS-App-Dashboard/](https://ronb12.github.io/BradleyVS-App-Dashboard/)
 
-Main file: `BVS_Dashboard_v2_1.html` (root `index.html` redirects here).  
+Main file: `BVS_Dashboard_v2_1.html` (root `index.html` redirects here). Logic and data live in **`js/bvs-dashboard.js`**; styles in **`css/bvs-dashboard.css`**.  
 `cloud-config.js` is generated on Vercel build so `window.BVS_CLOUD_API_BASE` points at the same deployment for cloud sync.
+
+**Public share link** (Apps + Features catalog only, no Overview/Revenue/Admin):  
+`BVS_Dashboard_v2_1.html?view=public` (or `?public=1`).
 
 ## Admin password
 
@@ -45,7 +48,7 @@ In **Vercel → Project → Settings → Environment Variables**, add:
 
 | Name | Value |
 |------|--------|
-| `BVS_ADMIN_PASS_HASH_HEX` | Same **lowercase hex** as `ADMIN_PASS_HASH_HEX` in `BVS_Dashboard_v2_1.html` (alias: `ADMIN_PASS_HASH_HEX` also accepted by `/api/bvs-auth`) |
+| `BVS_ADMIN_PASS_HASH_HEX` | Same **lowercase hex** as `ADMIN_PASS_HASH_HEX` in `js/bvs-dashboard.js` (alias: `ADMIN_PASS_HASH_HEX` also accepted by `/api/bvs-auth`) |
 
 ### 3. API routes
 
@@ -62,15 +65,13 @@ CORS is open so **GitHub Pages** can call your Vercel API.
 
 ### 4. Point the dashboard at Vercel
 
-In **`BVS_Dashboard_v2_1.html`**, set the deployment origin (no trailing slash):
+In **`cloud-config.js`**, set the deployment origin (no trailing slash):
 
-```html
-<script>
+```js
 window.BVS_CLOUD_API_BASE = 'https://YOUR-PROJECT.vercel.app';
-</script>
 ```
 
-(There is already a short script block before the main dashboard script—edit `window.BVS_CLOUD_API_BASE` there.)
+(Vercel build can generate this file; for local dev, edit root `cloud-config.js`.)
 
 After you **Admin** sign in, the app exchanges your password for a **short-lived server session** and then **uploads** each auto-save to Redis. On page load, if the cloud copy is **newer** than `localStorage`, it is merged in.
 
@@ -88,7 +89,7 @@ After you **Admin** sign in, the app exchanges your password for a **short-lived
 
 When you add or change an app:
 
-1. Update the `url` in `APPS` inside `BVS_Dashboard_v2_1.html`.
+1. Update the `url` in `APPS` inside `BVS_Dashboard_v2_1.html` (optional: add `testflightUrl` for a TestFlight public invite, e.g. `https://testflight.apple.com/join/…`).
 2. Update the right manifest (`hostingUrls` and/or `deploymentUrls`).
 3. Run **Admin → Run Checks** — summary should show **Firebase: 100% ✓** and **Vercel: 100% ✓**.
 

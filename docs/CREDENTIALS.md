@@ -1,5 +1,7 @@
 # Credentials in source code
 
+**Portfolio review (Mar 2026):** Dashboard immediate-actions list was cleared; app rows and this doc remain the source of truth for auth hygiene. **TaskPilot**, **ParentLink**, and **HomeFlow Pro** should be verified on **each release** (no plaintext demo accounts in shipped HTML).
+
 **NailGlow Studio** and **BarberBook Pro** do **not** ship hardcoded passwords in JavaScript/HTML.
 
 - New installs show a **first-run owner password** screen.

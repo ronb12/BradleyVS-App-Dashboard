@@ -1,5 +1,5 @@
 {
-  "version": 4,
+  "version": 5,
   "description": "Empty work-log cells are filled from this file on dashboard load (never overwrites existing text). Edit dates (YYYY-MM-DD) and app ids to match APPS.",
   "dates": {
     "2026-03-20": {
@@ -17,7 +17,10 @@
     },
     "2026-03-22": {
       "3": "Kaden & Adelynn Space Adventures — App Store live; portfolio name + desc updated; price cleared until real IAP/ad monetization to model.",
-      "20": "BradleyVS — Portfolio health copy: no more ‘monetized’ for table $/mo; clarified as model pricing vs real MRR. Faith Journal: App Store + AdMob in catalog."
+      "13": "MindGlow — Portfolio: noted iOS Apple TestFlight beta alongside web/PWA.",
+      "20": "BradleyVS — Portfolio health copy: no more ‘monetized’ for table $/mo; clarified as model pricing vs real MRR. Faith Journal: App Store + AdMob in catalog.",
+      "25": "80's Jitterbug — Portfolio: noted iOS TestFlight beta + event photo-booth positioning.",
+      "26": "Guilty Pleasure Treats — Portfolio: noted iOS TestFlight beta; App Store GA pending."
     }
   }
 }
