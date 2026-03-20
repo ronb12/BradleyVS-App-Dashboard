@@ -353,7 +353,7 @@
     <div class="actions-list">
       <div class="action-item fade-in"><div class="action-dot" style="background:var(--red)"></div><div class="action-text"><strong>Security:</strong> Remove plaintext <strong>test / demo logins</strong> from public HTML on <strong>TaskPilot</strong>, <strong>ParentLink</strong>, <strong>HomeFlow Pro</strong> (use first-run setup or private docs only — see <code>docs/CREDENTIALS.md</code>)</div><span class="action-badge badge-high">HIGH</span></div>
       <div class="action-item fade-in"><div class="action-dot" style="background:var(--red)"></div><div class="action-text"><strong>Holliday's Lawn &amp; Garden:</strong> Site is <strong>marketing + pay bill + login</strong> — align portfolio price with a real <strong>SaaS or booking</strong> tier, or mark revenue model as services-led</div><span class="action-badge badge-high">HIGH</span></div>
-      <div class="action-item fade-in"><div class="action-dot" style="background:var(--red)"></div><div class="action-text">Add Apple subscription to <strong>Faith Journal</strong> — already on App Store</div><span class="action-badge badge-high">HIGH</span></div>
+      <div class="action-item fade-in"><div class="action-dot" style="background:var(--orange)"></div><div class="action-text"><strong>Faith Journal</strong> — live on App Store with <strong>AdMob</strong>; optional next step: add paid tier or keep ads-led</div><span class="action-badge badge-med">MED</span></div>
       <div class="action-item fade-in"><div class="action-dot" style="background:var(--red)"></div><div class="action-text">Add billing to <strong>Bradley Health, Finance Hub, Travel Planner</strong></div><span class="action-badge badge-high">HIGH</span></div>
       <div class="action-item fade-in"><div class="action-dot" style="background:var(--orange)"></div><div class="action-text"><strong>ProcureFlow:</strong> Demo login is <strong>reachable</strong> — use <strong>$149.99/mo as demo/SMB tier</strong> in collateral; real DoD production deals differ from portfolio row</div><span class="action-badge badge-high">HIGH</span></div>
       <div class="action-item fade-in"><div class="action-dot" style="background:var(--orange)"></div><div class="action-text">Complete & relaunch <strong>DreamBuild</strong> — AI builder at $49.99/mo</div><span class="action-badge badge-high">HIGH</span></div>
@@ -583,6 +583,7 @@
         <div style="font-size:0.8rem;font-weight:600;color:var(--text);margin-bottom:0.75rem;">📊 Portfolio Health Score</div>
         <div id="healthScore" style="font-family:'Syne',sans-serif;font-size:2.5rem;font-weight:800;color:var(--accent);"></div>
         <div id="healthDetail" style="font-size:0.75rem;color:var(--text3);margin-top:4px;"></div>
+        <div id="healthHint" style="font-size:0.68rem;color:var(--text3);margin-top:6px;max-width:22rem;line-height:1.35;font-family:'DM Mono',monospace;">“List $/mo” = portfolio scenario only, not real Stripe/App Store subscription MRR unless you track it elsewhere.</div>
         <div class="progress-bar-wrap" style="margin-top:8px;"><div class="progress-bar" id="healthBar" style="width:0%"></div></div>
       </div>
     </div>
@@ -632,8 +633,8 @@
 const APPS = [
   {id:1, name:"Holliday's Lawn & Garden",desc:"Landscaping business site · services, pay bill, client login (GitHub Pages)", url:"https://ronb12.github.io/Holliday-Lawn-Garden/index.html",status:"live", cat:"Business",    price:49.99,pri:"High",    maintOffset:30},
   {id:2, name:"Bradley Health",          desc:"Medical Health Tracking",        url:"https://bradley-health.web.app/",                         status:"live", cat:"Health",      price:19.99,pri:"High",    maintOffset:31},
-  {id:3, name:"K&A Adventures",          desc:"Space Ship Adventure Game",      url:null,                                                      status:"live", cat:"Gaming",      price:2.99, pri:"Medium",  maintOffset:32},
-  {id:4, name:"Faith Journal",           desc:"Religious Journal App",          url:null,                                                      status:"live", cat:"Lifestyle",   price:9.99, pri:"High",    maintOffset:33},
+  {id:3, name:"Kaden & Adelynn Space Adventures", desc:"iOS App Store (live) · space shooter — App Store title ‘Kaden & Adelynn Adventures’ · no IAP/ads modeled in dashboard yet", url:"https://apps.apple.com/us/app/kaden-adelynn-adventures/id6749645849", status:"live", cat:"Gaming", price:null, pri:"Medium", maintOffset:32},
+  {id:4, name:"Faith Journal",           desc:"iOS App Store (live) · AdMob · App Store listing ‘My Faith Journal’ · list $/mo optional roadmap, not current MRR", url:"https://apps.apple.com/us/app/my-faith-journal/id6746383133", status:"live", cat:"Lifestyle", price:null, pri:"High", maintOffset:33},
   {id:5, name:"Amplifi",                 desc:"Social Media / Creator Platform",url:"https://amplifi-a54d9.web.app/index.html",                status:"live", cat:"Social",      price:9.99, pri:"High",    maintOffset:34},
   {id:6, name:"Adelynn's Jungle Dash",   desc:"Kids Memory Card Game",          url:"https://ronb12.github.io/Adelynn-Jungle-Dash/",           status:"live", cat:"Kids/Gaming", price:1.99, pri:"Low",     maintOffset:35},
   {id:7, name:"Bradley's Finance Hub",   desc:"Budget & Finance App",           url:"https://mobile-debt-tracker.web.app/index.html",          status:"live", cat:"Finance",     price:12.99,pri:"High",    maintOffset:36},
@@ -663,8 +664,8 @@ const APPS = [
 const APP_FEATURE_CATALOG = {
   1: { features: ['Public marketing site: services (lawn, landscape design, pressure washing)', 'Quote & contact flows', 'Pay bill page', 'Customer login area', 'GitHub Pages hosting', 'Portfolio $/mo row = optional SaaS/booking tier model — align with real revenue approach'] },
   2: { features: ['Auth: login, register, password reset', 'Blood pressure logging, trends, history', 'Medications list, adherence, reminders', 'Mood tracking + trends + journal', 'Women’s health: cycle, fertility, screenings, STI, PCOS, thyroid logs', 'Limb / prosthetic care, pain tracking, equipment & maintenance queue', 'Nutrition & meals with cholesterol estimation', 'Weight-loss goals with AI meal & exercise plans', 'Health insights / scoring, data export, printable medical reports', 'Profile, emergency contact, dark mode, PWA install'] },
-  3: { features: ['Space-themed memory / card-matching game', 'Difficulty tiers (easy → legendary pair counts)', 'Session statistics, achievements', 'Sound toggle', 'Static GitHub Pages'] },
-  4: { features: ['Faith-based digital journaling (portfolio positioning)', 'Apple App Store distribution (per roadmap notes)', 'Offline / PWA — verify in repo'] },
+  3: { features: ['App Store: apps.apple.com/us/app/kaden-adelynn-adventures/id6749645849', 'Space shooter; Game Center; iPhone/iPad/Mac (Apple Silicon) / visionOS', 'Monetization: none in portfolio row yet', 'Developer site: kaden---adelynn-adventures.web.app · Repo: Kaden-Adelynn-Adventures'] },
+  4: { features: ['App Store listing “My Faith Journal”: apps.apple.com/us/app/my-faith-journal/id6746383133', 'Monetization: Google AdMob', 'Faith-based digital journaling · also on Mac App Store (same id)', 'Developer page (all apps): apps.apple.com/us/developer/ronell-bradley/id1816566952'] },
   5: { features: ['Creator landing: video, live, short-form positioning', 'Information architecture: feed, trending, search, upload, editor, schedule', 'Library & profile routes', 'Legal pages: about, privacy, terms'] },
   6: { features: ['Kid-friendly memory safari theme', 'Multiple difficulty presets', 'Local stats: games played, win rate, streaks, achievements'] },
   7: { features: ['Debt tracker', 'Budget tracker', 'Debt velocity / payoff calculator', 'Net worth tracker', '1099 / W-2 style tax calculator', 'Savings goals', 'Firebase-hosted; sign-in + dashboard demo routes'] },
@@ -1720,18 +1721,19 @@ function renderAdminPanel() {
   set('admin-alerts',alerts);
 
   // Portfolio health score
-  const monetized = APPS.filter(a=>a.price!=null&&Number.isFinite(Number(a.price))&&a.status==='live').length;
+  /** Live apps with a $/mo number in the table — for goal/scenario math only, not “actually billing”. */
+  const listPricedLive = APPS.filter(a=>a.price!=null&&Number.isFinite(Number(a.price))&&a.status==='live').length;
   const withSubs  = APPS.filter(a=>(state.subs[a.id]||0)>0).length;
   const score = Math.round(
     (live/APPS.length)*30 +
-    (monetized/APPS.length)*30 +
-    (withSubs/Math.max(monetized,1))*25 +
+    (listPricedLive/APPS.length)*30 +
+    (withSubs/Math.max(listPricedLive,1))*25 +
     (rated/APPS.length)*15
   );
   const hs = $('healthScore'); if(hs) hs.textContent = score + '/100';
   const hb = $('healthBar');   if(hb) hb.style.width = score + '%';
   const hd = $('healthDetail');
-  if(hd) hd.textContent = `${live} live · ${monetized} monetized · ${withSubs} with subscribers · ${rated} rated`;
+  if(hd) hd.textContent = `${live} live · ${listPricedLive} with list $/mo (model) · ${withSubs} modeled subs · ${rated} rated`;
 
   // Maintenance schedule
   const ml = $('adminMaintList');

@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 4,
   "description": "Empty work-log cells are filled from this file on dashboard load (never overwrites existing text). Edit dates (YYYY-MM-DD) and app ids to match APPS.",
   "dates": {
     "2026-03-20": {
@@ -9,10 +9,15 @@
       "28": "NailGlow Studio — Tax in checkout, backup import/export, Stripe fields/policy; canonical /NailGlow_Studio; SaaS path aligned with BarberBook in docs."
     },
     "2026-03-21": {
+      "4": "Faith Journal — App Store live + AdMob; portfolio row updated (no fake $/mo until subscription tier). Overview action card updated.",
       "18": "EchoDynamo — Confirm latest main is deployed; /login should stay on full-page sign-in (not bounce to / with modal).",
       "20": "BradleyVS — Added data/work-log-seed.json: seeds empty work-log rows on load; README ‘Work log seed’ section. Keeps portfolio diary in sync with repo without overwriting edits.",
       "27": "BarberBook Pro — No code change this cycle; monitor Stripe/checkout stories vs portfolio row.",
       "28": "NailGlow Studio — No code change this cycle; same as BarberBook for next SaaS/backend step (see docs/SAAS_ARCHITECTURE.md)."
+    },
+    "2026-03-22": {
+      "3": "Kaden & Adelynn Space Adventures — App Store live; portfolio name + desc updated; price cleared until real IAP/ad monetization to model.",
+      "20": "BradleyVS — Portfolio health copy: no more ‘monetized’ for table $/mo; clarified as model pricing vs real MRR. Faith Journal: App Store + AdMob in catalog."
     }
   }
 }
