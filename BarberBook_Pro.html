@@ -154,15 +154,42 @@ td{padding:10px 14px;font-size:0.85rem;}
     <div style="display:flex;flex-direction:column;gap:0.75rem;">
       <div>
         <label style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#152a45;">Email</label>
-        <input id="login-email" type="email" placeholder="owner@barberbook.com" value="owner@barberbook.com" style="width:100%;background:#f2f5fb;border:1px solid #c1cedf;border-radius:8px;padding:10px 14px;font-size:0.9rem;margin-top:4px;outline:none;font-family:'Nunito',sans-serif;">
+        <input id="login-email" type="email" placeholder="your-owner@email.com" autocomplete="username" style="width:100%;background:#f2f5fb;border:1px solid #c1cedf;border-radius:8px;padding:10px 14px;font-size:0.9rem;margin-top:4px;outline:none;font-family:'Nunito',sans-serif;">
       </div>
       <div>
         <label style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#152a45;">Password</label>
-        <input id="login-pass" type="password" placeholder="••••••••" value="barberbook123" style="width:100%;background:#f2f5fb;border:1px solid #c1cedf;border-radius:8px;padding:10px 14px;font-size:0.9rem;margin-top:4px;outline:none;font-family:'Nunito',sans-serif;">
+        <input id="login-pass" type="password" placeholder="Your password" autocomplete="current-password" style="width:100%;background:#f2f5fb;border:1px solid #c1cedf;border-radius:8px;padding:10px 14px;font-size:0.9rem;margin-top:4px;outline:none;font-family:'Nunito',sans-serif;">
       </div>
       <div id="login-err" style="color:#dc2626;font-size:0.8rem;min-height:1rem;"></div>
       <button type="button" onclick="doLogin()" class="btn btn-primary" style="width:100%;padding:12px;border-radius:8px;">Sign In ✂️</button>
-      <div style="text-align:center;font-size:0.72rem;color:#5a6b82;">Default: owner@barberbook.com / barberbook123</div>
+      <div style="text-align:center;font-size:0.72rem;color:#5a6b82;">First visit? You’ll set an owner password on the prior screen. No default credentials are stored in this repository.</div>
+    </div>
+  </div>
+</div>
+
+<!-- First-run: owner password (avoids committing secrets; satisfies GitHub secret scanning) -->
+<div id="setupScreen" style="display:none;position:fixed;inset:0;background:linear-gradient(135deg,#0a1628,#1e3a5f);z-index:10001;align-items:center;justify-content:center;flex-direction:column;">
+  <div style="background:#ffffff;border-radius:20px;padding:2.5rem;width:min(400px,92vw);box-shadow:0 24px 60px rgba(0,0,0,0.35);">
+    <div style="text-align:center;margin-bottom:1.25rem;">
+      <div style="font-size:2rem;">🔐</div>
+      <div style="font-family:'Pacifico',cursive;font-size:1.5rem;color:#0a1628;">Welcome to BarberBook Pro</div>
+      <div style="font-size:0.8rem;color:#5a6b82;margin-top:0.5rem;">Create your <strong>owner password</strong> for this browser. It is saved only in local storage, not in GitHub.</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:0.65rem;">
+      <div>
+        <label style="font-size:0.7rem;font-weight:700;text-transform:uppercase;color:#152a45;">Owner email</label>
+        <input id="setup-email" type="email" readonly style="width:100%;background:#eef2f7;border:1px solid #c1cedf;border-radius:8px;padding:10px 14px;font-size:0.9rem;margin-top:4px;font-family:'Nunito',sans-serif;">
+      </div>
+      <div>
+        <label style="font-size:0.7rem;font-weight:700;text-transform:uppercase;color:#152a45;">New password (min 8 characters)</label>
+        <input id="setup-pass" type="password" autocomplete="new-password" style="width:100%;background:#f2f5fb;border:1px solid #c1cedf;border-radius:8px;padding:10px 14px;font-size:0.9rem;margin-top:4px;font-family:'Nunito',sans-serif;">
+      </div>
+      <div>
+        <label style="font-size:0.7rem;font-weight:700;text-transform:uppercase;color:#152a45;">Confirm password</label>
+        <input id="setup-pass2" type="password" autocomplete="new-password" style="width:100%;background:#f2f5fb;border:1px solid #c1cedf;border-radius:8px;padding:10px 14px;font-size:0.9rem;margin-top:4px;font-family:'Nunito',sans-serif;">
+      </div>
+      <div id="setup-err" style="color:#dc2626;font-size:0.8rem;min-height:1rem;"></div>
+      <button type="button" onclick="completeOwnerPasswordSetup()" class="btn btn-primary" style="width:100%;padding:12px;border-radius:8px;">Save &amp; continue to sign in</button>
     </div>
   </div>
 </div>
@@ -531,7 +558,7 @@ const STORE_KEY = 'barberbook_pro_v1';
 /** Default state (new installs + merge baseline). */
 const DEFAULT_BB = {
   users: [
-    { id: 1, name: 'Shop Owner', email: 'owner@barberbook.com', password: 'barberbook123', role: 'owner' }
+    { id: 1, name: 'Shop Owner', email: 'owner@example.com', password: null, role: 'owner' }
   ],
   appointments: [], clients: [], barbers: [], walkin: [],
   services: [
@@ -599,12 +626,55 @@ function saveDB() {
 
 loadDB();
 
+function needsOwnerPasswordSetup() {
+  return DB.users.some(u => u.role === 'owner' && (u.password == null || u.password === ''));
+}
+
 // ── LOGIN (match NailGlow: gate app until sign-in) ─────────────────────────────
 function showLogin() {
+  const setupEl = document.getElementById('setupScreen');
   const loginEl = document.getElementById('loginScreen');
   const appEl = document.getElementById('appScreen');
+  if (setupEl) setupEl.style.display = 'none';
   if (loginEl) loginEl.style.display = 'flex';
   if (appEl) appEl.style.display = 'none';
+}
+
+function showSetupScreen() {
+  const setupEl = document.getElementById('setupScreen');
+  const loginEl = document.getElementById('loginScreen');
+  const appEl = document.getElementById('appScreen');
+  const owner = DB.users.find(u => u.role === 'owner');
+  const em = document.getElementById('setup-email');
+  if (em && owner) em.value = owner.email;
+  if (setupEl) setupEl.style.display = 'flex';
+  if (loginEl) loginEl.style.display = 'none';
+  if (appEl) appEl.style.display = 'none';
+}
+
+function completeOwnerPasswordSetup() {
+  const p1 = document.getElementById('setup-pass').value;
+  const p2 = document.getElementById('setup-pass2').value;
+  const err = document.getElementById('setup-err');
+  if (err) err.textContent = '';
+  if (p1.length < 8) {
+    if (err) err.textContent = 'Use at least 8 characters.';
+    return;
+  }
+  if (p1 !== p2) {
+    if (err) err.textContent = 'Passwords do not match.';
+    return;
+  }
+  const owner = DB.users.find(u => u.role === 'owner');
+  if (!owner) {
+    if (err) err.textContent = 'No owner account found.';
+    return;
+  }
+  owner.password = p1;
+  saveDB();
+  document.getElementById('setup-pass').value = '';
+  document.getElementById('setup-pass2').value = '';
+  showLogin();
 }
 
 function hideLogin() {
@@ -618,8 +688,12 @@ function doLogin() {
   const email = document.getElementById('login-email').value.trim().toLowerCase();
   const pass = document.getElementById('login-pass').value;
   const errEl = document.getElementById('login-err');
-  const user = DB.users.find(u => u.email.toLowerCase() === email && u.password === pass);
-  if (!user) {
+  const user = DB.users.find(u => u.email.toLowerCase() === email);
+  if (!user || user.password == null || user.password === '') {
+    if (errEl) errEl.textContent = 'Invalid email or password, or complete owner setup first.';
+    return;
+  }
+  if (user.password !== pass) {
     if (errEl) errEl.textContent = 'Invalid email or password.';
     return;
   }
@@ -1099,6 +1173,12 @@ function importBarberBookData(ev) {
       }
       DB = merged;
       saveDB();
+      currentUser = null;
+      if (needsOwnerPasswordSetup()) {
+        showSetupScreen();
+      } else {
+        showLogin();
+      }
       loadSettingsForm();
       populateServiceSelects();
       populateBarberSelects();
@@ -1122,7 +1202,11 @@ function importBarberBookData(ev) {
 // INIT — login screen first (same pattern as NailGlow Studio)
 window.addEventListener('DOMContentLoaded', function() {
   try {
-    showLogin();
+    if (needsOwnerPasswordSetup()) {
+      showSetupScreen();
+    } else {
+      showLogin();
+    }
     const d = document.getElementById('appt-date');
     if (d) d.value = new Date().toISOString().split('T')[0];
   } catch (e) {
