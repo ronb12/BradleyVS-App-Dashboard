@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>My Budget Dashboard</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%230F2657'/%3E%3Cstop offset='100%25' style='stop-color:%231B4FBF'/%3E%3C/linearGradient%3E%3ClinearGradient id='gold' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23F59E0B'/%3E%3Cstop offset='100%25' style='stop-color:%23D97706'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='7' fill='url(%23bg)'/%3E%3Crect x='3' y='17' width='5' height='10' rx='1.5' fill='%2360A5FA'/%3E%3Crect x='10' y='13' width='5' height='14' rx='1.5' fill='%2334D399'/%3E%3Crect x='17' y='10' width='5' height='17' rx='1.5' fill='%2360A5FA' opacity='0.8'/%3E%3Ccircle cx='26' cy='8' r='5' fill='url(%23gold)'/%3E%3Ctext x='26' y='11.5' text-anchor='middle' font-family='Georgia,serif' font-size='7' font-weight='bold' fill='rgba(255,255,255,0.95)'%3E%24%3C/text%3E%3Cpolyline points='5.5,16 12.5,12 19.5,9' fill='none' stroke='rgba(255,255,255,0.7)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='5.5' cy='16' r='1.5' fill='%23fff' opacity='0.9'/%3E%3Ccircle cx='12.5' cy='12' r='1.5' fill='%23fff' opacity='0.9'/%3E%3Ccircle cx='19.5' cy='9' r='1.5' fill='%23fff' opacity='0.9'/%3E%3Crect x='3' y='29' width='26' height='1.5' rx='1' fill='url(%23gold)' opacity='0.7'/%3E%3C/svg%3E"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="Budget Dashboard"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0A1628;color:#E2E8F0;font-family:Georgia,serif;font-size:14px;min-height:100vh;transition:background .3s,color .3s}
+
+/* ── DARK MODE (default) ── */
+:root{
+  --navy:#0F2657;--blue:#1B4FBF;--lb:#3B82F6;--sky:#60A5FA;
+  --green:#059669;--red:#DC2626;--amber:#D97706;--gold:#F59E0B;
+  --border:#1E3A5F;--card:#111827;--mid:#0D1E3D;
+  --bg:#0A1628;--text:#E2E8F0;--subtext:#64748B;
+  --nav-bg:#0D1E3D;--hdr-bg:linear-gradient(135deg,#0F2657,#1B4FBF);
+  --td-alt:#0D1E3D22;--total-bg:#0F2657;
+  --wiz-bg:#0A1628;--wiz-card:#111827;--wiz-input-bg:#0D1E3D;
+  --wiz-border:#1E3A5F;--wiz-label:#94A3B8;
+  --input-bg:#0D1E3D;--input-border:#3B82F6;--input-color:#60A5FA;
+  --prog-bg:#1E3A5F;--insight-bg:#0D1E3D;
+  --cat-hdr:#0F2657;--grand-bg:#0F2657;
+}
+
+/* ── LIGHT MODE ── */
+body.light{
+  --navy:#E8F0FE;--blue:#1B4FBF;--lb:#1B4FBF;--sky:#1B4FBF;
+  --green:#059669;--red:#DC2626;--amber:#D97706;--gold:#D97706;
+  --border:#CBD5E1;--card:#FFFFFF;--mid:#F1F5F9;
+  --bg:#F8FAFF;--text:#1E293B;--subtext:#64748B;
+  --nav-bg:#EEF2FF;--hdr-bg:linear-gradient(135deg,#1B4FBF,#3B82F6);
+  --td-alt:#EEF2FF;--total-bg:#DBEAFE;
+  --wiz-bg:#F0F4FF;--wiz-card:#FFFFFF;--wiz-input-bg:#F8FAFF;
+  --wiz-border:#CBD5E1;--wiz-label:#475569;
+  --input-bg:#F1F5F9;--input-border:#3B82F6;--input-color:#1B4FBF;
+  --prog-bg:#CBD5E1;--insight-bg:#F1F5F9;
+  --cat-hdr:#DBEAFE;--grand-bg:#DBEAFE;
+}
+body.light{background:var(--bg);color:var(--text)}
+
+/* ── WIZARD ── */
+#wizard{position:fixed;inset:0;background:var(--wiz-bg);z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
+.wiz-box{background:var(--wiz-card);border:1px solid var(--wiz-border);border-radius:20px;padding:36px;width:100%;max-width:640px}
+.wiz-logo{font-size:36px;text-align:center;margin-bottom:8px}
+.wiz-title{font-size:22px;font-weight:bold;color:var(--text);text-align:center;margin-bottom:4px}
+.wiz-sub{font-size:12px;color:var(--subtext);text-align:center;letter-spacing:2px;margin-bottom:28px}
+.wiz-step{display:none}
+.wiz-step.active{display:block}
+.step-indicator{display:flex;justify-content:center;gap:8px;margin-bottom:28px}
+.step-dot{width:10px;height:10px;border-radius:50%;background:var(--wiz-border);transition:.3s}
+.step-dot.active{background:#3B82F6}
+.step-dot.done{background:#059669}
+.wiz-step-title{font-size:16px;font-weight:bold;color:#3B82F6;margin-bottom:6px}
+.wiz-step-sub{font-size:12px;color:var(--subtext);margin-bottom:20px}
+.wiz-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.wiz-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px}
+.wiz-field{display:flex;flex-direction:column;gap:5px}
+.wiz-field label{font-size:11px;color:var(--wiz-label);letter-spacing:1px;text-transform:uppercase}
+.wiz-field input{background:var(--wiz-input-bg);border:1px solid var(--wiz-border);border-radius:8px;color:var(--text);padding:10px 12px;font-size:14px;font-family:Georgia,serif;width:100%;transition:.2s}
+.wiz-field input:focus{outline:none;border-color:#3B82F6;box-shadow:0 0 0 3px #3B82F622}
+.wiz-field input.highlight{border-color:#F59E0B;background:#F59E0B11}
+.wiz-btn-row{display:flex;gap:10px;justify-content:space-between;margin-top:24px}
+.wiz-btn{padding:12px 24px;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;font-family:Georgia,serif;border:none;transition:.2s}
+.wiz-btn-primary{background:#1B4FBF;color:#fff}
+.wiz-btn-primary:hover{background:#2563EB}
+.wiz-btn-secondary{background:var(--mid);color:var(--subtext)}
+.wiz-btn-secondary:hover{background:var(--border)}
+.wiz-btn-success{background:#059669;color:#fff;flex:1}
+.wiz-btn-success:hover{background:#047857}
+.wiz-progress{height:4px;background:var(--wiz-border);border-radius:2px;margin-bottom:28px;overflow:hidden}
+.wiz-progress-fill{height:100%;background:linear-gradient(90deg,#1B4FBF,#3B82F6);border-radius:2px;transition:width .4s ease}
+.section-label{font-size:11px;color:#3B82F6;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;margin-top:16px;padding-bottom:6px;border-bottom:1px solid var(--wiz-border)}
+.wiz-summary{background:var(--mid);border-radius:12px;padding:16px;margin-bottom:20px}
+.wiz-summary-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--text)}
+.wiz-summary-row:last-child{border-bottom:none;font-weight:bold;font-size:15px;color:#D97706;margin-top:4px}
+.wiz-tip{background:#1B4FBF11;border:1px solid #1B4FBF33;border-radius:8px;padding:10px 14px;font-size:11px;color:#3B82F6;margin-bottom:16px}
+
+/* ── MAIN DASHBOARD ── */
+#app{display:none}
+header{background:var(--hdr-bg);padding:16px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+header h1{font-size:18px;color:#fff;letter-spacing:1px}
+header p{font-size:10px;color:#93C5FD;letter-spacing:2px;margin-top:2px}
+.toggles{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.toggle{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;cursor:pointer;border:1px solid var(--border);background:rgba(30,58,95,0.27);transition:.3s;user-select:none}
+.toggle.on{background:#1B4FBF22;border-color:var(--lb)}
+.track{width:32px;height:18px;border-radius:9px;background:#374151;position:relative;transition:.3s;flex-shrink:0}
+.toggle.on .track{background:var(--lb)}
+.dot{position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;transition:.3s}
+.toggle.on .dot{left:16px}
+.toggle-lbl{font-size:11px;font-weight:bold;color:rgba(255,255,255,.7)}
+.toggle.on .toggle-lbl{color:#fff}
+.toggle-sub{font-size:10px;color:rgba(255,255,255,.5)}
+.save-indicator{font-size:10px;padding:4px 10px;border-radius:6px;background:#05996922;color:#059669;border:1px solid #05996944;transition:opacity .5s;opacity:0}
+.save-indicator.show{opacity:1}
+.hdr-btns{display:flex;gap:8px;align-items:center}
+.hdr-btn{font-size:10px;padding:5px 10px;border-radius:6px;cursor:pointer;font-family:Georgia,serif;border:none}
+.btn-reset{background:rgba(220,38,38,.15);color:#fca5a5;border:1px solid rgba(220,38,38,.3)}
+.btn-edit{background:rgba(59,130,246,.2);color:#93C5FD;border:1px solid rgba(59,130,246,.3)}
+/* light mode toggle button in header */
+.btn-theme{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);font-size:13px;padding:5px 10px;border-radius:6px;cursor:pointer;font-family:Georgia,serif}
+nav{display:flex;gap:4px;padding:10px 24px;background:var(--nav-bg);border-bottom:1px solid var(--border);overflow-x:auto}
+.tab-btn{padding:7px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;color:var(--subtext);border:1px solid transparent;transition:.2s;white-space:nowrap;background:transparent;font-family:Georgia,serif}
+.tab-btn.active{background:var(--blue);color:#fff;border-color:var(--lb)}
+main{padding:20px 24px;max-width:1300px;margin:0 auto}
+.tab-content{display:none}
+.tab-content.active{display:block}
+.grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:16px}
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin-bottom:16px}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:16px}
+.card{background:var(--card);border-radius:14px;border:1px solid var(--border);padding:20px;transition:background .3s,border .3s}
+.kpi-card{border-top:3px solid var(--lb)}
+.kpi-label{font-size:11px;color:var(--subtext);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+.kpi-value{font-size:28px;font-weight:bold;font-family:Georgia,serif}
+.kpi-sub{font-size:11px;color:var(--subtext);margin-top:4px}
+.prog-bar{height:6px;border-radius:3px;background:var(--prog-bg);overflow:hidden;margin-top:8px}
+.prog-fill{height:100%;border-radius:3px;transition:width .6s}
+.section-title{font-size:15px;font-weight:bold;color:#3B82F6;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+table{width:100%;border-collapse:collapse}
+th{padding:8px 10px;text-align:left;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--subtext);border-bottom:1px solid var(--border);font-family:Georgia,serif}
+td{padding:9px 10px;border-bottom:1px solid var(--border);font-size:12px;color:var(--text)}
+tr:nth-child(even) td{background:var(--td-alt)}
+.total-row td{background:var(--total-bg)!important;font-weight:bold;font-size:13px}
+input.edit{background:var(--input-bg);border:1px solid var(--input-border);border-radius:6px;color:var(--input-color);padding:3px 7px;width:90px;font-size:13px;font-family:Georgia,serif;text-align:right}
+input.edit:focus{outline:none;border-color:var(--lb)}
+.pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:bold}
+.pill-green{background:#05996922;color:#059669;border:1px solid #05996944}
+.pill-amber{background:#D9770622;color:#D97706;border:1px solid #D9770644}
+.pill-blue{background:#3B82F622;color:#3B82F6;border:1px solid #3B82F644}
+.action-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.action-card{display:flex;gap:10px;padding:12px;border-radius:10px;background:var(--mid)}
+.cat-header{display:flex;justify-content:space-between;padding:7px 10px;background:var(--cat-hdr);border-radius:8px 8px 0 0;margin-top:14px}
+.cat-title{font-weight:bold;color:#3B82F6;font-size:13px}
+.cat-total{color:var(--amber);font-weight:bold}
+.grand-total{display:flex;justify-content:flex-end;padding:12px;background:var(--grand-bg);border-radius:8px;margin-top:8px}
+.grand-total span{font-weight:bold;color:var(--gold);font-size:15px}
+.chart-wrap{position:relative;height:200px}
+.deploy-item{display:flex;gap:10px;align-items:center;margin-bottom:8px;padding:9px 12px;border-radius:8px;background:var(--mid)}
+.proj-item{padding:14px;border-radius:10px;background:var(--mid);text-align:center}
+.proj-label{font-size:10px;color:var(--subtext);margin-bottom:6px;letter-spacing:1px}
+.proj-value{font-size:18px;font-weight:bold}
+.proj-note{font-size:10px;color:var(--subtext);margin-top:4px}
+footer{text-align:center;padding:14px;color:var(--subtext);font-size:11px;border-top:1px solid var(--border);margin-top:16px}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════ SETUP WIZARD ══════════════════ -->
+<div id="wizard">
+  <div class="wiz-box">
+    <div class="wiz-logo">💰</div>
+    <div class="wiz-title">Personal Budget Dashboard</div>
+    <div class="wiz-sub">FREE · PRIVATE · SAVES TO YOUR BROWSER</div>
+    <div class="wiz-progress"><div class="wiz-progress-fill" id="wizProgress" style="width:20%"></div></div>
+    <div class="step-indicator">
+      <div class="step-dot active" id="sd0"></div>
+      <div class="step-dot" id="sd1"></div>
+      <div class="step-dot" id="sd2"></div>
+      <div class="step-dot" id="sd3"></div>
+      <div class="step-dot" id="sd4"></div>
+    </div>
+
+    <!-- STEP 0: WELCOME -->
+    <div class="wiz-step active" id="step0">
+      <div class="wiz-step-title">👋 Welcome! Let's set up your budget.</div>
+      <div class="wiz-step-sub">This takes about 2 minutes. Your data stays 100% private on your device — nothing is sent anywhere.</div>
+      <div class="wiz-tip">✅ All your edits save automatically to your browser<br>✅ Works completely offline after setup<br>✅ You can update any number anytime</div>
+      <div class="wiz-field" style="margin-bottom:16px">
+        <label>Your First Name</label>
+        <input type="text" id="wiz_name" placeholder="e.g. John" />
+      </div>
+      <div class="wiz-btn-row">
+        <div></div>
+        <button class="wiz-btn wiz-btn-primary" onclick="wizNext(1)">Get Started →</button>
+      </div>
+    </div>
+
+    <!-- STEP 1: INCOME -->
+    <div class="wiz-step" id="step1">
+      <div class="wiz-step-title">💰 Step 1 of 4 — Your Monthly Income</div>
+      <div class="wiz-step-sub">Enter your monthly take-home amounts. Leave blank if not applicable.</div>
+      <div class="section-label">Primary Income</div>
+      <div class="wiz-grid">
+        <div class="wiz-field"><label>Income Source 1 Name</label><input type="text" id="inc1_name" placeholder="e.g. Salary" value="Salary"/></div>
+        <div class="wiz-field"><label>Monthly Amount ($)</label><input type="number" id="inc1_val" placeholder="0" /></div>
+        <div class="wiz-field"><label>Income Source 2 Name</label><input type="text" id="inc2_name" placeholder="e.g. Spouse Income" value="Spouse Income"/></div>
+        <div class="wiz-field"><label>Monthly Amount ($)</label><input type="number" id="inc2_val" placeholder="0" /></div>
+        <div class="wiz-field"><label>Income Source 3 Name</label><input type="text" id="inc3_name" placeholder="e.g. Side Income" value="Side Income"/></div>
+        <div class="wiz-field"><label>Monthly Amount ($)</label><input type="number" id="inc3_val" placeholder="0" /></div>
+        <div class="wiz-field"><label>Income Source 4 Name</label><input type="text" id="inc4_name" placeholder="e.g. Other" value="Other"/></div>
+        <div class="wiz-field"><label>Monthly Amount ($)</label><input type="number" id="inc4_val" placeholder="0" /></div>
+      </div>
+      <div class="wiz-btn-row">
+        <button class="wiz-btn wiz-btn-secondary" onclick="wizNext(0)">← Back</button>
+        <button class="wiz-btn wiz-btn-primary" onclick="wizNext(2)">Next: Expenses →</button>
+      </div>
+    </div>
+
+    <!-- STEP 2: EXPENSES -->
+    <div class="wiz-step" id="step2">
+      <div class="wiz-step-title">💳 Step 2 of 4 — Monthly Expenses</div>
+      <div class="wiz-step-sub">Enter your typical monthly amounts. You can edit these anytime in the dashboard.</div>
+      <div class="section-label">Housing & Transport</div>
+      <div class="wiz-grid">
+        <div class="wiz-field"><label>Rent / Mortgage</label><input type="number" id="e_housing" placeholder="0"/></div>
+        <div class="wiz-field"><label>Car Payment</label><input type="number" id="e_car" placeholder="0"/></div>
+        <div class="wiz-field"><label>Car Insurance</label><input type="number" id="e_carins" placeholder="0"/></div>
+        <div class="wiz-field"><label>Gas / Fuel</label><input type="number" id="e_gas" placeholder="0"/></div>
+      </div>
+      <div class="section-label">Bills & Utilities</div>
+      <div class="wiz-grid">
+        <div class="wiz-field"><label>Electric / Power</label><input type="number" id="e_power" placeholder="0"/></div>
+        <div class="wiz-field"><label>Internet</label><input type="number" id="e_internet" placeholder="0"/></div>
+        <div class="wiz-field"><label>Phone</label><input type="number" id="e_phone" placeholder="0"/></div>
+        <div class="wiz-field"><label>Water / Gas Utilities</label><input type="number" id="e_water" placeholder="0"/></div>
+      </div>
+      <div class="section-label">Living & Subscriptions</div>
+      <div class="wiz-grid">
+        <div class="wiz-field"><label>Groceries</label><input type="number" id="e_groceries" placeholder="0"/></div>
+        <div class="wiz-field"><label>Dining Out</label><input type="number" id="e_dining" placeholder="0"/></div>
+        <div class="wiz-field"><label>Streaming Services</label><input type="number" id="e_streaming" placeholder="0"/></div>
+        <div class="wiz-field"><label>Insurance (Health/Life)</label><input type="number" id="e_insurance" placeholder="0"/></div>
+        <div class="wiz-field"><label>Debt Payments</label><input type="number" id="e_debt" placeholder="0"/></div>
+        <div class="wiz-field"><label>Other / Miscellaneous</label><input type="number" id="e_other" placeholder="0"/></div>
+      </div>
+      <div class="wiz-btn-row">
+        <button class="wiz-btn wiz-btn-secondary" onclick="wizNext(1)">← Back</button>
+        <button class="wiz-btn wiz-btn-primary" onclick="wizNext(3)">Next: Assets →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: ASSETS & DEBT -->
+    <div class="wiz-step" id="step3">
+      <div class="wiz-step-title">🏦 Step 3 of 4 — Assets & Debts</div>
+      <div class="wiz-step-sub">Approximate values are fine. This helps calculate your net worth.</div>
+      <div class="section-label">Assets (What You Own)</div>
+      <div class="wiz-grid">
+        <div class="wiz-field"><label>Home Value ($)</label><input type="number" id="a_home" placeholder="0"/></div>
+        <div class="wiz-field"><label>Mortgage Balance ($)</label><input type="number" id="a_mortgage" placeholder="0"/></div>
+        <div class="wiz-field"><label>Vehicle Value ($)</label><input type="number" id="a_car" placeholder="0"/></div>
+        <div class="wiz-field"><label>401k / Retirement ($)</label><input type="number" id="a_retirement" placeholder="0"/></div>
+        <div class="wiz-field"><label>Savings / Cash ($)</label><input type="number" id="a_savings" placeholder="0"/></div>
+        <div class="wiz-field"><label>Other Assets ($)</label><input type="number" id="a_other" placeholder="0"/></div>
+      </div>
+      <div class="section-label">Debts (What You Owe)</div>
+      <div class="wiz-grid">
+        <div class="wiz-field"><label>Credit Card Debt ($)</label><input type="number" id="d_cc" placeholder="0"/></div>
+        <div class="wiz-field"><label>Student Loans ($)</label><input type="number" id="d_student" placeholder="0"/></div>
+        <div class="wiz-field"><label>Auto Loan Balance ($)</label><input type="number" id="d_auto" placeholder="0"/></div>
+        <div class="wiz-field"><label>Other Debt ($)</label><input type="number" id="d_other" placeholder="0"/></div>
+      </div>
+      <div class="wiz-btn-row">
+        <button class="wiz-btn wiz-btn-secondary" onclick="wizNext(2)">← Back</button>
+        <button class="wiz-btn wiz-btn-primary" onclick="wizNext(4)">Next: Review →</button>
+      </div>
+    </div>
+
+    <!-- STEP 4: REVIEW -->
+    <div class="wiz-step" id="step4">
+      <div class="wiz-step-title">✅ Step 4 of 4 — Review & Launch</div>
+      <div class="wiz-step-sub">Here's your financial snapshot. Everything can be edited in the dashboard.</div>
+      <div class="wiz-summary" id="wizSummary"></div>
+      <div class="wiz-tip" id="wizTip"></div>
+      <div class="wiz-btn-row">
+        <button class="wiz-btn wiz-btn-secondary" onclick="wizNext(3)">← Back</button>
+        <button class="wiz-btn wiz-btn-success" onclick="launchDashboard()">🚀 Launch My Dashboard</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ MAIN DASHBOARD ══════════════════ -->
+<div id="app">
+<header>
+  <div>
+    <h1>💰 <span id="appTitle">My Budget Dashboard</span></h1>
+    <p id="appSub">PERSONAL FINANCE · MARCH 2026</p>
+  </div>
+  <div class="toggles">
+    <span class="save-indicator" id="saveIndicator">✓ Saved</span>
+    <div class="hdr-btns">
+      <button class="btn-theme" id="themeBtn" onclick="toggleTheme()">☀️ Light Mode</button>
+      <button class="hdr-btn btn-edit" onclick="reRunWizard()">✏️ Edit Setup</button>
+      <button class="hdr-btn btn-reset" onclick="resetAll()">↺ Reset</button>
+    </div>
+  </div>
+</header>
+
+<nav>
+  <button class="tab-btn active" onclick="showTab('dash',this)">📊 Dashboard</button>
+  <button class="tab-btn" onclick="showTab('income',this)">💰 Income</button>
+  <button class="tab-btn" onclick="showTab('expenses',this)">💳 Expenses</button>
+  <button class="tab-btn" onclick="showTab('networth',this)">🏆 Net Worth</button>
+  <button class="tab-btn" onclick="showTab('projections',this)">📈 Projections</button>
+</nav>
+
+<main>
+
+<!-- DASHBOARD -->
+<div id="dash" class="tab-content active">
+  <div class="grid-4" id="dashKpis"></div>
+  <div class="grid-2">
+    <div class="card"><div class="section-title">Income Breakdown</div><div class="chart-wrap"><canvas id="pieChart"></canvas></div></div>
+    <div class="card"><div class="section-title">Expenses by Category</div><div class="chart-wrap"><canvas id="barChart"></canvas></div></div>
+  </div>
+  <div class="card" id="insightCard">
+    <div class="section-title">💡 Your Budget Insights</div>
+    <div id="insightList"></div>
+  </div>
+</div>
+
+<!-- INCOME -->
+<div id="income" class="tab-content">
+  <div class="grid-3" id="incomeKpis"></div>
+  <div class="card">
+    <div class="section-title">Income Sources — Click to Edit</div>
+    <table><thead><tr><th>Source</th><th>Monthly</th><th>Annual</th><th>% of Total</th></tr></thead>
+    <tbody id="incomeBody"></tbody></table>
+  </div>
+</div>
+
+<!-- EXPENSES -->
+<div id="expenses" class="tab-content">
+  <div class="grid-3" id="expKpis"></div>
+  <div class="card">
+    <div class="section-title">💡 Click any amount to edit — changes save automatically</div>
+    <div id="expenseTable"></div>
+    <div class="grand-total"><span id="expGrandTotal"></span></div>
+  </div>
+</div>
+
+<!-- NET WORTH -->
+<div id="networth" class="tab-content">
+  <div class="grid-3" id="nwKpis"></div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="section-title">Assets — Click to Edit</div>
+      <table><thead><tr><th>Asset</th><th>Value</th><th>% of Total</th></tr></thead><tbody id="assetBody"></tbody></table>
+    </div>
+    <div class="card">
+      <div class="section-title">Debts — Click to Edit</div>
+      <table><thead><tr><th>Debt</th><th>Balance</th><th>% of Total</th></tr></thead><tbody id="debtBody"></tbody></table>
+    </div>
+  </div>
+</div>
+
+<!-- PROJECTIONS -->
+<div id="projections" class="tab-content">
+  <div class="grid-3" id="projKpis"></div>
+  <div class="card" style="margin-bottom:14px">
+    <div class="section-title">10-Year Net Worth Projection (7% annual growth)</div>
+    <div class="chart-wrap" style="height:240px"><canvas id="projChart"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="section-title">📈 Investment Return Scenarios on Your Savings</div>
+    <table><thead><tr><th>Investment Type</th><th>Annual Return</th><th>Monthly Income</th><th>Annual Income</th></tr></thead>
+    <tbody id="investBody"></tbody></table>
+  </div>
+</div>
+
+</main>
+<footer id="appFooter">Personal Budget Dashboard · All edits save automatically · Click "Edit Setup" to update your information</footer>
+</div>
+
+<script>
+const STORE = 'budgetDash_v2';
+const $ = id => document.getElementById(id);
+const fmt = n => '$'+(Math.round(n||0)).toLocaleString();
+const fmt2 = n => '$'+(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const pct = (a,b) => b ? (a/b*100).toFixed(1)+'%' : '0%';
+const COLORS = ["#3B82F6","#1B4FBF","#0891B2","#F59E0B","#059669","#DC2626","#8B5CF6","#EC4899"];
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let S = {};
+
+function defaultState(w) {
+  const n = v => parseFloat(v)||0;
+  return {
+    name: w.name || 'My',
+    income: [
+      {name: w.inc1_name||'Income 1', val: n(w.inc1_val)},
+      {name: w.inc2_name||'Income 2', val: n(w.inc2_val)},
+      {name: w.inc3_name||'Income 3', val: n(w.inc3_val)},
+      {name: w.inc4_name||'Income 4', val: n(w.inc4_val)},
+    ].filter(i=>i.val>0),
+    expenses: {
+      'Rent/Mortgage':  n(w.e_housing),
+      'Car Payment':    n(w.e_car),
+      'Car Insurance':  n(w.e_carins),
+      'Gas/Fuel':       n(w.e_gas),
+      'Power/Electric': n(w.e_power),
+      'Internet':       n(w.e_internet),
+      'Phone':          n(w.e_phone),
+      'Water/Utilities':n(w.e_water),
+      'Groceries':      n(w.e_groceries),
+      'Dining Out':     n(w.e_dining),
+      'Streaming':      n(w.e_streaming),
+      'Insurance':      n(w.e_insurance),
+      'Debt Payments':  n(w.e_debt),
+      'Miscellaneous':  n(w.e_other),
+    },
+    assets: {
+      'Home Value':     n(w.a_home),
+      'Retirement/401k':n(w.a_retirement),
+      'Vehicle Value':  n(w.a_car),
+      'Savings/Cash':   n(w.a_savings),
+      'Other Assets':   n(w.a_other),
+    },
+    debts: {
+      'Mortgage Balance':n(w.a_mortgage),
+      'Credit Cards':   n(w.d_cc),
+      'Student Loans':  n(w.d_student),
+      'Auto Loan':      n(w.d_auto),
+      'Other Debt':     n(w.d_other),
+    }
+  };
+}
+
+function save() {
+  localStorage.setItem(STORE, JSON.stringify(S));
+  const el=$('saveIndicator'); el.classList.add('show');
+  clearTimeout(save._t); save._t=setTimeout(()=>el.classList.remove('show'),2000);
+}
+
+function load() {
+  try {
+    const d=localStorage.getItem(STORE);
+    return d ? JSON.parse(d) : null;
+  } catch(e){ return null; }
+}
+
+// ── COMPUTED ──────────────────────────────────────────────────────────────────
+const totalIncome = () => (S.income||[]).reduce((a,i)=>a+i.val,0);
+const totalExp = () => Object.values(S.expenses||{}).reduce((a,b)=>a+b,0);
+const cashflow = () => totalIncome()-totalExp();
+const totalAssets = () => Object.values(S.assets||{}).reduce((a,b)=>a+b,0);
+const totalDebts = () => Object.values(S.debts||{}).reduce((a,b)=>a+b,0);
+const netWorth = () => totalAssets()-totalDebts();
+
+// ── WIZARD LOGIC ──────────────────────────────────────────────────────────────
+let wizStep=0;
+function wizNext(step) {
+  $(`step${wizStep}`).classList.remove('active');
+  $(`sd${wizStep}`).classList.remove('active');
+  $(`sd${wizStep}`).classList.add('done');
+  wizStep=step;
+  $(`step${step}`).classList.add('active');
+  $(`sd${step}`).classList.add('active');
+  $(`sd${step}`).classList.remove('done');
+  const pcts=[20,40,60,80,100];
+  $('wizProgress').style.width=pcts[step]+'%';
+  if(step===4) buildWizSummary();
+}
+
+function buildWizSummary() {
+  const n=v=>parseFloat(v)||0;
+  const inc=n($('inc1_val').value)+n($('inc2_val').value)+n($('inc3_val').value)+n($('inc4_val').value);
+  const exp=n($('e_housing').value)+n($('e_car').value)+n($('e_carins').value)+n($('e_gas').value)+n($('e_power').value)+n($('e_internet').value)+n($('e_phone').value)+n($('e_water').value)+n($('e_groceries').value)+n($('e_dining').value)+n($('e_streaming').value)+n($('e_insurance').value)+n($('e_debt').value)+n($('e_other').value);
+  const assets=n($('a_home').value)+n($('a_retirement').value)+n($('a_car').value)+n($('a_savings').value)+n($('a_other').value);
+  const debts=n($('a_mortgage').value)+n($('d_cc').value)+n($('d_student').value)+n($('d_auto').value)+n($('d_other').value);
+  const cf=inc-exp; const nw=assets-debts;
+  const name=$('wiz_name').value||'Friend';
+  $('wizSummary').innerHTML=`
+    <div class="wiz-summary-row"><span>Monthly Income</span><span style="color:#3B82F6;font-weight:bold">${fmt2(inc)}</span></div>
+    <div class="wiz-summary-row"><span>Monthly Expenses</span><span style="color:#D97706;font-weight:bold">${fmt2(exp)}</span></div>
+    <div class="wiz-summary-row"><span>Total Assets</span><span style="color:#059669;font-weight:bold">${fmt(assets)}</span></div>
+    <div class="wiz-summary-row"><span>Total Debts</span><span style="color:#DC2626;font-weight:bold">${fmt(debts)}</span></div>
+    <div class="wiz-summary-row"><span>Net Worth</span><span style="color:${nw>=0?'#059669':'#DC2626'};font-weight:bold">${fmt(nw)}</span></div>
+    <div class="wiz-summary-row"><span>Monthly Cashflow</span><span style="color:${cf>=0?'#059669':'#DC2626'}">${fmt2(cf)}</span></div>`;
+  const tip = cf<0 ? `⚠️ ${name}, your expenses exceed income by ${fmt(Math.abs(cf))}/month. The dashboard will help you identify where to cut.`
+    : cf<500 ? `💡 ${name}, you have ${fmt2(cf)}/month left over. Small, consistent savings will add up quickly!`
+    : `🎉 Great start, ${name}! You have ${fmt2(cf)}/month in positive cashflow. Let's grow that further!`;
+  $('wizTip').textContent=tip;
+}
+
+function launchDashboard() {
+  const wiz={
+    name:$('wiz_name').value||'My',
+    inc1_name:$('inc1_name').value,inc1_val:$('inc1_val').value,
+    inc2_name:$('inc2_name').value,inc2_val:$('inc2_val').value,
+    inc3_name:$('inc3_name').value,inc3_val:$('inc3_val').value,
+    inc4_name:$('inc4_name').value,inc4_val:$('inc4_val').value,
+    e_housing:$('e_housing').value,e_car:$('e_car').value,e_carins:$('e_carins').value,e_gas:$('e_gas').value,
+    e_power:$('e_power').value,e_internet:$('e_internet').value,e_phone:$('e_phone').value,e_water:$('e_water').value,
+    e_groceries:$('e_groceries').value,e_dining:$('e_dining').value,e_streaming:$('e_streaming').value,
+    e_insurance:$('e_insurance').value,e_debt:$('e_debt').value,e_other:$('e_other').value,
+    a_home:$('a_home').value,a_retirement:$('a_retirement').value,a_car:$('a_car').value,
+    a_savings:$('a_savings').value,a_other:$('a_other').value,a_mortgage:$('a_mortgage').value,
+    d_cc:$('d_cc').value,d_student:$('d_student').value,d_auto:$('d_auto').value,d_other:$('d_other').value
+  };
+  S=defaultState(wiz);
+  save();
+  startApp();
+}
+
+function startApp() {
+  $('wizard').style.display='none';
+  $('app').style.display='block';
+  $('appTitle').textContent=`${S.name}'s Budget Dashboard`;
+  renderAll();
+  renderExpenses();
+  renderAssets();
+  setTimeout(()=>{buildPie();buildBar();},80);
+}
+
+function reRunWizard() {
+  $('app').style.display='none';
+  $('wizard').style.display='flex';
+  wizStep=0;
+  document.querySelectorAll('.wiz-step').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.step-dot').forEach(d=>{d.classList.remove('active','done');});
+  $('step0').classList.add('active');
+  $('sd0').classList.add('active');
+  $('wizProgress').style.width='20%';
+  if(S.name) $('wiz_name').value=S.name;
+}
+
+function resetAll() {
+  if(!confirm('Reset all data and start over?')) return;
+  localStorage.removeItem(STORE);
+  location.reload();
+}
+
+// ── CHARTS ────────────────────────────────────────────────────────────────────
+let pieInst,barInst,projInst;
+function buildPie(){
+  if(pieInst)pieInst.destroy();
+  const data=(S.income||[]).filter(i=>i.val>0);
+  if(!data.length){pieInst=null;return;}
+  pieInst=new Chart($('pieChart'),{type:'pie',data:{labels:data.map(i=>i.name),datasets:[{data:data.map(i=>i.val),backgroundColor:COLORS,borderColor:'#0A1628',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#94A3B8',font:{size:10},boxWidth:12}},tooltip:{callbacks:{label:c=>`${c.label}: ${fmt(c.raw)}`}}}}});
+}
+function buildBar(){
+  if(barInst)barInst.destroy();
+  const exp=S.expenses||{};
+  const cats=[
+    {name:"Housing",val:(exp['Rent/Mortgage']||0)},
+    {name:"Transport",val:(exp['Car Payment']||0)+(exp['Car Insurance']||0)+(exp['Gas/Fuel']||0)},
+    {name:"Utilities",val:(exp['Power/Electric']||0)+(exp['Internet']||0)+(exp['Phone']||0)+(exp['Water/Utilities']||0)},
+    {name:"Food",val:(exp['Groceries']||0)+(exp['Dining Out']||0)},
+    {name:"Subs/Ins",val:(exp['Streaming']||0)+(exp['Insurance']||0)},
+    {name:"Debt",val:(exp['Debt Payments']||0)},
+    {name:"Other",val:(exp['Miscellaneous']||0)},
+  ].filter(c=>c.val>0);
+  barInst=new Chart($('barChart'),{type:'bar',data:{labels:cats.map(c=>c.name),datasets:[{data:cats.map(c=>c.val),backgroundColor:COLORS,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${fmt(c.raw)}/mo`}}},scales:{x:{ticks:{color:'#64748B',font:{size:10}},grid:{display:false}},y:{ticks:{color:'#64748B',font:{size:10},callback:v=>`$${(v/1000).toFixed(0)}k`},grid:{color:'#1E3A5F'}}}}});
+}
+function buildProj(){
+  if(projInst)projInst.destroy();
+  const base=netWorth(); const cf=cashflow();
+  const labels=[],data=[];
+  for(let i=0;i<=10;i++){labels.push(2026+i);data.push(Math.round(base*Math.pow(1.07,i)+(Math.max(cf,0)*12*i*0.4)*Math.pow(1.07,i/2)));}
+  projInst=new Chart($('projChart'),{type:'line',data:{labels,datasets:[{label:'Net Worth',data,borderColor:'#3B82F6',backgroundColor:'rgba(59,130,246,0.15)',fill:true,tension:0.4,pointBackgroundColor:'#3B82F6',pointRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`Net Worth: ${fmt(c.raw)}`}}},scales:{x:{ticks:{color:'#64748B',font:{size:11}},grid:{color:'#1E3A5F'}},y:{ticks:{color:'#64748B',font:{size:11},callback:v=>`$${(v/1000000).toFixed(2)}M`},grid:{color:'#1E3A5F'}}}}});
+}
+
+// ── KPIs ──────────────────────────────────────────────────────────────────────
+function kpiHTML(label,value,color,sub){
+  const p=Math.min(Math.abs(value)/Math.max(totalIncome()||1,1)*100,100);
+  return `<div class="card kpi-card" style="border-top-color:${color}"><div class="kpi-label">${label}</div><div class="kpi-value" style="color:${color}">${fmt(value)}</div>${sub?`<div class="kpi-sub">${sub}</div>`:''}<div class="prog-bar"><div class="prog-fill" style="width:${p}%;background:${color}"></div></div></div>`;
+}
+function renderDashKpis(){
+  const cf=cashflow();
+  $('dashKpis').innerHTML=kpiHTML('Monthly Income',totalIncome(),'#3B82F6',fmt(totalIncome()*12)+'/yr')+kpiHTML('Monthly Expenses',totalExp(),'#D97706',pct(totalExp(),totalIncome())+' of income')+kpiHTML('Net Cashflow',cf,cf>=0?'#059669':'#DC2626',fmt(cf*12)+'/yr')+kpiHTML('Net Worth',netWorth(),'#F59E0B');
+}
+function renderIncomeKpis(){
+  const ti=totalIncome();
+  $('incomeKpis').innerHTML=kpiHTML('Monthly Income',ti,'#3B82F6')+kpiHTML('Annual Income',ti*12,'#0891B2')+kpiHTML('10-Year Total',ti*12*10,'#F59E0B');
+  const tbody=$('incomeBody'); tbody.innerHTML='';
+  (S.income||[]).forEach((inc,i)=>{
+    const row=tbody.insertRow(); row.style.background=i%2===0?'#0D1E3D22':'transparent';
+    row.innerHTML=`<td style="font-weight:bold">${inc.name}</td>
+      <td><input class="edit" type="number" value="${inc.val}" onchange="updateIncome(${i},this.value)"/></td>
+      <td style="color:#60A5FA">${fmt(inc.val*12)}</td>
+      <td><div class="prog-bar"><div class="prog-fill" style="width:${pct(inc.val,ti)};background:#3B82F6"></div></div><div style="font-size:10px;color:#64748B;margin-top:3px">${pct(inc.val,ti)}</div></td>`;
+  });
+  const tr=tbody.insertRow(); tr.className='total-row';
+  tr.innerHTML=`<td style="color:#F59E0B">TOTAL</td><td style="color:#F59E0B">${fmt2(ti)}</td><td style="color:#F59E0B">${fmt(ti*12)}</td><td></td>`;
+}
+function renderExpKpis(){
+  const cf=cashflow();
+  $('expKpis').innerHTML=kpiHTML('Total Monthly',totalExp(),'#D97706')+kpiHTML('Annual Total',totalExp()*12,'#DC2626')+kpiHTML('Net Cashflow',cf,cf>=0?'#059669':'#DC2626');
+}
+function renderNwKpis(){
+  $('nwKpis').innerHTML=kpiHTML('Net Worth',netWorth(),'#F59E0B')+kpiHTML('Total Assets',totalAssets(),'#059669')+kpiHTML('Total Debts',totalDebts(),'#DC2626');
+}
+function renderProjKpis(){
+  const base=netWorth(),cf=cashflow();
+  const y5=Math.round(base*Math.pow(1.07,5)+(Math.max(cf,0)*12*5*0.4)*Math.pow(1.07,2.5));
+  const y10=Math.round(base*Math.pow(1.07,10)+(Math.max(cf,0)*12*10*0.4)*Math.pow(1.07,5));
+  $('projKpis').innerHTML=kpiHTML('5-Year Net Worth',y5,'#3B82F6')+kpiHTML('10-Year Net Worth',y10,'#059669')+kpiHTML('Monthly Cashflow',cf,cf>=0?'#F59E0B':'#DC2626');
+  const inv=$('investBody'); if(!inv)return; inv.innerHTML='';
+  const savings=totalAssets()*0.1;
+  [{type:"High-Yield Savings",ret:0.045},{type:"Index Fund (S&P 500)",ret:0.07},{type:"Balanced Portfolio",ret:0.06},{type:"Bonds",ret:0.045},{type:"Dividends",ret:0.04}].forEach((r,i)=>{
+    const ann=savings*r.ret,mo=ann/12;
+    const tr=inv.insertRow(); tr.style.background=i%2===0?'#0D1E3D22':'transparent';
+    tr.innerHTML=`<td>${r.type}</td><td style="color:#3B82F6">${(r.ret*100).toFixed(1)}%</td><td style="color:#F59E0B;font-weight:bold">${fmt2(mo)}</td><td style="color:#059669">${fmt(ann)}</td>`;
+  });
+}
+
+// ── EXPENSES TABLE ────────────────────────────────────────────────────────────
+function renderExpenses(){
+  const exp=S.expenses||{};
+  const cats={
+    '🏠 Housing':['Rent/Mortgage'],
+    '🚗 Transport':['Car Payment','Car Insurance','Gas/Fuel'],
+    '💡 Utilities':['Power/Electric','Internet','Phone','Water/Utilities'],
+    '🛒 Food & Living':['Groceries','Dining Out'],
+    '📱 Subscriptions':['Streaming','Insurance'],
+    '💳 Debt & Other':['Debt Payments','Miscellaneous']
+  };
+  let html='';
+  Object.entries(cats).forEach(([cat,keys])=>{
+    const catTotal=keys.reduce((a,k)=>a+(exp[k]||0),0);
+    html+=`<div class="cat-header"><span class="cat-title">${cat}</span><span class="cat-total">${fmt2(catTotal)}/mo</span></div><table><tbody>`;
+    keys.forEach((k,i)=>{
+      const val=exp[k]||0, bar=Math.min(val/Math.max(totalIncome(),1)*100*8,100);
+      html+=`<tr style="background:${i%2===0?'#0D1E3D22':'transparent'}">
+        <td style="width:40%">${k}</td>
+        <td><input class="edit" type="number" value="${val}" onchange="updateExp('${k}',this.value)"/></td>
+        <td style="color:#64748B">${fmt(val*12)}/yr</td>
+        <td style="min-width:100px"><div class="prog-bar"><div class="prog-fill" style="width:${bar}%;background:#3B82F6"></div></div></td>
+      </tr>`;
+    });
+    html+=`</tbody></table>`;
+  });
+  $('expenseTable').innerHTML=html;
+  $('expGrandTotal').textContent=`TOTAL: ${fmt2(totalExp())}/mo · ${fmt(totalExp()*12)}/yr`;
+}
+
+// ── ASSETS & DEBTS ────────────────────────────────────────────────────────────
+function renderAssets(){
+  const ta=totalAssets(), td2=totalDebts();
+  // Assets
+  const ab=$('assetBody'); ab.innerHTML='';
+  Object.entries(S.assets||{}).forEach(([k,v],i)=>{
+    const tr=ab.insertRow(); tr.style.background=i%2===0?'#0D1E3D22':'transparent';
+    const p=ta?v/ta*100:0;
+    tr.innerHTML=`<td style="font-weight:bold">${k}</td>
+      <td><input class="edit" type="number" value="${v}" onchange="updateAsset('${k}',this.value)"/></td>
+      <td><div class="prog-bar"><div class="prog-fill" style="width:${p}%;background:#059669"></div></div><div style="font-size:10px;color:#64748B;margin-top:3px">${p.toFixed(1)}%</div></td>`;
+  });
+  const at=ab.insertRow(); at.className='total-row';
+  at.innerHTML=`<td style="color:#059669">TOTAL ASSETS</td><td style="color:#059669">${fmt(ta)}</td><td></td>`;
+  // Debts
+  const db=$('debtBody'); db.innerHTML='';
+  Object.entries(S.debts||{}).forEach(([k,v],i)=>{
+    const tr=db.insertRow(); tr.style.background=i%2===0?'#0D1E3D22':'transparent';
+    const p=td2?v/td2*100:0;
+    tr.innerHTML=`<td style="font-weight:bold">${k}</td>
+      <td><input class="edit" type="number" value="${v}" onchange="updateDebt('${k}',this.value)"/></td>
+      <td><div class="prog-bar"><div class="prog-fill" style="width:${p}%;background:#DC2626"></div></div><div style="font-size:10px;color:#64748B;margin-top:3px">${p.toFixed(1)}%</div></td>`;
+  });
+  const dt=db.insertRow(); dt.className='total-row';
+  dt.innerHTML=`<td style="color:#DC2626">TOTAL DEBTS</td><td style="color:#DC2626">${fmt(td2)}</td><td></td>`;
+}
+
+// ── INSIGHTS ──────────────────────────────────────────────────────────────────
+function renderInsights(){
+  const cf=cashflow(), ti=totalIncome(), te=totalExp(), nw2=netWorth();
+  const insights=[];
+  if(cf<0) insights.push({icon:'🚨',text:`Your expenses exceed income by ${fmt(Math.abs(cf))}/month. Review your largest expense categories.`,color:'#DC2626'});
+  else if(cf<ti*0.1) insights.push({icon:'⚠️',text:`You're saving less than 10% of income. Try to increase savings to at least ${fmt(ti*0.1)}/month.`,color:'#D97706'});
+  else insights.push({icon:'✅',text:`Great! You have ${fmt(cf)}/month in positive cashflow — that's ${pct(cf,ti)} of your income.`,color:'#059669'});
+  const exp=S.expenses||{};
+  const housing=exp['Rent/Mortgage']||0;
+  if(housing>ti*0.3) insights.push({icon:'🏠',text:`Housing takes ${pct(housing,ti)} of income. Financial experts recommend keeping it under 30%.`,color:'#D97706'});
+  if((exp['Dining Out']||0)>200) insights.push({icon:'🍽️',text:`Dining out costs ${fmt(exp['Dining Out'])}/month (${fmt(exp['Dining Out']*12)}/yr). Reducing this by half saves ${fmt(exp['Dining Out']*6)}/year.`,color:'#F59E0B'});
+  if(nw2<0) insights.push({icon:'📉',text:`Your net worth is negative. Focus on paying down debts while maintaining minimum payments.`,color:'#DC2626'});
+  else insights.push({icon:'📈',text:`Your net worth is ${fmt(nw2)}. At 7% growth, it could reach ${fmt(nw2*Math.pow(1.07,10))} in 10 years.`,color:'#3B82F6'});
+  $('insightList').innerHTML=insights.map(ins=>`<div style="display:flex;gap:12px;padding:10px 14px;margin-bottom:8px;border-radius:10px;background:#0D1E3D;border:1px solid ${ins.color}33"><span style="font-size:18px">${ins.icon}</span><span style="font-size:13px;color:#E2E8F0;line-height:1.6">${ins.text}</span></div>`).join('');
+}
+
+// ── UPDATERS ──────────────────────────────────────────────────────────────────
+function updateIncome(idx,val){
+  if(S.income[idx]) S.income[idx].val=parseFloat(val)||0;
+  save(); renderAll(); if(pieInst)buildPie(); if(barInst)buildBar(); if(projInst)buildProj();
+}
+function updateExp(key,val){
+  S.expenses[key]=parseFloat(val)||0;
+  save(); renderExpKpis(); renderDashKpis(); renderInsights();
+  $('expGrandTotal').textContent=`TOTAL: ${fmt2(totalExp())}/mo · ${fmt(totalExp()*12)}/yr`;
+  if(barInst)buildBar();
+}
+function updateAsset(key,val){
+  S.assets[key]=parseFloat(val)||0;
+  save(); renderNwKpis(); renderProjKpis(); if(projInst)buildProj();
+}
+function updateDebt(key,val){
+  S.debts[key]=parseFloat(val)||0;
+  save(); renderNwKpis(); renderProjKpis(); if(projInst)buildProj();
+}
+
+// ── RENDER ALL ────────────────────────────────────────────────────────────────
+function renderAll(){
+  renderDashKpis(); renderIncomeKpis(); renderExpKpis();
+  renderNwKpis(); renderProjKpis(); renderInsights();
+  buildPie(); buildBar(); buildProj();
+}
+
+// ── TABS ──────────────────────────────────────────────────────────────────────
+function showTab(id,btn){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  $(id).classList.add('active'); btn.classList.add('active');
+  if(id==='dash') setTimeout(()=>{buildPie();buildBar();},50);
+  if(id==='projections') setTimeout(()=>buildProj(),50);
+}
+
+// ── THEME ──────────────────────────────────────────────────────────────────
+let isLight = localStorage.getItem('budgetTheme') === 'light';
+function applyTheme() {
+  document.body.classList.toggle('light', isLight);
+  const btn = document.getElementById('themeBtn');
+  if (btn) btn.textContent = isLight ? '🌙 Dark Mode' : '☀️ Light Mode';
+  // Rebuild charts so colors stay readable
+  if (pieInst) buildPie();
+  if (barInst) buildBar();
+  if (projInst) buildProj();
+}
+function toggleTheme() {
+  isLight = !isLight;
+  localStorage.setItem('budgetTheme', isLight ? 'light' : 'dark');
+  applyTheme();
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+const saved=load();
+applyTheme();
+if(saved && saved.income && saved.income.length>0) {
+  S=saved;
+  startApp();
+} else {
+  $('wizard').style.display='flex';
+  $('app').style.display='none';
+}
+</script>
+</body>
+</html>
