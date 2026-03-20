@@ -864,6 +864,38 @@ async function syncPortfolioToCloud(payload) {
 }
 
 /** If user has a cloud session token, pull newer data than localStorage. Call on load. */
+/**
+ * Merge ./data/work-log-seed.json into state.dailyBlurbs for empty cells only
+ * (won’t overwrite typing you already saved).
+ */
+async function mergeWorkLogSeedFromFile() {
+  try {
+    const res = await fetch('./data/work-log-seed.json', { cache: 'no-store' });
+    if (!res.ok) return;
+    const seed = await res.json();
+    if (!seed || !seed.dates || typeof seed.dates !== 'object') return;
+    let changed = false;
+    for (const [dateKey, entries] of Object.entries(seed.dates)) {
+      if (!entries || typeof entries !== 'object' || !/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) continue;
+      if (!state.dailyBlurbs[dateKey]) state.dailyBlurbs[dateKey] = {};
+      for (const [appIdStr, text] of Object.entries(entries)) {
+        const appId = parseInt(appIdStr, 10);
+        if (!Number.isFinite(appId) || typeof text !== 'string') continue;
+        const t = text.trim();
+        if (!t) continue;
+        const existing = state.dailyBlurbs[dateKey][appId];
+        if (existing != null && String(existing).trim() !== '') continue;
+        state.dailyBlurbs[dateKey][appId] = t;
+        changed = true;
+      }
+      if (Object.keys(state.dailyBlurbs[dateKey]).length === 0) delete state.dailyBlurbs[dateKey];
+    }
+    if (changed) persistPortfolioToStorage();
+  } catch (e) {
+    console.warn('BVS: work-log-seed merge', e);
+  }
+}
+
 async function tryMergeFromCloudOnLoad() {
   const base = getCloudApiBase();
   if (!base) return;
@@ -2292,6 +2324,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   $('headerDate').textContent = ds;
   $('footerDate').textContent = ds;
   await tryMergeFromCloudOnLoad();
+  await mergeWorkLogSeedFromFile();
   const gi = $('goalInput');
   if (gi && typeof state.goalAmount === 'number') gi.value = String(state.goalAmount);
   syncAdminGate();

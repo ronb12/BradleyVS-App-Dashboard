@@ -76,6 +76,10 @@ After you **Admin** sign in, the app exchanges your password for a **short-lived
 
 **Note:** Root `package.json` lists **`@upstash/redis`** for Vercel’s build. Static assets (`*.html`, `data/`) are still served as files; only `/api/*` runs Node.
 
+## Work log seed (optional)
+
+`data/work-log-seed.json` holds **plain-English** per-app blurbs by date (`YYYY-MM-DD`). On load, the dashboard **merges** them into **empty** Admin work-log cells only (existing text is never overwritten). Edit that JSON in Git when you want defaults for the team; redeploy or refresh to apply.
+
 ## Firebase & Vercel 100% manifests
 
 **Firebase** — all `*.web.app` / `*.firebaseapp.com` URLs in `APPS` must match **`data/firebase-hosting-manifest.json`** (`hostingUrls`, URL-normalized).

@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "description": "Empty work-log cells are filled from this file on dashboard load (never overwrites existing text). Edit dates (YYYY-MM-DD) and app ids to match APPS.",
+  "dates": {
+    "2026-03-20": {
+      "18": "EchoDynamo — Full-page /login (LoginPage), utils/navigation + usePathname, landing & modals route to /login and /signup; removed deep-link that replaced URL with / and only opened modal. Push ronb12/EchoDynamo so echodynamo.vercel.app/login matches.",
+      "20": "BradleyVS — Admin ‘Today’s work log’ (dailyBlurbs, save + cloud); GET /api/manifests; Vercel headers for dashboard HTML; fixed stale production with vercel deploy --prod (builds now include manifests lambda).",
+      "27": "BarberBook Pro — Owner login, localStorage DB, tax at checkout, dynamic services, checkout stats, JSON backup; canonical /BarberBook_Pro on bradleyvs-app-dashboard.",
+      "28": "NailGlow Studio — Tax in checkout, backup import/export, Stripe fields/policy; canonical /NailGlow_Studio; SaaS path aligned with BarberBook in docs."
+    },
+    "2026-03-21": {
+      "18": "EchoDynamo — Confirm latest main is deployed; /login should stay on full-page sign-in (not bounce to / with modal).",
+      "20": "BradleyVS — Added data/work-log-seed.json: seeds empty work-log rows on load; README ‘Work log seed’ section. Keeps portfolio diary in sync with repo without overwriting edits.",
+      "27": "BarberBook Pro — No code change this cycle; monitor Stripe/checkout stories vs portfolio row.",
+      "28": "NailGlow Studio — No code change this cycle; same as BarberBook for next SaaS/backend step (see docs/SAAS_ARCHITECTURE.md)."
+    }
+  }
+}
