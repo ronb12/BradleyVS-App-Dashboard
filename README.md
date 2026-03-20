@@ -1,6 +1,8 @@
 # BradleyVS App Dashboard
 
-Single-file portfolio dashboard: `BVS_Dashboard_v2_1.html`.
+**Live site (GitHub Pages):** [https://ronb12.github.io/BradleyVS-App-Dashboard/](https://ronb12.github.io/BradleyVS-App-Dashboard/)
+
+Main file: `BVS_Dashboard_v2_1.html` (root `index.html` redirects here).
 
 ## Firebase 100% manifest
 
