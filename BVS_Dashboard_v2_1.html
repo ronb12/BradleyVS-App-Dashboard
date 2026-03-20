@@ -500,6 +500,27 @@
       <div class="kpi-card" style="--card-color:#ef4444"><div class="kpi-icon">🔔</div><div class="kpi-value" id="admin-alerts">0</div><div class="kpi-label">Maint. Alerts</div></div>
     </div>
 
+    <!-- Today's work log (per app, by date) -->
+    <div class="section-title">📝 Today&apos;s work log</div>
+    <p style="font-size:0.78rem;color:var(--text2);margin:-0.5rem 0 1rem;max-width:52rem;line-height:1.45;">Short <strong>plain-English</strong> blurbs for what you shipped or changed on each app. Defaults to <strong>today</strong>; pick another date to view or edit past days. Stored with your portfolio (this browser + cloud sync).</p>
+    <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;flex-wrap:wrap;">
+      <label style="font-size:0.8rem;color:var(--text2);">Date
+        <input type="date" id="adminDailyLogDate" onchange="renderAdminPanel()" style="margin-left:6px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px 10px;color:var(--text);">
+      </label>
+      <button type="button" onclick="setAdminDailyLogDateToday()" style="padding:7px 14px;border:1px solid var(--border);border-radius:8px;font-size:0.78rem;font-weight:600;cursor:pointer;color:var(--text);background:var(--surface);">Today</button>
+      <button type="button" onclick="clearAdminDailyLogForSelectedDate()" style="padding:7px 14px;border:1px solid var(--border);border-radius:8px;font-size:0.78rem;font-weight:600;cursor:pointer;color:var(--orange);background:var(--surface);">Clear this date</button>
+    </div>
+    <div class="table-wrap" style="margin-bottom:2rem;">
+      <table>
+        <thead><tr>
+          <th style="min-width:2.5rem;">#</th>
+          <th style="min-width:8rem;">app</th>
+          <th>What I did (plain English)</th>
+        </tr></thead>
+        <tbody id="adminDailyLogBody"></tbody>
+      </table>
+    </div>
+
     <!-- Bulk Edit Table -->
     <div class="section-title">⚙️ Bulk App Management</div>
     <div style="display:flex;gap:0.75rem;margin-bottom:1rem;flex-wrap:wrap;">
@@ -658,7 +679,7 @@ const APP_FEATURE_CATALOG = {
   17: { features: ['BCBA / BCaBA exam modes & timers', 'Topic study, practice exams, flashcards', 'Clinical scenario quizzes (large scenario bank)', 'Published case-studies module', 'AI study coach & readiness metrics', 'Achievements, XP, streaks', 'Study groups, bookmarks, progress export', 'PWA install'] },
   18: { features: ['Rich messaging (media, voice, GIFs, polls, reactions)', 'Voice/video (WebRTC) & screen share', 'Stripe Connect payments & subscriptions story', 'Family safety: parent/child linking & controls', 'E2EE & 2FA messaging on positioning', 'PWA / offline story', 'Mar 2026 maint.: GitHub ronb12/EchoDynamo — npm audit 0 (root, functions, server); unused jspdf removed; firebase-admin dev-only in SPA; Functions on firebase-admin 12.x + overrides; Vite build + lint OK'] },
   19: { features: ['Property management positioning', 'Tenants, leases, maintenance — confirm in RentFlow repo', 'Email integrations noted on dashboard maintenance list'] },
-  20: { features: ['Portfolio KPIs & app table (status, category, price, subs, revenue)', 'Revenue goal, scenarios, expenses, marketing trackers', 'Version history, roadmap, maintenance automation UI', 'Admin auth (local + optional cloud API)', 'CSV / JSON export, cloud portfolio sync hooks', 'Feature catalog with print & Markdown export (this tab)', 'Policy: external Firebase apps should follow docs/CREDENTIALS.md (no hardcoded demo passwords)'] },
+  20: { features: ['Portfolio KPIs & app table (status, category, price, subs, revenue)', 'Revenue goal, scenarios, expenses, marketing trackers', 'Version history, roadmap, maintenance automation UI', 'Admin auth (local + optional cloud API)', 'Per-app per-day work log (plain English) in Admin', 'CSV / JSON export, cloud portfolio sync hooks', 'Feature catalog with print & Markdown export (this tab)', 'Policy: external Firebase apps should follow docs/CREDENTIALS.md (no hardcoded demo passwords)'] },
   21: { features: ['Nursing exam / study companion (NurseMaster)', 'Detailed modules in app repo — link when URL live'] },
   22: { features: ['Digital marketing hub: campaigns, assets, analytics (per product intent)', 'URL TBD — update catalog when deployed'] },
   23: { features: ['Roblox game (K.A.S)', 'Live Roblox experience — pricing varies / not SaaS monthly'] },
@@ -671,6 +692,8 @@ const APP_FEATURE_CATALOG = {
 // State stored in memory
 const state = {
   subs: {}, notes: {}, ratings: {}, expenses: {}, marketing: {}, versions: [],
+  /** Per-day per-app plain-English blurbs: { 'YYYY-MM-DD': { [appId]: 'text' } } */
+  dailyBlurbs: {},
   goalAmount: 5000
 };
 // Pre-set ABA Mastery with 1 subscriber (overridden if localStorage has saved data)
@@ -752,6 +775,8 @@ function applyPersistedPayload(data) {
       state.marketing = data.state.marketing && typeof data.state.marketing === 'object'
         ? JSON.parse(JSON.stringify(data.state.marketing)) : {};
       state.versions = Array.isArray(data.state.versions) ? data.state.versions.slice() : [];
+      state.dailyBlurbs = data.state.dailyBlurbs && typeof data.state.dailyBlurbs === 'object'
+        ? JSON.parse(JSON.stringify(data.state.dailyBlurbs)) : {};
       if (typeof data.state.goalAmount === 'number' && Number.isFinite(data.state.goalAmount)) {
         state.goalAmount = data.state.goalAmount;
       }
@@ -790,6 +815,7 @@ function buildPortfolioPayload() {
       expenses: JSON.parse(JSON.stringify(state.expenses)),
       marketing: JSON.parse(JSON.stringify(state.marketing)),
       versions: state.versions.slice(),
+      dailyBlurbs: JSON.parse(JSON.stringify(state.dailyBlurbs || {})),
       goalAmount
     }
   };
@@ -1587,6 +1613,64 @@ function animateFadeIns() {
 // ── INIT ──────────────────────────────────────────────────────────────────────
 
 // ── ADMIN FUNCTIONS ───────────────────────────────────────────────────────────
+function escHtmlText(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function adminDailyLogDateKey() {
+  const el = $('adminDailyLogDate');
+  let d = el && el.value ? String(el.value).trim() : '';
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) {
+    d = new Date().toISOString().slice(0, 10);
+    if (el) el.value = d;
+  }
+  return d;
+}
+
+function setAdminDailyLogDateToday() {
+  const el = $('adminDailyLogDate');
+  if (el) el.value = new Date().toISOString().slice(0, 10);
+  renderAdminPanel();
+}
+
+function clearAdminDailyLogForSelectedDate() {
+  if (!canEditPortfolio()) return;
+  const dk = adminDailyLogDateKey();
+  if (!state.dailyBlurbs[dk] || Object.keys(state.dailyBlurbs[dk]).length === 0) {
+    alert('No entries for this date.');
+    return;
+  }
+  if (!confirm(`Clear all work-log blurbs for ${dk}?`)) return;
+  delete state.dailyBlurbs[dk];
+  renderAdminPanel();
+  showSave();
+}
+
+let _bvsDailyBlurbSaveT = null;
+function onDailyBlurbInput(appId, textareaEl) {
+  if (!canEditPortfolio()) return;
+  const dateKey = adminDailyLogDateKey();
+  if (!state.dailyBlurbs[dateKey]) state.dailyBlurbs[dateKey] = {};
+  const raw = textareaEl.value;
+  const t = String(raw || '').trim();
+  if (!t) {
+    delete state.dailyBlurbs[dateKey][appId];
+  } else {
+    state.dailyBlurbs[dateKey][appId] = raw;
+  }
+  if (Object.keys(state.dailyBlurbs[dateKey]).length === 0) delete state.dailyBlurbs[dateKey];
+  if (_bvsDailyBlurbSaveT) clearTimeout(_bvsDailyBlurbSaveT);
+  _bvsDailyBlurbSaveT = setTimeout(() => { showSave(); _bvsDailyBlurbSaveT = null; }, 550);
+}
+
+function onDailyBlurbBlur() {
+  if (_bvsDailyBlurbSaveT) {
+    clearTimeout(_bvsDailyBlurbSaveT);
+    _bvsDailyBlurbSaveT = null;
+  }
+  if (canEditPortfolio()) showSave();
+}
+
 function renderAdminPanel() {
   const live  = APPS.filter(a=>a.status==='live').length;
   const maint = APPS.filter(a=>a.status==='maint').length;
@@ -1663,6 +1747,21 @@ function renderAdminPanel() {
         <td style="font-family:'DM Mono',monospace;font-size:0.8rem;color:${rev>0?'var(--green)':'var(--text3)'}">${rev>0?`$${rev.toFixed(2)}`:'—'}</td>
         <td style="font-size:0.9rem">${[1,2,3,4,5].map(s=>`<span style="color:${s<=rating?'var(--gold)':'var(--text3)'};cursor:pointer" onclick="setRating(${a.id},${s});renderAdminPanel()">★</span>`).join('')}</td>
         <td style="font-size:0.75rem;color:var(--orange)">${note?'📝 '+note.substring(0,30)+(note.length>30?'...':''):'<span style="color:var(--text3)">—</span>'}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  const dk = adminDailyLogDateKey();
+  const bucket = state.dailyBlurbs[dk] || {};
+  const dlb = $('adminDailyLogBody');
+  const ro = !canEditPortfolio();
+  if (dlb) {
+    dlb.innerHTML = APPS.map(a => {
+      const v = bucket[a.id] || '';
+      return `<tr>
+        <td style="color:var(--text3);font-size:0.75rem;font-family:'DM Mono',monospace">${a.id}</td>
+        <td style="font-weight:600;font-size:0.82rem;">${escHtmlText(a.name)}</td>
+        <td><textarea rows="2" class="admin-daily-blurb-input" style="width:100%;min-width:200px;max-width:640px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px;color:var(--text);font-size:0.8rem;resize:vertical;box-sizing:border-box;" data-app-id="${a.id}" oninput="onDailyBlurbInput(${a.id},this)" onblur="onDailyBlurbBlur()" ${ro ? 'readonly' : ''}>${escHtmlText(v)}</textarea></td>
       </tr>`;
     }).join('');
   }
