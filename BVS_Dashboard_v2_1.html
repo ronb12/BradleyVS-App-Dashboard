@@ -220,6 +220,15 @@
 .status-select.status-maint{border-color:rgba(249,115,22,0.5);color:var(--orange);background:rgba(249,115,22,0.08);}
 .status-select.status-coming{border-color:rgba(59,130,246,0.5);color:var(--accent);background:rgba(59,130,246,0.08);}
 .pri-select{font-size:0.72rem;}
+
+/* Admin login gate */
+.admin-login-gate{max-width:420px;margin:0 auto 2rem;padding:2rem;background:var(--surface);border:1px solid var(--border);border-radius:16px;}
+.admin-login-gate h2{font-family:'Syne',sans-serif;font-size:1.25rem;font-weight:700;margin-bottom:0.5rem;}
+.admin-login-gate p{font-size:0.82rem;color:var(--text2);margin-bottom:1.25rem;line-height:1.5;}
+.admin-login-gate input[type="password"]{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-size:0.9rem;outline:none;margin-bottom:0.75rem;box-sizing:border-box;}
+.admin-login-gate input[type="password"]:focus{border-color:var(--accent);}
+.admin-login-error{color:var(--red);font-size:0.8rem;margin-bottom:0.75rem;min-height:1.2em;}
+.admin-login-actions{display:flex;gap:0.75rem;flex-wrap:wrap;}
 </style>
 </head>
 <body>
@@ -398,6 +407,20 @@
   </div>
   <!-- ══════════════ ADMIN ══════════════ -->
   <div id="panel-admin" class="panel">
+    <div id="admin-login-gate" class="admin-login-gate">
+      <h2>🔐 Admin sign-in</h2>
+      <p>This area is protected. Enter the admin password to manage bulk actions, exports, and automated checks. Session lasts until you close the browser tab (about 12 hours).</p>
+      <form id="admin-login-form" onsubmit="submitAdminLogin(event)">
+        <label for="admin-login-password" class="goal-label" style="display:block;margin-bottom:6px;">Password</label>
+        <input id="admin-login-password" type="password" autocomplete="current-password" placeholder="••••••••" required>
+        <div id="admin-login-error" class="admin-login-error" aria-live="polite"></div>
+        <div class="admin-login-actions">
+          <button type="submit" class="btn-primary">Unlock Admin</button>
+        </div>
+      </form>
+      <p style="font-size:0.72rem;color:var(--text3);margin-top:1.25rem;font-family:'DM Mono',monospace;">Tip: Change the password by editing <code style="color:var(--accent2)">ADMIN_PASS_HASH_HEX</code> in this file (SHA-256 hex). See README.</p>
+    </div>
+    <div id="admin-protected" class="admin-protected" style="display:none;">
     <div class="live-banner" style="background:linear-gradient(135deg,#1B2A4A,#2E4A7A);margin-bottom:1.5rem;">
       <div>
         <div class="goal-label">🔐 Admin Control Panel</div>
@@ -405,6 +428,7 @@
         <div style="font-size:0.8rem;color:rgba(255,255,255,0.6);margin-top:4px;">Full portfolio management · App data · System controls</div>
       </div>
       <div style="text-align:right">
+        <div style="margin-bottom:10px;"><button type="button" class="btn-secondary" onclick="adminLogout()">Log out</button></div>
         <div class="goal-label">Total Apps</div>
         <div style="font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;color:var(--accent2)" id="admin-total-apps">28</div>
       </div>
@@ -515,6 +539,7 @@
         </div>
       </div>
     </div>
+    </div><!-- /admin-protected -->
   </div>
 
 </div>
@@ -571,6 +596,85 @@ const maintenanceState = {
   runtimeMeta:{ loaded:false, generatedAt:null, error:null },
 };
 
+// ── ADMIN AUTH (sessionStorage; hash is visible in source — use for casual access only) ──
+const ADMIN_SESSION_KEY = 'bvs_admin_auth_v1';
+const ADMIN_SESSION_MAX_MS = 12 * 60 * 60 * 1000;
+/** SHA-256 (UTF-8) of password, lowercase hex. Default password: BVS-ChangeMe!2026 — change and push your own hash. */
+const ADMIN_PASS_HASH_HEX = '491971133b8a31a4c6aae678bd5d47941c7d0251258a92893c29d57098ffd762';
+
+async function sha256HexUtf8(text) {
+  const enc = new TextEncoder().encode(text);
+  const buf = await crypto.subtle.digest('SHA-256', enc);
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function getAdminSessionPayload() {
+  try {
+    const raw = sessionStorage.getItem(ADMIN_SESSION_KEY);
+    if (!raw) return null;
+    const o = JSON.parse(raw);
+    if (o.exp && Date.now() > o.exp) {
+      sessionStorage.removeItem(ADMIN_SESSION_KEY);
+      return null;
+    }
+    return o;
+  } catch {
+    return null;
+  }
+}
+
+function isAdminAuthenticated() {
+  return getAdminSessionPayload() != null;
+}
+
+function setAdminSession() {
+  sessionStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify({ ok: true, exp: Date.now() + ADMIN_SESSION_MAX_MS }));
+}
+
+function clearAdminSession() {
+  sessionStorage.removeItem(ADMIN_SESSION_KEY);
+}
+
+function syncAdminGate() {
+  const gate = $('admin-login-gate');
+  const prot = $('admin-protected');
+  if (!gate || !prot) return;
+  if (isAdminAuthenticated()) {
+    gate.style.display = 'none';
+    prot.style.display = 'block';
+  } else {
+    gate.style.display = 'block';
+    prot.style.display = 'none';
+  }
+}
+
+async function submitAdminLogin(ev) {
+  ev.preventDefault();
+  const input = $('admin-login-password');
+  const errEl = $('admin-login-error');
+  if (errEl) errEl.textContent = '';
+  const pw = (input && input.value) ? input.value : '';
+  if (!pw) return;
+  const hex = await sha256HexUtf8(pw);
+  if (hex !== ADMIN_PASS_HASH_HEX) {
+    if (errEl) errEl.textContent = 'Incorrect password.';
+    if (input) input.focus();
+    return;
+  }
+  if (input) input.value = '';
+  setAdminSession();
+  syncAdminGate();
+  renderAdminPanel();
+  showSave();
+}
+
+function adminLogout() {
+  clearAdminSession();
+  syncAdminGate();
+  const errEl = $('admin-login-error');
+  if (errEl) errEl.textContent = '';
+}
+
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 const $ = id => document.getElementById(id);
 const fmt = n => n.toLocaleString('en-US',{style:'currency',currency:'USD'});
@@ -612,7 +716,10 @@ function showTab(id, btn) {
   if (id==='marketing') renderMarketing();
   if (id==='versions') renderVersionsPanel();
   if (id==='roadmap') renderRoadmap();
-  if (id==='admin') renderAdminPanel();
+  if (id==='admin') {
+    syncAdminGate();
+    if (isAdminAuthenticated()) renderAdminPanel();
+  }
   setTimeout(animateFadeIns, 50);
 }
 
@@ -1413,7 +1520,8 @@ window.addEventListener('DOMContentLoaded', () => {
   $('footerDate').textContent = ds;
   renderApps();
   updateAll();
-  renderAdminPanel();
+  syncAdminGate();
+  if (isAdminAuthenticated()) renderAdminPanel();
   renderMaintenanceChecks();
   setTimeout(animateFadeIns, 100);
 });

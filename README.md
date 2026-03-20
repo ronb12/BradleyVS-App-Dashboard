@@ -4,6 +4,23 @@
 
 Main file: `BVS_Dashboard_v2_1.html` (root `index.html` redirects here).
 
+## Admin password
+
+The **Admin** tab requires a password (stored as a **SHA-256 hash** in `BVS_Dashboard_v2_1.html`: `ADMIN_PASS_HASH_HEX`).
+
+- **Default password (change immediately):** `BVS-ChangeMe!2026`
+- **Change password:** pick a new password, compute SHA-256 hex of the UTF-8 string, replace `ADMIN_PASS_HASH_HEX`, commit, push.
+
+Generate hash (macOS / Linux):
+
+```bash
+echo -n 'YourNewPassword' | shasum -a 256
+```
+
+Or Node: `node -e "console.log(require('crypto').createHash('sha256').update('YourNewPassword','utf8').digest('hex'))"`
+
+**Security note:** This is a static site — the hash is in the source, so a determined visitor could brute-force a weak password. Use a **long random password** and treat this as access control for casual users, not high-security data.
+
 ## Firebase 100% manifest
 
 All Firebase Hosting URLs (`*.web.app` / `*.firebaseapp.com`) in the dashboard must match **`data/firebase-hosting-manifest.json`** exactly (URL-normalized). If you add or change a Firebase app:
