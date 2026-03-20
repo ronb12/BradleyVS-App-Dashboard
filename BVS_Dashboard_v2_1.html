@@ -147,6 +147,7 @@
   .modal-actions{display:flex;gap:0.75rem;margin-top:1rem;justify-content:flex-end;}
   .btn-primary{background:var(--accent);border:none;border-radius:8px;padding:8px 20px;color:#fff;font-family:'DM Sans',sans-serif;font-size:0.875rem;font-weight:600;cursor:pointer;transition:all 0.2s;}
   .btn-primary:hover{background:var(--accent2);}
+  .btn-primary:disabled{opacity:0.45;cursor:not-allowed;}
   .btn-secondary{background:transparent;border:1px solid var(--border);border-radius:8px;padding:8px 20px;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:0.875rem;cursor:pointer;transition:all 0.2s;}
   .btn-secondary:hover{border-color:var(--accent);color:var(--accent);}
 
@@ -166,6 +167,7 @@
   .card-name{font-weight:600;font-size:0.9rem;}
   .card-input{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:7px 10px;color:var(--text);font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;margin-top:6px;transition:border-color 0.2s;}
   .card-input:focus{border-color:var(--accent);}
+  .card-input:disabled{opacity:0.6;cursor:not-allowed;}
   .card-row{display:flex;gap:0.5rem;margin-top:0.5rem;}
   .card-row .card-input{margin-top:0;}
   .card-label{font-size:0.72rem;color:var(--text3);margin-top:8px;margin-bottom:2px;text-transform:uppercase;letter-spacing:0.05em;font-family:'DM Mono',monospace;}
@@ -219,7 +221,12 @@
 .status-select.status-live{border-color:rgba(34,197,94,0.5);color:var(--green);background:rgba(34,197,94,0.08);}
 .status-select.status-maint{border-color:rgba(249,115,22,0.5);color:var(--orange);background:rgba(249,115,22,0.08);}
 .status-select.status-coming{border-color:rgba(59,130,246,0.5);color:var(--accent);background:rgba(59,130,246,0.08);}
+.status-coming-badge{background:rgba(59,130,246,0.12);color:var(--accent);border:1px solid rgba(59,130,246,0.25);}
 .pri-select{font-size:0.72rem;}
+.rating-stars--readonly{cursor:default;user-select:none;}
+.rating-stars--readonly .star{cursor:default;pointer-events:none;}
+.goal-input:disabled{opacity:0.55;cursor:not-allowed;}
+.export-btn:disabled{opacity:0.45;cursor:not-allowed;filter:grayscale(0.3);}
 
 /* Admin login gate */
 .admin-login-gate{max-width:420px;margin:0 auto 2rem;padding:2rem;background:var(--surface);border:1px solid var(--border);border-radius:16px;}
@@ -242,7 +249,7 @@
     <textarea id="modalTextarea" placeholder="Add notes, updates, bug reports, ideas..."></textarea>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
-      <button class="btn-primary" onclick="saveNote()">Save Note</button>
+      <button type="button" class="btn-primary" id="modalSaveNoteBtn" onclick="saveNote()">Save Note</button>
     </div>
   </div>
 </div>
@@ -250,7 +257,7 @@
 <header>
   <div class="logo"><div class="logo-dot"></div>Bradley Virtual Solutions</div>
   <div class="header-right">
-    <span class="save-indicator" id="saveIndicator">✓ Saved</span>
+    <span class="save-indicator" id="saveIndicator" title="Admin edits are stored in this browser (localStorage)">✓ Saved</span>
     <div class="header-date" id="headerDate"></div>
   </div>
 </header>
@@ -258,7 +265,7 @@
 <div class="container">
   <div class="page-title">
     <h1>App Portfolio Dashboard</h1>
-    <p>27 apps · Live revenue tracking · Full portfolio management</p>
+    <p>27 apps · Live revenue tracking · Full portfolio management · <a href="https://bradleyvs-app-dashboard.vercel.app/" target="_blank" rel="noopener" style="color:var(--accent2);">Open live site ↗</a></p>
   </div>
 
   <div class="tabs">
@@ -292,7 +299,7 @@
         </div>
         <div class="goal-input-wrap">
           <label>Set Goal: $</label>
-          <input class="goal-input" type="number" id="goalInput" value="5000" oninput="updateGoal()" placeholder="5000">
+          <input class="goal-input" type="number" id="goalInput" value="5000" oninput="updateGoal()" placeholder="5000" title="Revenue goal (Admin sign-in required to edit)">
         </div>
       </div>
       <div class="goal-bar-wrap"><div class="goal-bar" id="goalBar" style="width:0%"></div></div>
@@ -327,7 +334,7 @@
       <button class="filter-btn" onclick="setFilter('live',this)">✅ Live</button>
       <button class="filter-btn" onclick="setFilter('maint',this)">🔧 Maint.</button>
       <button class="filter-btn" onclick="setFilter('alert',this)">🔔 Alerts</button>
-      <button class="export-btn" onclick="exportCSV()">📤 Export CSV</button>
+      <button type="button" class="export-btn" id="toolbarExportCsv" onclick="exportCSV()">📤 Export CSV</button>
     </div>
     <div class="table-wrap">
       <table id="appsTable">
@@ -348,7 +355,7 @@
         <tbody id="appsBody"></tbody>
       </table>
     </div>
-    <div style="margin-top:0.75rem;font-size:0.77rem;color:var(--text3);font-family:'DM Mono',monospace">💡 Edit subscribers & ratings inline · Click 📝 to add notes · Red rows = overdue maintenance</div>
+    <div id="appsEditHint" style="margin-top:0.75rem;font-size:0.77rem;color:var(--text3);font-family:'DM Mono',monospace">💡 Edit subscribers & ratings inline · Click 📝 to add notes · Red rows = overdue maintenance</div>
   </div>
 
   <!-- ══════════════ REVENUE ══════════════ -->
@@ -391,7 +398,7 @@
       <select id="verAppSelect" onchange="renderVersions()" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;color:var(--text);font-size:0.875rem;font-family:'DM Sans',sans-serif;outline:none;min-width:220px;"></select>
       <input id="verNum" class="card-input" placeholder="Version e.g. v1.2" style="width:130px;margin-top:0;">
       <input id="verNotes" class="card-input" placeholder="What changed?" style="flex:1;min-width:200px;margin-top:0;">
-      <button class="btn-primary" onclick="addVersion()">+ Add Entry</button>
+      <button type="button" class="btn-primary" id="addVersionBtn" onclick="addVersion()">+ Add Entry</button>
     </div>
     <div class="section-title">🗂️ Version History</div>
     <div id="versionList" class="ver-list"></div>
@@ -400,6 +407,7 @@
   <!-- ══════════════ ROADMAP ══════════════ -->
   <div id="panel-roadmap" class="panel">
     <div class="section-title">🔧 Maintenance Priority Queue</div>
+    <p style="font-size:0.82rem;color:var(--text2);max-width:920px;line-height:1.55;margin:0 0 1.25rem;font-family:'DM Sans',sans-serif;"><strong>BarberBook Pro &amp; NailGlow Studio</strong> (Mar&nbsp;2026): Shipped login gate, <code>localStorage</code> persistence (BarberBook parity), tax at checkout, dynamic service menus (BarberBook), client/barber stats on checkout, JSON backup import/export, app icons/favicons, and <strong>first-run owner password</strong> (no demo passwords in Git). Canonical URLs: <code>/BarberBook_Pro</code> &amp; <code>/NailGlow_Studio</code> on this deployment. Repos: <code>ronb12/BarberBook-Pro</code>, <code>ronb12/NailGlow-Studio</code>. Docs in repo: <code>docs/SAAS_ARCHITECTURE.md</code>, <code>docs/CREDENTIALS.md</code>, <code>scripts/gh-secret-scanning-resolve.sh</code>.</p>
     <div class="roadmap-list" id="roadmapList"></div>
     <div style="margin-top:2rem;"></div>
     <div class="section-title">📱 Platform Breakdown</div>
@@ -409,7 +417,7 @@
   <div id="panel-admin" class="panel">
     <div id="admin-login-gate" class="admin-login-gate">
       <h2>🔐 Admin sign-in</h2>
-      <p>This area is protected. Enter the admin password to manage bulk actions, exports, and automated checks. Session lasts until you close the browser tab (about 12 hours).</p>
+      <p>Portfolio <strong>editing</strong> (Apps, revenue goal, expenses, marketing, versions, exports) is locked until you sign in here. Without signing in, the dashboard is <strong>view-only</strong>. Session lasts until you close the browser tab (about 12 hours). While signed in, changes are <strong>auto-saved to this browser</strong> (localStorage). If <code>BVS_CLOUD_API_BASE</code> points at your <strong>Vercel</strong> deployment (same repo), edits also sync to the cloud after login.</p>
       <form id="admin-login-form" onsubmit="submitAdminLogin(event)">
         <label for="admin-login-password" class="goal-label" style="display:block;margin-bottom:6px;">Password</label>
         <input id="admin-login-password" type="password" autocomplete="current-password" placeholder="••••••••" required>
@@ -513,27 +521,28 @@
         <div class="goal-top" style="position:relative;z-index:1;">
           <div>
             <div class="goal-label">GitHub + Firebase + Runtime Health</div>
-            <div style="font-size:0.82rem;color:var(--text2);margin-top:4px;">100% Firebase manifest match (data/firebase-hosting-manifest.json), GitHub repo signals, deployment reachability, Playwright runtime report (data/latest-runtime-check.json from CI), and maintenance dates.</div>
+            <div style="font-size:0.82rem;color:var(--text2);margin-top:4px;"><strong>Firebase</strong> (<code>data/firebase-hosting-manifest.json</code>) and <strong>Vercel</strong> (<code>data/vercel-deployment-manifest.json</code>) manifests must match <code>APPS</code>. GitHub repo match (including slug from <code>*.vercel.app</code>) + <strong>archived/disabled/open issues</strong>, stale push (&gt;30d), deploy reachability, CI runtime report, maint. dates.</div>
           </div>
           <button id="runMaintenanceBtn" class="btn-primary" onclick="runMaintenanceChecks()">Run Checks</button>
         </div>
         <div id="maintenanceCheckSummary" style="font-size:0.78rem;color:var(--text3);margin-bottom:0.75rem;position:relative;z-index:1;">No checks run yet.</div>
         <div class="table-wrap" style="position:relative;z-index:1;">
-          <table style="min-width:860px;">
+          <table style="min-width:1100px;">
             <thead>
               <tr>
                 <th>App</th>
                 <th>Repo Match</th>
+                <th>Repo Health</th>
                 <th>Repo Updated</th>
                 <th>Deployment</th>
-                <th>Firebase 100%</th>
+                <th>Fb / Vercel 100%</th>
                 <th>Runtime</th>
                 <th>Maint. Date</th>
                 <th>Needs Action</th>
               </tr>
             </thead>
             <tbody id="maintenanceCheckBody">
-              <tr><td colspan="8" style="color:var(--text3);font-size:0.82rem;">Run checks to generate automated maintenance results.</td></tr>
+              <tr><td colspan="9" style="color:var(--text3);font-size:0.82rem;">Run checks to generate automated maintenance results.</td></tr>
             </tbody>
           </table>
         </div>
@@ -546,6 +555,7 @@
 
 <footer>© 2026 Bradley Virtual Solutions, LLC &nbsp;·&nbsp; Portfolio Dashboard v2 &nbsp;·&nbsp; <span id="footerDate"></span></footer>
 
+<script src="cloud-config.js"></script>
 <script>
 // ── DATA ──────────────────────────────────────────────────────────────────────
 const APPS = [
@@ -568,14 +578,14 @@ const APPS = [
   {id:17,name:"ABA Mastery",             desc:"ABA Therapist Study App",        url:"https://aba-mastery.vercel.app/app",                      status:"live", cat:"Education",   price:30.00,pri:"Critical",maintOffset:46},
   {id:18,name:"EchoDynamo",              desc:"Messaging App",                  url:"https://echodynamo.vercel.app/",                          status:"live", cat:"Social",      price:30.00,pri:"High",    maintOffset:47},
   {id:19,name:"RentFlow",                desc:"Property Management App",        url:"https://rentflow-property.vercel.app/",                   status:"live", cat:"Real Estate", price:30.00,pri:"High",    maintOffset:48},
-  {id:20,name:"BradleyVS",               desc:"Task App",                       url:"https://bradleyvs.web.app/",                              status:"maint",cat:"Productivity",price:9.99, pri:"Medium",  maintOffset:null},
+  {id:20,name:"BradleyVS",               desc:"App Portfolio Dashboard (this site)", url:"https://bradleyvs-app-dashboard.vercel.app/",         status:"maint",cat:"Productivity",price:9.99, pri:"Medium",  maintOffset:null},
   {id:21,name:"NurseMaster",             desc:"Nursing Study App",              url:null,                                                      status:"maint",cat:"Education",   price:14.99,pri:"High",    maintOffset:null},
   {id:22,name:"Bradley Digital Mktg Hub",desc:"Digital Marketing App",          url:null,                                                      status:"maint",cat:"Marketing",   price:39.99,pri:"High",    maintOffset:null},
   {id:23,name:"K.A.S Roblox",            desc:"Roblox Game",                    url:null,                                                      status:"maint",cat:"Gaming",      price:null, pri:"Low",     maintOffset:null},
   {id:25,name:"80's Jitterbug",          desc:"Retro 360 Photo Booth App",      url:"https://jitterbug80s.web.app/",                           status:"live", cat:"Events",      price:null, pri:"High",    maintOffset:49},
   {id:26,name:"Guilty Pleasure Treats",  desc:"Baking Shop App",                url:"https://guilty-pleasure-treats.vercel.app/",              status:"maint",cat:"E-Commerce",  price:14.99,pri:"Medium",  maintOffset:null},
-  {id:27,name:"BarberBook Pro",              desc:"Complete Barber Shop Management", url:"BarberBook_Pro.html",                                      status:"live", cat:"Business",    price:49.99,pri:"High",    maintOffset:50},
-  {id:28,name:"NailGlow Studio",             desc:"Nail Shop Business Management",   url:"NailGlow_Studio.html",                                     status:"live", cat:"Business",    price:39.99,pri:"High",    maintOffset:51},
+  {id:27,name:"BarberBook Pro",              desc:"Complete Barber Shop Management · standalone repo + Vercel", url:"https://bradleyvs-app-dashboard.vercel.app/BarberBook_Pro", status:"live", cat:"Business",    price:49.99,pri:"High",    maintOffset:50},
+  {id:28,name:"NailGlow Studio",             desc:"Nail Shop Business Management · standalone repo + Vercel",   url:"https://bradleyvs-app-dashboard.vercel.app/NailGlow_Studio", status:"live", cat:"Business",    price:39.99,pri:"High",    maintOffset:51},
 ];
 
 // State stored in memory
@@ -583,8 +593,210 @@ const state = {
   subs: {}, notes: {}, ratings: {}, expenses: {}, marketing: {}, versions: [],
   goalAmount: 5000
 };
-// Pre-set ABA Mastery with 1 subscriber
+// Pre-set ABA Mastery with 1 subscriber (overridden if localStorage has saved data)
 state.subs[17] = 1;
+
+/** Auto-save portfolio (apps + trackers) to this browser for admins. Schema bump = new key if format changes. */
+const BVS_LOCAL_STORAGE_KEY = 'bvs_dashboard_persist_v1';
+const BVS_PERSIST_SCHEMA = 1;
+/** sessionStorage key for Vercel /api/bvs-auth session JWT replacement (opaque token). */
+const BVS_CLOUD_TOKEN_KEY = 'bvs_cloud_api_token';
+
+function getCloudApiBase() {
+  if (typeof window === 'undefined') return '';
+  return String(window.BVS_CLOUD_API_BASE || '').trim().replace(/\/$/, '');
+}
+
+/** barberbook-pro.vercel.app still serves an unrelated Lovable shell — rewrite to the real app on the main dashboard. */
+function rewriteLegacyStandaloneAppUrls(url) {
+  if (url == null || typeof url !== 'string') return url;
+  const s = url.trim();
+  if (!/^https:\/\/barberbook-pro\.vercel\.app\b/i.test(s)) return url;
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname || '';
+    const onMainDash = host === 'bradleyvs-app-dashboard.vercel.app';
+    const onLocal = host === 'localhost' || host === '127.0.0.1';
+    if (onMainDash || onLocal) return `${window.location.origin}/BarberBook_Pro`;
+  }
+  return 'https://bradleyvs-app-dashboard.vercel.app/BarberBook_Pro';
+}
+
+function sanitizePortfolioAppUrlsInPlace() {
+  let changed = false;
+  for (const a of APPS) {
+    const next = rewriteLegacyStandaloneAppUrls(a.url);
+    if (next !== a.url) {
+      a.url = next;
+      changed = true;
+    }
+  }
+  if (changed) {
+    try {
+      const payload = buildPortfolioPayload();
+      localStorage.setItem(BVS_LOCAL_STORAGE_KEY, JSON.stringify(payload));
+    } catch (e) {
+      console.warn('BVS: could not persist URL fixes', e);
+    }
+  }
+}
+
+function mergeAppsFromSeedAndSaved(seedApps, savedApps) {
+  if (!Array.isArray(savedApps) || savedApps.length === 0) return seedApps.map(s => ({ ...s }));
+  const savedById = new Map(savedApps.map(a => [a.id, a]));
+  const seedIds = new Set(seedApps.map(a => a.id));
+  const merged = seedApps.map(s => {
+    const o = savedById.get(s.id);
+    return o ? { ...s, ...o } : { ...s };
+  });
+  for (const a of savedApps) {
+    if (!seedIds.has(a.id)) merged.push({ ...a });
+  }
+  merged.sort((x, y) => x.id - y.id);
+  return merged;
+}
+
+/** Apply saved payload over current APPS (merge by id). Returns true if applied. */
+function applyPersistedPayload(data) {
+  try {
+    if (!data || data.schema !== BVS_PERSIST_SCHEMA || !Array.isArray(data.apps)) return false;
+    const seedSnapshot = APPS.map(a => ({ ...a }));
+    const merged = mergeAppsFromSeedAndSaved(seedSnapshot, data.apps);
+    APPS.splice(0, APPS.length, ...merged);
+    sanitizePortfolioAppUrlsInPlace();
+    if (data.state && typeof data.state === 'object') {
+      state.subs = { ...(data.state.subs || {}) };
+      state.notes = { ...(data.state.notes || {}) };
+      state.ratings = { ...(data.state.ratings || {}) };
+      state.expenses = data.state.expenses && typeof data.state.expenses === 'object'
+        ? JSON.parse(JSON.stringify(data.state.expenses)) : {};
+      state.marketing = data.state.marketing && typeof data.state.marketing === 'object'
+        ? JSON.parse(JSON.stringify(data.state.marketing)) : {};
+      state.versions = Array.isArray(data.state.versions) ? data.state.versions.slice() : [];
+      if (typeof data.state.goalAmount === 'number' && Number.isFinite(data.state.goalAmount)) {
+        state.goalAmount = data.state.goalAmount;
+      }
+    }
+    return true;
+  } catch (e) {
+    console.warn('BVS: apply payload failed', e);
+    return false;
+  }
+}
+
+function hydratePortfolioFromStorage() {
+  try {
+    const raw = localStorage.getItem(BVS_LOCAL_STORAGE_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    applyPersistedPayload(data);
+  } catch (e) {
+    console.warn('BVS: could not load saved portfolio', e);
+  }
+}
+
+function buildPortfolioPayload() {
+  const goalEl = typeof $ === 'function' ? $('goalInput') : null;
+  const goalVal = goalEl ? parseFloat(goalEl.value) : NaN;
+  const goalAmount = Number.isFinite(goalVal) ? goalVal : (state.goalAmount || 5000);
+  state.goalAmount = goalAmount;
+  return {
+    schema: BVS_PERSIST_SCHEMA,
+    savedAt: new Date().toISOString(),
+    apps: APPS.map(a => ({ ...a })),
+    state: {
+      subs: { ...state.subs },
+      notes: { ...state.notes },
+      ratings: { ...state.ratings },
+      expenses: JSON.parse(JSON.stringify(state.expenses)),
+      marketing: JSON.parse(JSON.stringify(state.marketing)),
+      versions: state.versions.slice(),
+      goalAmount
+    }
+  };
+}
+
+async function cloudExchangeToken(password) {
+  const base = getCloudApiBase();
+  if (!base || !password) return;
+  try {
+    const r = await fetch(`${base}/api/bvs-auth`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password }),
+    });
+    const j = await r.json().catch(() => ({}));
+    if (j.ok && j.token) sessionStorage.setItem(BVS_CLOUD_TOKEN_KEY, j.token);
+    else console.warn('BVS cloud session:', j.error || r.status);
+  } catch (e) {
+    console.warn('BVS cloud auth failed', e);
+  }
+}
+
+async function syncPortfolioToCloud(payload) {
+  const base = getCloudApiBase();
+  if (!base || !payload) return;
+  const token = sessionStorage.getItem(BVS_CLOUD_TOKEN_KEY);
+  if (!token) return;
+  try {
+    const r = await fetch(`${base}/api/portfolio`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+    if (r.status === 401) {
+      try { sessionStorage.removeItem(BVS_CLOUD_TOKEN_KEY); } catch {}
+    }
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok || !j.ok) console.warn('BVS cloud save:', j.error || r.status);
+  } catch (e) {
+    console.warn('BVS cloud save failed', e);
+  }
+}
+
+/** If user has a cloud session token, pull newer data than localStorage. Call on load. */
+async function tryMergeFromCloudOnLoad() {
+  const base = getCloudApiBase();
+  if (!base) return;
+  const token = sessionStorage.getItem(BVS_CLOUD_TOKEN_KEY);
+  if (!token) return;
+  try {
+    const r = await fetch(`${base}/api/portfolio`, { headers: { Authorization: `Bearer ${token}` } });
+    if (r.status === 401) {
+      try { sessionStorage.removeItem(BVS_CLOUD_TOKEN_KEY); } catch {}
+      return;
+    }
+    const j = await r.json().catch(() => ({}));
+    if (!j.ok || j.data == null) return;
+    let payload = j.data;
+    if (typeof payload === 'string') {
+      try { payload = JSON.parse(payload); } catch { return; }
+    }
+    const localRaw = localStorage.getItem(BVS_LOCAL_STORAGE_KEY);
+    const local = localRaw ? JSON.parse(localRaw) : null;
+    const cT = payload.savedAt ? +new Date(payload.savedAt) : 0;
+    const lT = local?.savedAt ? +new Date(local.savedAt) : 0;
+    if (cT > lT && applyPersistedPayload(payload)) {
+      localStorage.setItem(BVS_LOCAL_STORAGE_KEY, JSON.stringify(payload));
+    }
+  } catch (e) {
+    console.warn('BVS cloud load merge', e);
+  }
+}
+
+function persistPortfolioToStorage() {
+  try {
+    const payload = buildPortfolioPayload();
+    localStorage.setItem(BVS_LOCAL_STORAGE_KEY, JSON.stringify(payload));
+    syncPortfolioToCloud(payload).catch(() => {});
+  } catch (e) {
+    console.warn('BVS: could not save portfolio', e);
+  }
+}
+
+hydratePortfolioFromStorage();
 
 let currentFilter = 'all', sortCol = 0, sortAsc = true, modalAppId = null;
 const maintenanceState = {
@@ -592,6 +804,7 @@ const maintenanceState = {
   lastRunAt:null,
   results:[],
   firebaseMeta:{ match100:null, onlyInApps:[], onlyInManifest:[], manifestLoaded:false, manifestError:null },
+  vercelMeta:{ match100:null, onlyInApps:[], onlyInManifest:[], manifestLoaded:false, manifestError:null },
   runtimeMeta:{ loaded:false, generatedAt:null, error:null },
 };
 
@@ -624,6 +837,55 @@ function getAdminSessionPayload() {
 
 function isAdminAuthenticated() {
   return getAdminSessionPayload() != null;
+}
+
+/** All portfolio mutations (main tabs + overview) require the same Admin session as the Admin panel. */
+function canEditPortfolio() {
+  return isAdminAuthenticated();
+}
+
+function syncPortfolioEditMode() {
+  const ed = canEditPortfolio();
+  const goal = $('goalInput');
+  if (goal) {
+    goal.disabled = !ed;
+    goal.title = ed ? '' : 'Sign in via 🔐 Admin tab to change revenue goal';
+  }
+  const ex = $('toolbarExportCsv');
+  if (ex) {
+    ex.disabled = !ed;
+    ex.title = ed ? '' : 'Admin sign-in required — use 🔐 Admin tab';
+  }
+  ['verNum', 'verNotes'].forEach(id => {
+    const el = $(id);
+    if (el) {
+      el.disabled = !ed;
+      el.title = ed ? '' : 'Admin sign-in required';
+    }
+  });
+  const vbtn = $('addVersionBtn');
+  if (vbtn) {
+    vbtn.disabled = !ed;
+    vbtn.title = ed ? '' : 'Admin sign-in required';
+  }
+  const hint = $('appsEditHint');
+  if (hint) {
+    hint.textContent = ed
+      ? '💡 Edit subscribers & ratings inline · Click 📝 for notes · Red rows = overdue maintenance'
+      : '👁️ View-only — Open 🔐 Admin and sign in to edit status, subs, ratings, notes, exports, revenue goal, expenses, marketing, and versions.';
+  }
+}
+
+function onAdminSessionChanged() {
+  syncPortfolioEditMode();
+  renderApps();
+  renderRevenue();
+  renderExpenses();
+  renderMarketing();
+  renderVersionsPanel();
+  renderRoadmap();
+  if (isAdminAuthenticated()) renderAdminPanel();
+  updateAll();
 }
 
 function setAdminSession() {
@@ -660,18 +922,21 @@ async function submitAdminLogin(ev) {
     if (input) input.focus();
     return;
   }
+  await cloudExchangeToken(pw);
   if (input) input.value = '';
   setAdminSession();
   syncAdminGate();
-  renderAdminPanel();
+  onAdminSessionChanged();
   showSave();
 }
 
 function adminLogout() {
+  try { sessionStorage.removeItem(BVS_CLOUD_TOKEN_KEY); } catch {}
   clearAdminSession();
   syncAdminGate();
   const errEl = $('admin-login-error');
   if (errEl) errEl.textContent = '';
+  onAdminSessionChanged();
 }
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
@@ -700,8 +965,12 @@ function calcExpenses() {
   }, 0);
 }
 function showSave() {
-  const el = $('saveIndicator'); el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 2000);
+  const el = $('saveIndicator');
+  if (el) {
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 2000);
+  }
+  if (canEditPortfolio()) persistPortfolioToStorage();
 }
 
 // ── TABS ──────────────────────────────────────────────────────────────────────
@@ -747,10 +1016,15 @@ function updateAll() {
   const np = $('netProfit'); if(np) { np.textContent = fmt(rev-exp); np.style.color = (rev-exp)>=0 ? 'var(--green)':'var(--red)'; }
 }
 
-function updateGoal() { updateAll(); }
+function updateGoal() {
+  if (!canEditPortfolio()) return;
+  updateAll();
+  showSave();
+}
 
 // ── APPS TABLE ────────────────────────────────────────────────────────────────
 function renderApps() {
+  const canEdit = canEditPortfolio();
   const search = ($('searchInput')?.value||'').toLowerCase();
   let list = APPS.filter(a => {
     const mf = currentFilter==='all' || (currentFilter==='live'&&a.status==='live') ||
@@ -774,37 +1048,46 @@ function renderApps() {
     const rev = a.price&&subs ? a.price*subs : 0;
     const rating = state.ratings[a.id]||0;
     const note = state.notes[a.id]||'';
-    const statusCls = overdue ? 'status-alert' : a.status==='live' ? 'status-live' : 'status-maint';
-    const statusTxt = overdue ? '⚠ OVERDUE' : a.status==='live' ? '● Live' : '● Maint.';
+    const statusClsCol = overdue ? 'status-alert' : a.status==='live' ? 'status-live' : a.status==='coming' ? 'status-coming-badge' : 'status-maint';
+    const statusCls = overdue ? 'status-alert' : a.status==='live' ? 'status-live' : a.status==='coming' ? 'status-coming' : 'status-maint';
+    const statusTxt = overdue ? '⚠ OVERDUE' : a.status==='live' ? '● Live' : a.status==='coming' ? '🚀 Coming Soon' : '● Maint.';
     const priCls = {Critical:'pri-critical',High:'pri-high',Medium:'pri-medium',Low:'pri-low'}[a.pri]||'pri-low';
+    const priLabel = {Critical:'🔴 Critical',High:'🔵 High',Medium:'🟢 Medium',Low:'⚪ Low'}[a.pri]||a.pri;
     const maintD = getMaintDate(a.maintOffset);
     const maintStr = formatDate(maintD);
     const maintCls = overdue ? 'maint-overdue' : 'maint-ok';
-    const stars = [1,2,3,4,5].map(s=>`<span class="star ${s<=rating?'filled':''}" onclick="setRating(${a.id},${s})">★</span>`).join('');
-    return `<tr data-id="${a.id}" class="${overdue?'alert-row':''}">
-      <td style="color:var(--text3);font-family:'DM Mono',monospace;font-size:0.78rem">${a.id}</td>
-      <td><div class="app-name">${a.name}</div><div class="app-desc">${a.desc}</div></td>
-      <td>
-        <select class="inline-select status-select ${statusCls}" onchange="updateStatus(${a.id},this.value)">
+    const starWrapCls = canEdit ? 'rating-stars' : 'rating-stars rating-stars--readonly';
+    const stars = [1,2,3,4,5].map(s=>
+      `<span class="star ${s<=rating?'filled':''}"${canEdit?` onclick="setRating(${a.id},${s})"`:""}>★</span>`).join('');
+    const statusCell = canEdit
+      ? `<select class="inline-select status-select ${statusCls}" onchange="updateStatus(${a.id},this.value)">
           <option value="live" ${a.status==='live'?'selected':''}>✅ Live</option>
           <option value="maint" ${a.status==='maint'?'selected':''}>🔧 Maint.</option>
           <option value="coming" ${a.status==='coming'?'selected':''}>🚀 Coming Soon</option>
-        </select>
-      </td>
-      <td style="font-size:0.78rem;color:var(--text2)">${a.cat}</td>
-      <td>${a.price?`<span class="price-val">$${a.price.toFixed(2)}</span>`:`<span class="price-none">Varies</span>`}</td>
-      <td><input class="subs-input" type="number" min="0" value="${subs}" onchange="setSubs(${a.id},this.value)"></td>
-      <td id="rev-${a.id}">${rev>0?`<span class="rev-calc">${fmt(rev)}</span>`:`<span style="color:var(--text3)">—</span>`}</td>
-      <td><div class="rating-stars">${stars}</div></td>
-      <td>
-        <select class="inline-select pri-select" onchange="updatePriority(${a.id},this.value)">
+        </select>`
+      : `<span class="status-badge ${statusClsCol}" title="View only — sign in via Admin">${statusTxt}</span>`;
+    const subsCell = canEdit
+      ? `<input class="subs-input" type="number" min="0" value="${subs}" onchange="setSubs(${a.id},this.value)">`
+      : `<span style="font-family:'DM Mono',monospace;font-size:0.78rem;color:var(--text2)" title="View only">${subs}</span>`;
+    const priCell = canEdit
+      ? `<select class="inline-select pri-select" onchange="updatePriority(${a.id},this.value)">
           <option value="Critical" ${a.pri==='Critical'?'selected':''}>🔴 Critical</option>
           <option value="High"     ${a.pri==='High'    ?'selected':''}>🔵 High</option>
           <option value="Medium"   ${a.pri==='Medium'  ?'selected':''}>🟢 Medium</option>
           <option value="Low"      ${a.pri==='Low'     ?'selected':''}>⚪ Low</option>
-        </select>
-      </td>
-      <td><button class="notes-btn ${note?'has-note':''}" onclick="openNote(${a.id})">${note?'📝':'+ Note'}</button></td>
+        </select>`
+      : `<span class="priority-badge ${priCls}" style="font-size:0.72rem">${priLabel}</span>`;
+    return `<tr data-id="${a.id}" class="${overdue?'alert-row':''}">
+      <td style="color:var(--text3);font-family:'DM Mono',monospace;font-size:0.78rem">${a.id}</td>
+      <td><div class="app-name">${a.name}</div><div class="app-desc">${a.desc}</div></td>
+      <td>${statusCell}</td>
+      <td style="font-size:0.78rem;color:var(--text2)">${a.cat}</td>
+      <td>${a.price?`<span class="price-val">$${a.price.toFixed(2)}</span>`:`<span class="price-none">Varies</span>`}</td>
+      <td>${subsCell}</td>
+      <td id="rev-${a.id}">${rev>0?`<span class="rev-calc">${fmt(rev)}</span>`:`<span style="color:var(--text3)">—</span>`}</td>
+      <td><div class="${starWrapCls}">${stars}</div></td>
+      <td>${priCell}</td>
+      <td><button type="button" class="notes-btn ${note?'has-note':''}" onclick="openNote(${a.id})" title="${canEdit?(note?'Edit note':'Add note'):'View note (read-only)'}">${note?(canEdit?'📝':'📝 View'):(canEdit?'+ Note':'—')}</button></td>
       <td>${a.url?`<a href="${a.url}" target="_blank" class="link-btn">↗ Visit</a>`:`<span style="color:var(--text3);font-size:0.72rem">App Store</span>`}</td>
       <td><span class="maint-date ${maintCls}">${maintStr}</span></td>
     </tr>`;
@@ -812,27 +1095,33 @@ function renderApps() {
 }
 
 function updateStatus(id, val) {
+  if (!canEditPortfolio()) return;
   const app = APPS.find(a => a.id === id);
-  if (app) { app.status = val; showSave(); renderApps(); }
+  if (app) { app.status = val; showSave(); renderApps(); if (isAdminAuthenticated()) renderAdminPanel(); }
 }
 
 function updatePriority(id, val) {
+  if (!canEditPortfolio()) return;
   const app = APPS.find(a => a.id === id);
-  if (app) { app.pri = val; showSave(); renderApps(); }
+  if (app) { app.pri = val; showSave(); renderApps(); if (isAdminAuthenticated()) renderAdminPanel(); }
 }
 
 function setSubs(id,val) {
+  if (!canEditPortfolio()) return;
   state.subs[id] = parseInt(val)||0;
   const a = APPS.find(x=>x.id===id);
   const rev = a&&a.price&&state.subs[id] ? a.price*state.subs[id] : 0;
   const cell = $('rev-'+id);
   if(cell) cell.innerHTML = rev>0 ? `<span class="rev-calc">${fmt(rev)}</span>` : `<span style="color:var(--text3)">—</span>`;
   updateAll(); showSave();
+  if (isAdminAuthenticated()) renderAdminPanel();
 }
 
 function setRating(id,val) {
+  if (!canEditPortfolio()) return;
   state.ratings[id] = val;
   renderApps(); showSave();
+  if (isAdminAuthenticated()) renderAdminPanel();
 }
 
 function setFilter(f,btn) {
@@ -851,19 +1140,34 @@ function sortTable(col) {
 function openNote(id) {
   modalAppId = id;
   const app = APPS.find(a=>a.id===id);
-  $('modalTitle').textContent = `📝 Notes — ${app.name}`;
-  $('modalTextarea').value = state.notes[id]||'';
+  const ed = canEditPortfolio();
+  $('modalTitle').textContent = (ed?'📝 Notes':'👁️ Notes (view only)') + ` — ${app.name}`;
+  const ta = $('modalTextarea');
+  if (ta) {
+    ta.value = state.notes[id]||'';
+    ta.readOnly = !ed;
+  }
+  const saveBtn = $('modalSaveNoteBtn');
+  if (saveBtn) {
+    saveBtn.style.display = ed ? '' : 'none';
+    saveBtn.disabled = !ed;
+  }
   $('notesModal').classList.add('open');
 }
 function closeModal() { $('notesModal').classList.remove('open'); }
 function saveNote() {
-  if(modalAppId) { state.notes[modalAppId]=$('modalTextarea').value; renderApps(); showSave(); }
+  if (!canEditPortfolio()) return;
+  if(modalAppId) { state.notes[modalAppId]=$('modalTextarea').value; renderApps(); showSave(); if (isAdminAuthenticated()) renderAdminPanel(); }
   closeModal();
 }
 $('notesModal').addEventListener('click', e => { if(e.target===$('notesModal')) closeModal(); });
 
 // ── EXPORT CSV ────────────────────────────────────────────────────────────────
 function exportCSV() {
+  if (!canEditPortfolio()) {
+    alert('Admin sign-in required. Open the 🔐 Admin tab and unlock to export.');
+    return;
+  }
   const headers = ['ID','App Name','Description','Category','Status','Price/mo','Subscribers','Monthly Revenue','Rating','Priority','Notes','Next Maintenance'];
   const rows = APPS.map(a => {
     const subs = state.subs[a.id]||0;
@@ -919,22 +1223,26 @@ function renderRevenue() {
 
 // ── EXPENSES ──────────────────────────────────────────────────────────────────
 function renderExpenses() {
+  const canEdit = canEditPortfolio();
   $('expenseCards').innerHTML = APPS.map(a => {
     const e = state.expenses[a.id]||{hosting:'',domain:'',other:''};
     const total = (parseFloat(e.hosting)||0)+(parseFloat(e.domain)||0)+(parseFloat(e.other)||0);
     const rev = a.price&&state.subs[a.id] ? a.price*state.subs[a.id] : 0;
     const profit = rev - total;
+    const exAttr = canEdit ? `oninput="setExpense(${a.id},'hosting',this.value)"` : 'disabled';
+    const exAttr2 = canEdit ? `oninput="setExpense(${a.id},'domain',this.value)"` : 'disabled';
+    const exAttr3 = canEdit ? `oninput="setExpense(${a.id},'other',this.value)"` : 'disabled';
     return `<div class="card">
       <div class="card-header">
         <div class="card-name">${a.name}</div>
         <span class="status-badge ${a.status==='live'?'status-live':'status-maint'}" style="font-size:0.65rem">${a.status==='live'?'Live':'Maint.'}</span>
       </div>
       <div class="card-label">Hosting/mo ($)</div>
-      <input class="card-input" type="number" placeholder="0.00" value="${e.hosting}" oninput="setExpense(${a.id},'hosting',this.value)">
+      <input class="card-input" type="number" placeholder="0.00" value="${e.hosting}" ${exAttr}>
       <div class="card-label">Domain/yr ($)</div>
-      <input class="card-input" type="number" placeholder="0.00" value="${e.domain}" oninput="setExpense(${a.id},'domain',this.value)">
+      <input class="card-input" type="number" placeholder="0.00" value="${e.domain}" ${exAttr2}>
       <div class="card-label">Other/mo ($)</div>
-      <input class="card-input" type="number" placeholder="0.00" value="${e.other}" oninput="setExpense(${a.id},'other',this.value)">
+      <input class="card-input" type="number" placeholder="0.00" value="${e.other}" ${exAttr3}>
       <div style="display:flex;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
         <div><div style="font-size:0.68rem;color:var(--text3)">Costs</div><div class="expense-total">-${fmt(total)}</div></div>
         <div style="text-align:right"><div style="font-size:0.68rem;color:var(--text3)">Profit</div><div class="profit-val" style="color:${profit>=0?'var(--green)':'var(--red)'}">${fmt(profit)}</div></div>
@@ -944,6 +1252,7 @@ function renderExpenses() {
 }
 
 function setExpense(id,field,val) {
+  if (!canEditPortfolio()) return;
   if(!state.expenses[id]) state.expenses[id]={hosting:'',domain:'',other:''};
   state.expenses[id][field]=val;
   updateAll(); showSave();
@@ -957,21 +1266,26 @@ function setExpense(id,field,val) {
 
 // ── MARKETING ─────────────────────────────────────────────────────────────────
 function renderMarketing() {
+  const canEdit = canEditPortfolio();
   $('marketingCards').innerHTML = APPS.map(a => {
     const m = state.marketing[a.id]||{downloads:'',instagram:'',twitter:'',tiktok:''};
+    const mk1 = canEdit ? `oninput="setMarketing(${a.id},'downloads',this.value)"` : 'disabled';
+    const mk2 = canEdit ? `oninput="setMarketing(${a.id},'instagram',this.value)"` : 'disabled';
+    const mk3 = canEdit ? `oninput="setMarketing(${a.id},'twitter',this.value)"` : 'disabled';
+    const mk4 = canEdit ? `oninput="setMarketing(${a.id},'tiktok',this.value)"` : 'disabled';
     return `<div class="card">
       <div class="card-header">
         <div class="card-name">${a.name}</div>
         <span style="font-size:0.7rem;color:var(--text3)">${a.cat}</span>
       </div>
       <div class="card-label">Downloads / Installs</div>
-      <input class="card-input" type="number" placeholder="0" value="${m.downloads}" oninput="setMarketing(${a.id},'downloads',this.value)">
+      <input class="card-input" type="number" placeholder="0" value="${m.downloads}" ${mk1}>
       <div class="card-label">Instagram Followers</div>
-      <input class="card-input" type="number" placeholder="0" value="${m.instagram}" oninput="setMarketing(${a.id},'instagram',this.value)">
+      <input class="card-input" type="number" placeholder="0" value="${m.instagram}" ${mk2}>
       <div class="card-label">Twitter / X Followers</div>
-      <input class="card-input" type="number" placeholder="0" value="${m.twitter}" oninput="setMarketing(${a.id},'twitter',this.value)">
+      <input class="card-input" type="number" placeholder="0" value="${m.twitter}" ${mk3}>
       <div class="card-label">TikTok Followers</div>
-      <input class="card-input" type="number" placeholder="0" value="${m.tiktok}" oninput="setMarketing(${a.id},'tiktok',this.value)">
+      <input class="card-input" type="number" placeholder="0" value="${m.tiktok}" ${mk4}>
       <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:0.72rem;color:var(--text3);">
         Total reach: <span style="color:var(--accent);font-family:'DM Mono',monospace;font-weight:600">${((parseInt(m.instagram)||0)+(parseInt(m.twitter)||0)+(parseInt(m.tiktok)||0)).toLocaleString()}</span>
       </div>
@@ -980,6 +1294,7 @@ function renderMarketing() {
 }
 
 function setMarketing(id,field,val) {
+  if (!canEditPortfolio()) return;
   if(!state.marketing[id]) state.marketing[id]={downloads:'',instagram:'',twitter:'',tiktok:''};
   state.marketing[id][field]=val; showSave();
 }
@@ -996,16 +1311,20 @@ function renderVersionsPanel() {
 function renderVersions() {
   const appId = parseInt($('verAppSelect')?.value);
   const list = state.versions.filter(v=>v.appId===appId).sort((a,b)=>b.ts-a.ts);
+  const emptyHint = canEditPortfolio()
+    ? 'No version history yet. Add your first entry above.'
+    : 'No version history yet. Sign in via Admin to add entries.';
   $('versionList').innerHTML = list.length ? list.map(v => `
     <div class="ver-item">
       <span class="ver-badge">${v.ver}</span>
       <div class="ver-text">${v.notes||'—'}</div>
       <div class="ver-date">${new Date(v.ts).toLocaleDateString()}</div>
     </div>`).join('') :
-    `<div style="color:var(--text3);font-size:0.85rem;padding:1rem;">No version history yet. Add your first entry above.</div>`;
+    `<div style="color:var(--text3);font-size:0.85rem;padding:1rem;">${emptyHint}</div>`;
 }
 
 function addVersion() {
+  if (!canEditPortfolio()) return;
   const appId = parseInt($('verAppSelect')?.value);
   const ver = $('verNum').value.trim();
   const notes = $('verNotes').value.trim();
@@ -1018,6 +1337,8 @@ function addVersion() {
 // ── ROADMAP ───────────────────────────────────────────────────────────────────
 function renderRoadmap() {
   const roadmap = [
+    {id:27,blocker:"Next: Wire standalone Vercel project to GitHub auto-deploy · Real Stripe (Checkout Session + webhook on server) · Optional PWA manifest · Multi-tenant API + DB (Phase B in SAAS_ARCHITECTURE.md)",launch:"Q2 2026",effort:"High"},
+    {id:28,blocker:"Next: Same SaaS path as BarberBook · Server-side Twilio/SendGrid (never expose API secrets in SPA) · Optional Redis/session hardening for /api/bvs-auth pattern",launch:"Q2 2026",effort:"High"},
     {id:12,blocker:"Fix connection error",launch:"Apr 2026",effort:"Medium"},
     {id:9, blocker:"Complete AI builder",  launch:"Apr 2026",effort:"High"},
     {id:22,blocker:"Submit to App Store",  launch:"May 2026",effort:"High"},
@@ -1152,23 +1473,27 @@ function renderAdminPanel() {
 }
 
 function bulkSetStatus(status) {
+  if (!canEditPortfolio()) return;
   if(!confirm(`Set ALL ${APPS.length} apps to "${status}"?`)) return;
   APPS.forEach(a=>a.status=status);
   renderApps(); renderAdminPanel(); showSave();
 }
 
 function bulkSetSubs(n) {
+  if (!canEditPortfolio()) return;
   APPS.forEach(a=>{ if(a.price) state.subs[a.id]=n; });
   renderApps(); renderAdminPanel(); updateRevenueBanners(); showSave();
 }
 
 function clearAllNotes() {
+  if (!canEditPortfolio()) return;
   if(!confirm('Clear ALL notes?')) return;
   Object.keys(state.notes).forEach(k=>delete state.notes[k]);
   renderApps(); renderAdminPanel(); showSave();
 }
 
 function addNewApp() {
+  if (!canEditPortfolio()) return;
   const name  = $('new-app-name')?.value?.trim();
   const desc  = $('new-app-desc')?.value?.trim();
   const url   = $('new-app-url')?.value?.trim();
@@ -1184,12 +1509,18 @@ function addNewApp() {
 }
 
 function exportJSON() {
+  if (!canEditPortfolio()) return;
   const data = {apps:APPS, state:state, exported:new Date().toISOString()};
   const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a'); a.href=url; a.download='BVS_Portfolio_Backup.json'; a.click();
   URL.revokeObjectURL(url);
 }
+
+/** Days since last repo push before “stale” (needs action). */
+const MAINT_STALE_REPO_DAYS = 30;
+/** Open GitHub issues above this count flag repo health (needs action). */
+const MAINT_OPEN_ISSUES_WARN = 15;
 
 function normalizeRepoKey(v) {
   return (v || '').toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -1218,10 +1549,30 @@ function isFirebaseHostingUrl(url) {
   }
 }
 
+function isVercelHostingUrl(url) {
+  if (!url || !/^https?:\/\//i.test(url)) return false;
+  try {
+    return new URL(url).hostname.toLowerCase().endsWith('.vercel.app');
+  } catch {
+    return false;
+  }
+}
+
 function hostingUrlSetFromApps() {
   const s = new Set();
   APPS.forEach(a => {
     if (isFirebaseHostingUrl(a.url)) {
+      const n = normalizeHostingUrl(a.url);
+      if (n) s.add(n);
+    }
+  });
+  return s;
+}
+
+function vercelUrlSetFromApps() {
+  const s = new Set();
+  APPS.forEach(a => {
+    if (isVercelHostingUrl(a.url)) {
       const n = normalizeHostingUrl(a.url);
       if (n) s.add(n);
     }
@@ -1239,6 +1590,16 @@ function parseFirebaseManifest(data) {
   if (!data || !Array.isArray(data.hostingUrls)) return null;
   const set = new Set();
   data.hostingUrls.forEach(u => {
+    const n = normalizeHostingUrl(u);
+    if (n) set.add(n);
+  });
+  return set;
+}
+
+function parseVercelManifest(data) {
+  if (!data || !Array.isArray(data.deploymentUrls)) return null;
+  const set = new Set();
+  data.deploymentUrls.forEach(u => {
     const n = normalizeHostingUrl(u);
     if (n) set.add(n);
   });
@@ -1272,6 +1633,19 @@ function extractGithubRepoName(url) {
   }
 }
 
+/** e.g. https://aba-mastery.vercel.app/app → aba-mastery */
+function extractVercelProjectSlug(url) {
+  if (!url || !/^https?:\/\//i.test(url)) return null;
+  try {
+    const h = new URL(url).hostname.toLowerCase();
+    if (!h.endsWith('.vercel.app')) return null;
+    const slug = h.replace(/\.vercel\.app$/i, '');
+    return slug || null;
+  } catch {
+    return null;
+  }
+}
+
 function buildRepoIndex(repos) {
   const index = new Map();
   repos.forEach(repo => index.set(normalizeRepoKey(repo.name), repo));
@@ -1280,8 +1654,10 @@ function buildRepoIndex(repos) {
 
 function findRepoForApp(app, repoIndex) {
   const fromGithubUrl = extractGithubRepoName(app.url);
+  const fromVercelSlug = extractVercelProjectSlug(app.url);
   const candidates = [
     fromGithubUrl,
+    fromVercelSlug,
     app.name,
     app.name.replace(/&/g, 'and'),
     app.name.replace(/'/g, ''),
@@ -1332,6 +1708,10 @@ async function checkDeployment(url) {
       return { status:'ok', label:'Reachable (Firebase)', platform, runtimeChecked:false };
     }
 
+    if (isVercel) {
+      return { status:'ok', label:'Reachable (Vercel)', platform, runtimeChecked:false };
+    }
+
     return { status:'ok', label:'Reachable', platform, runtimeChecked:false };
   } catch {
     return { status:'fail', label:'Unreachable', platform, runtimeChecked:false };
@@ -1353,19 +1733,24 @@ function renderMaintenanceChecks() {
 
   if (!maintenanceState.results.length) {
     summary.textContent = maintenanceState.running ? 'Running checks...' : 'No checks run yet.';
-    body.innerHTML = `<tr><td colspan="8" style="color:var(--text3);font-size:0.82rem;">${maintenanceState.running ? 'Running checks...' : 'Run checks to generate automated maintenance results.'}</td></tr>`;
+    body.innerHTML = `<tr><td colspan="9" style="color:var(--text3);font-size:0.82rem;">${maintenanceState.running ? 'Running checks...' : 'Run checks to generate automated maintenance results.'}</td></tr>`;
     return;
   }
 
   const fm = maintenanceState.firebaseMeta;
+  const vm = maintenanceState.vercelMeta;
   const rt = maintenanceState.runtimeMeta;
   const attentionCount = maintenanceState.results.filter(r => r.needsAction).length;
-  const staleCount = maintenanceState.results.filter(r => typeof r.repoDays === 'number' && r.repoDays > 30).length;
+  const staleCount = maintenanceState.results.filter(r => typeof r.repoDays === 'number' && r.repoDays > MAINT_STALE_REPO_DAYS).length;
   const deployFailCount = maintenanceState.results.filter(r => r.deploy.status === 'fail').length;
   const matchedCount = maintenanceState.results.filter(r => !!r.repo).length;
+  const archivedCount = maintenanceState.results.filter(r => r.repoArchived).length;
+  const disabledCount = maintenanceState.results.filter(r => r.repoDisabled).length;
+  const highIssueCount = maintenanceState.results.filter(r => typeof r.openIssues === 'number' && r.openIssues > MAINT_OPEN_ISSUES_WARN).length;
   const stamp = maintenanceState.lastRunAt ? new Date(maintenanceState.lastRunAt).toLocaleString() : 'n/a';
 
-  const fbLabel = !fm.manifestLoaded ? 'Manifest: not loaded' : (fm.match100 ? 'Firebase manifest: 100% ✓' : 'Firebase manifest: MISMATCH ✗');
+  const fbLabel = !fm.manifestLoaded ? 'Firebase: mfst n/a' : (fm.match100 ? 'Firebase: 100% ✓' : 'Firebase: MISMATCH ✗');
+  const vcLabel = !vm.manifestLoaded ? 'Vercel: mfst n/a' : (vm.match100 ? 'Vercel: 100% ✓' : 'Vercel: MISMATCH ✗');
   let rtLabel = 'Runtime: no report';
   if (rt.loaded && rt.generatedAt) {
     const okN = maintenanceState.results.filter(r => r.runtime && r.runtime.ok).length;
@@ -1376,27 +1761,45 @@ function renderMaintenanceChecks() {
     rtLabel = 'Runtime: report fetch failed (open via http server or run CI)';
   }
 
-  summary.textContent = `Last run: ${stamp} | ${fbLabel} | ${rtLabel} | Repo: ${matchedCount}/${APPS.length} | Stale repos (>30d): ${staleCount} | Unreachable: ${deployFailCount} | Needs action: ${attentionCount}`;
+  summary.textContent = `Last run: ${stamp} | ${fbLabel} | ${vcLabel} | ${rtLabel} | Repo: ${matchedCount}/${APPS.length} | Stale (>${MAINT_STALE_REPO_DAYS}d): ${staleCount} | Archived: ${archivedCount} · Disabled: ${disabledCount} · Issues>${MAINT_OPEN_ISSUES_WARN}: ${highIssueCount} | Unreachable: ${deployFailCount} | Needs action: ${attentionCount}`;
 
   body.innerHTML = maintenanceState.results.map(r => {
-    const repoTxt = r.repo ? r.repo.name : (r.app.url && r.app.url.includes('github.io') ? 'No match' : '—');
-    const repoColor = r.repo ? 'var(--green)' : (r.app.url && r.app.url.includes('github.io') ? 'var(--red)' : 'var(--text3)');
+    const wantsRepoHint = !!(r.app.url && (r.app.url.includes('github.io') || isVercelHostingUrl(r.app.url)));
+    const repoTxt = r.repo ? r.repo.name : (wantsRepoHint ? 'No match' : '—');
+    const repoColor = r.repo ? 'var(--green)' : (wantsRepoHint ? 'var(--red)' : 'var(--text3)');
     const updatedTxt = typeof r.repoDays === 'number' ? `${r.repoDays}d ago` : 'n/a';
-    const updatedColor = typeof r.repoDays === 'number' && r.repoDays > 30 ? 'var(--orange)' : 'var(--text2)';
+    const updatedColor = typeof r.repoDays === 'number' && r.repoDays > MAINT_STALE_REPO_DAYS ? 'var(--orange)' : 'var(--text2)';
+    const healthParts = [];
+    let healthColor = 'var(--text3)';
+    let healthTxt = '—';
+    if (r.repo) {
+      if (r.repoArchived) healthParts.push('ARCHIVED');
+      if (r.repoDisabled) healthParts.push('DISABLED');
+      if (typeof r.openIssues === 'number' && r.openIssues > 0) healthParts.push(r.openIssues + ' open');
+      if (!healthParts.length) {
+        healthTxt = 'OK';
+        healthColor = 'var(--green)';
+      } else {
+        healthTxt = healthParts.join(' · ');
+        healthColor = r.repoHealthIssue ? 'var(--red)' : 'var(--orange)';
+      }
+    }
     const maintColor = r.overdue ? 'var(--red)' : 'var(--text2)';
     const actionTxt = r.needsAction ? 'Yes' : 'No';
     const actionColor = r.needsAction ? 'var(--red)' : 'var(--green)';
     const deployColor = r.deploy.status === 'ok' ? 'var(--green)' : (r.deploy.status === 'fail' ? 'var(--red)' : 'var(--text2)');
     const deployLabel = `${r.deploy.label}${r.deploy.platform ? ` (${r.deploy.platform})` : ''}`;
 
-    let fbCell = '🟢 OK';
-    let fbColor = 'var(--green)';
-    if (!isFirebaseHostingUrl(r.app.url)) {
-      fbCell = '—'; fbColor = 'var(--text3)';
-    } else if (!fm.manifestLoaded) {
-      fbCell = '⚠ No manifest'; fbColor = 'var(--orange)';
-    } else if (!fm.match100) {
-      fbCell = '✗ Not 100%'; fbColor = 'var(--red)';
+    let fbCell = '—';
+    let fbColor = 'var(--text3)';
+    if (isFirebaseHostingUrl(r.app.url)) {
+      if (!fm.manifestLoaded) { fbCell = '⚠ Fb mfst'; fbColor = 'var(--orange)'; }
+      else if (!fm.match100) { fbCell = '✗ Fb'; fbColor = 'var(--red)'; }
+      else { fbCell = 'Fb ✓'; fbColor = 'var(--green)'; }
+    } else if (isVercelHostingUrl(r.app.url)) {
+      if (!vm.manifestLoaded) { fbCell = '⚠ Vc mfst'; fbColor = 'var(--orange)'; }
+      else if (!vm.match100) { fbCell = '✗ Vc'; fbColor = 'var(--red)'; }
+      else { fbCell = 'Vc ✓'; fbColor = 'var(--green)'; }
     }
 
     let rtCell = '—';
@@ -1406,11 +1809,27 @@ function renderMaintenanceChecks() {
         rtCell = rt.loaded ? 'No row' : 'No CI scan';
         rtColor = 'var(--orange)';
       } else if (r.runtime.ok) {
-        rtCell = '✓ Clean';
+        const sec = typeof r.runtime.loadTimeMs === 'number' ? (r.runtime.loadTimeMs / 1000).toFixed(1) + 's' : '';
+        const tit = (r.runtime.title || '').trim();
+        const titShort = tit.length > 28 ? tit.slice(0, 26) + '…' : tit;
+        const warnN = (r.runtime.consoleWarnings && r.runtime.consoleWarnings.length) || 0;
+        rtCell = '✓' + (sec ? ' ' + sec : '') + (titShort ? ' · ' + titShort : '') + (warnN ? ` · ${warnN} warn` : '');
         rtColor = 'var(--green)';
       } else {
-        const n = (r.runtime.consoleErrors?.length||0)+(r.runtime.pageErrors?.length||0)+(r.runtime.failedRequests?.length||0);
-        rtCell = `✗ ${n} issues`;
+        const ce = Array.isArray(r.runtime.significantConsoleErrors)
+          ? r.runtime.significantConsoleErrors.length
+          : (r.runtime.consoleErrors?.length || 0);
+        const pe = Array.isArray(r.runtime.significantPageErrors)
+          ? r.runtime.significantPageErrors.length
+          : (r.runtime.pageErrors?.length || 0);
+        const n = ce + pe + (r.runtime.failedRequests?.length || 0);
+        const extra = [];
+        if (r.runtime.navigationError) extra.push('nav fail');
+        if (typeof r.runtime.loadTimeMs === 'number' && r.runtime.loadTimeMs > 15000) extra.push('slow');
+        if (!(r.runtime.title && String(r.runtime.title).trim())) extra.push('no title');
+        const w = (r.runtime.consoleWarnings && r.runtime.consoleWarnings.length) || 0;
+        if (w > 40) extra.push('warn flood');
+        rtCell = `✗ ${n} err` + (extra.length ? ' · ' + extra.join(', ') : '');
         rtColor = 'var(--red)';
       }
     }
@@ -1418,6 +1837,7 @@ function renderMaintenanceChecks() {
     return `<tr>
       <td style="font-size:0.8rem;font-weight:600;">${r.app.name}</td>
       <td style="font-size:0.78rem;color:${repoColor};font-family:'DM Mono',monospace;">${repoTxt}</td>
+      <td style="font-size:0.78rem;color:${healthColor};font-family:'DM Mono',monospace;">${healthTxt}</td>
       <td style="font-size:0.78rem;color:${updatedColor};font-family:'DM Mono',monospace;">${updatedTxt}</td>
       <td style="font-size:0.78rem;color:${deployColor};font-family:'DM Mono',monospace;">${deployLabel}</td>
       <td style="font-size:0.78rem;color:${fbColor};font-family:'DM Mono',monospace;">${fbCell}</td>
@@ -1436,15 +1856,18 @@ async function runMaintenanceChecks() {
   renderMaintenanceChecks();
 
   try {
-    const [repos, manifestData, runtimePayload] = await Promise.all([
+    const [repos, manifestData, vercelManifestData, runtimePayload] = await Promise.all([
       fetchRonb12Repos(),
       fetchJson('./data/firebase-hosting-manifest.json'),
+      fetchJson('./data/vercel-deployment-manifest.json'),
       fetchJson('./data/latest-runtime-check.json'),
     ]);
 
     const repoIndex = buildRepoIndex(repos);
     const appFbSet = hostingUrlSetFromApps();
+    const appVcSet = vercelUrlSetFromApps();
     const manifestSet = parseFirebaseManifest(manifestData);
+    const vercelSet = parseVercelManifest(vercelManifestData);
 
     maintenanceState.firebaseMeta = { match100:null, onlyInApps:[], onlyInManifest:[], manifestLoaded:false, manifestError:null };
     if (!manifestData) {
@@ -1460,6 +1883,20 @@ async function runMaintenanceChecks() {
       maintenanceState.firebaseMeta.match100 = onlyInApps.length === 0 && onlyInManifest.length === 0;
     }
 
+    maintenanceState.vercelMeta = { match100:null, onlyInApps:[], onlyInManifest:[], manifestLoaded:false, manifestError:null };
+    if (!vercelManifestData) {
+      maintenanceState.vercelMeta.manifestError = 'Could not load vercel-deployment-manifest.json (use a local server or GitHub Pages).';
+    } else if (!vercelSet) {
+      maintenanceState.vercelMeta.manifestError = 'Invalid manifest: expected { deploymentUrls: string[] }';
+    } else {
+      maintenanceState.vercelMeta.manifestLoaded = true;
+      const onlyInAppsVc = [...appVcSet].filter(u => !vercelSet.has(u));
+      const onlyInManifestVc = [...vercelSet].filter(u => !appVcSet.has(u));
+      maintenanceState.vercelMeta.onlyInApps = onlyInAppsVc;
+      maintenanceState.vercelMeta.onlyInManifest = onlyInManifestVc;
+      maintenanceState.vercelMeta.match100 = onlyInAppsVc.length === 0 && onlyInManifestVc.length === 0;
+    }
+
     maintenanceState.runtimeMeta = { loaded:false, generatedAt:null, error:null };
     if (runtimePayload && Array.isArray(runtimePayload.results)) {
       maintenanceState.runtimeMeta.loaded = true;
@@ -1469,6 +1906,7 @@ async function runMaintenanceChecks() {
     }
 
     const fm = maintenanceState.firebaseMeta;
+    const vm = maintenanceState.vercelMeta;
     const results = [];
 
     for (const app of APPS) {
@@ -1476,21 +1914,27 @@ async function runMaintenanceChecks() {
       const deploy = await checkDeployment(app.url);
       const repoDays = repo ? daysSince(repo.pushed_at || repo.updated_at) : null;
       const overdue = isOverdue(app.maintOffset);
-      const staleRepo = !!(repo && typeof repoDays === 'number' && repoDays > 30);
+      const staleRepo = !!(repo && typeof repoDays === 'number' && repoDays > MAINT_STALE_REPO_DAYS);
+      const repoArchived = !!(repo && repo.archived);
+      const repoDisabled = !!(repo && repo.disabled);
+      const openIssues = repo && typeof repo.open_issues_count === 'number' ? repo.open_issues_count : null;
+      const repoHealthIssue = repoArchived || repoDisabled || (openIssues !== null && openIssues > MAINT_OPEN_ISSUES_WARN);
       const deployIssue = deploy.status === 'fail';
       const hasGithubUrl = !!(app.url && app.url.includes('github.io'));
-      const repoIssue = hasGithubUrl && !repo;
-
       const isFb = isFirebaseHostingUrl(app.url);
+      const isVc = isVercelHostingUrl(app.url);
+      const repoIssue = (hasGithubUrl || isVc) && !repo;
       const firebaseIssue = isFb && (!fm.manifestLoaded || fm.match100 !== true);
+      const vercelIssue = isVc && (!vm.manifestLoaded || vm.match100 !== true);
 
       const rtRow = runtimeResultForApp(app, runtimePayload);
       const runtimeIssue = !!(rtRow && rtRow.ok === false);
 
-      const needsAction = overdue || staleRepo || deployIssue || repoIssue || firebaseIssue || runtimeIssue;
+      const needsAction = overdue || staleRepo || deployIssue || repoIssue || firebaseIssue || vercelIssue || runtimeIssue || repoHealthIssue;
       results.push({
         app, repo, repoDays, deploy, overdue, needsAction,
         runtime: rtRow,
+        repoArchived, repoDisabled, openIssues, repoHealthIssue,
       });
     }
 
@@ -1500,6 +1944,7 @@ async function runMaintenanceChecks() {
     maintenanceState.results = [];
     maintenanceState.lastRunAt = Date.now();
     maintenanceState.firebaseMeta = { match100:null, onlyInApps:[], onlyInManifest:[], manifestLoaded:false, manifestError:'—' };
+    maintenanceState.vercelMeta = { match100:null, onlyInApps:[], onlyInManifest:[], manifestLoaded:false, manifestError:'—' };
     maintenanceState.runtimeMeta = { loaded:false, generatedAt:null, error:'—' };
     const summary = $('maintenanceCheckSummary');
     if (summary) summary.textContent = 'Maintenance check failed. Verify internet and GitHub API access.';
@@ -1511,14 +1956,18 @@ async function runMaintenanceChecks() {
 }
 
 
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
   const now = new Date();
   const ds = now.toLocaleDateString('en-US',{weekday:'short',year:'numeric',month:'short',day:'numeric'});
   $('headerDate').textContent = ds;
   $('footerDate').textContent = ds;
+  await tryMergeFromCloudOnLoad();
+  const gi = $('goalInput');
+  if (gi && typeof state.goalAmount === 'number') gi.value = String(state.goalAmount);
+  syncAdminGate();
+  syncPortfolioEditMode();
   renderApps();
   updateAll();
-  syncAdminGate();
   if (isAdminAuthenticated()) renderAdminPanel();
   renderMaintenanceChecks();
   setTimeout(animateFadeIns, 100);
