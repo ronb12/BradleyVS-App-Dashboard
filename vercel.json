@@ -7,5 +7,15 @@
   "trailingSlash": false,
   "rewrites": [
     { "source": "/", "destination": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/BVS_Dashboard_v2_1.html",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }]
+    },
+    {
+      "source": "/BVS_Dashboard_v2_1",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }]
+    }
   ]
 }
