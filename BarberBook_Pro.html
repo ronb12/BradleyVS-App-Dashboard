@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BarberBook Pro — Shop Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@300;400;500;600;700;800&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* Blue + chrome silver theme (accents still use --red/--gold names for compatibility) */
+:root{
+  --ink:#0a1628;--paper:#f2f5fb;--cream:#e8edf5;--tan:#90a0b8;
+  --red:#0b5ed7;--red2:#2f7eea;--gold:#8b9cb0;--gold2:#d4dde8;
+  --steel:#152a45;--smoke:#5a6b82;--white:#ffffff;
+  --border:#c1cedf;--shadow:rgba(11,94,215,0.14);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Nunito',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;}
+
+/* Stripe pattern header */
+header{background:var(--ink);position:sticky;top:0;z-index:100;border-bottom:4px solid var(--red);}
+.header-stripe{height:6px;background:repeating-linear-gradient(90deg,#0b5ed7 0,#0b5ed7 16px,#d4dde8 16px,#d4dde8 32px,#7d8fa6 32px,#7d8fa6 48px,#edf1f8 48px,#edf1f8 64px);}
+.header-inner{display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:60px;}
+.logo{display:flex;align-items:center;gap:12px;}
+.logo-icon{font-size:1.8rem;}
+.logo-text{font-family:'Pacifico',cursive;font-size:1.8rem;color:var(--white);letter-spacing:0.05em;line-height:1;}
+.logo-sub{font-size:0.65rem;color:var(--tan);letter-spacing:0.15em;text-transform:uppercase;line-height:1;}
+.header-info{display:flex;align-items:center;gap:1.5rem;}
+.shop-stat{text-align:center;}
+.shop-stat-val{font-family:'Pacifico',cursive;font-size:1.3rem;color:#dde6f2;text-shadow:0 0 12px rgba(212,221,232,0.35);}
+.shop-stat-lbl{font-size:0.6rem;color:var(--smoke);text-transform:uppercase;letter-spacing:0.1em;}
+
+/* Nav */
+nav{background:linear-gradient(90deg,#152a45,#0b5ed7);border-bottom:2px solid #c8d4e4;}
+.nav-inner{display:flex;overflow-x:auto;padding:0 2rem;}
+.nav-btn{padding:12px 20px;border:none;background:transparent;color:#cbd5e1;font-family:'Nunito Sans',sans-serif;font-size:0.9rem;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;border-bottom:3px solid transparent;transition:all 0.2s;white-space:nowrap;}
+.nav-btn.active,.nav-btn:hover{color:var(--white);border-bottom-color:#e2e8f0;}
+.nav-btn.active{color:#f8fafc;}
+
+.container{max-width:1300px;margin:0 auto;padding:2rem;}
+.panel{display:none;}.panel.active{display:block;animation:fadeIn 0.3s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* Section headers */
+.section-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;}
+.section-title{font-family:'Pacifico',cursive;font-size:2rem;letter-spacing:0.05em;color:var(--ink);}
+.section-title span{color:var(--red);}
+
+/* Buttons */
+.btn{padding:10px 20px;border:none;border-radius:4px;font-family:'Nunito',sans-serif;font-weight:600;font-size:0.875rem;cursor:pointer;transition:all 0.2s;letter-spacing:0.02em;}
+.btn-primary{background:var(--red);color:var(--white);}
+.btn-primary:hover{background:var(--red2);box-shadow:0 4px 14px rgba(11,94,215,0.38);}
+.btn-gold{background:linear-gradient(180deg,#f5f7fb,#b9c9db);color:var(--steel);border:1px solid #a8b8cc;}
+.btn-gold:hover{background:linear-gradient(180deg,#ffffff,#d4dde8);}
+.btn-ghost{background:transparent;border:2px solid var(--border);color:var(--ink);}
+.btn-ghost:hover{border-color:var(--red);color:var(--red);}
+.btn-sm{padding:6px 14px;font-size:0.8rem;}
+.btn-danger{background:rgba(220,38,38,0.08);border:1px solid #dc2626;color:#b91c1c;}
+.btn-danger:hover{background:#dc2626;color:white;}
+
+/* Cards */
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem;}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;}
+.grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;}
+.card{background:linear-gradient(180deg,#ffffff 0%,#f7f9fc 100%);border:1px solid var(--border);border-radius:8px;padding:1.5rem;box-shadow:0 2px 10px var(--shadow);}
+.card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;padding-bottom:0.75rem;border-bottom:1px solid var(--cream);}
+.card-title{font-family:'Nunito Sans',sans-serif;font-size:1rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--steel);}
+
+/* KPI */
+.kpi-val{font-family:'Pacifico',cursive;font-size:2.5rem;color:var(--red);line-height:1;}
+.kpi-lbl{font-size:0.75rem;color:var(--smoke);text-transform:uppercase;letter-spacing:0.08em;margin-top:2px;}
+.kpi-change{font-size:0.75rem;margin-top:4px;}
+.pos{color:#16a34a;}.neg{color:#dc2626;}
+
+/* Forms */
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;}
+.field{display:flex;flex-direction:column;gap:4px;}
+.field label{font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--steel);}
+.field input,.field select,.field textarea{background:var(--cream);border:1px solid var(--border);border-radius:4px;padding:9px 12px;font-family:'Nunito',sans-serif;font-size:0.875rem;color:var(--ink);outline:none;transition:border-color 0.2s;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--red);}
+.field textarea{resize:vertical;min-height:80px;}
+
+/* Tables */
+.table-wrap{overflow-x:auto;border-radius:8px;border:1px solid var(--border);}
+table{width:100%;border-collapse:collapse;}
+thead{background:linear-gradient(90deg,#152a45,#0b5ed7);}
+th{padding:10px 14px;text-align:left;font-family:'Nunito Sans',sans-serif;font-size:0.78rem;font-weight:700;color:var(--white);text-transform:uppercase;letter-spacing:0.06em;white-space:nowrap;}
+tbody tr{border-bottom:1px solid var(--cream);transition:background 0.15s;}
+tbody tr:hover{background:var(--cream);}
+td{padding:10px 14px;font-size:0.85rem;}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.7rem;font-weight:700;letter-spacing:0.04em;}
+.badge-green{background:#dbeafe;color:#1e40af;}
+.badge-yellow{background:#fef9c3;color:#b7770d;}
+.badge-red{background:#fee2e2;color:#b91c1c;}
+.badge-blue{background:#dbeafe;color:#1e40af;}
+
+/* Appointment slot */
+.time-slot{display:flex;gap:1rem;align-items:center;padding:10px 14px;border-radius:6px;border:1px solid var(--border);margin-bottom:6px;transition:all 0.2s;background:var(--white);}
+.time-slot:hover{border-color:var(--red);box-shadow:0 2px 8px var(--shadow);}
+.slot-time{font-family:'Pacifico',cursive;font-size:1.1rem;color:var(--red);min-width:60px;}
+.slot-client{font-weight:600;}
+.slot-service{font-size:0.78rem;color:var(--smoke);}
+.slot-price{font-family:'Nunito Sans',sans-serif;font-weight:700;color:var(--steel);margin-left:auto;}
+.slot-empty{color:var(--smoke);font-style:italic;font-size:0.82rem;}
+
+/* Tabs within panels */
+.inner-tabs{display:flex;gap:4px;margin-bottom:1.5rem;border-bottom:2px solid var(--border);}
+.inner-tab{padding:8px 16px;border:none;background:transparent;font-family:'Nunito',sans-serif;font-weight:600;font-size:0.85rem;color:var(--smoke);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 0.2s;}
+.inner-tab.active{color:var(--red);border-bottom-color:var(--red);}
+
+/* Progress bars */
+.prog-wrap{height:8px;background:var(--cream);border-radius:4px;overflow:hidden;margin-top:6px;}
+.prog-bar{height:100%;border-radius:4px;background:linear-gradient(90deg,#0b5ed7,#8b9cb0);transition:width 0.6s ease;}
+
+/* Modal */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:500;display:none;align-items:center;justify-content:center;}
+.modal-bg.open{display:flex;}
+.modal{background:var(--white);border-radius:12px;padding:2rem;width:min(560px,92vw);max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
+.modal h3{font-family:'Pacifico',cursive;font-size:1.6rem;letter-spacing:0.05em;margin-bottom:1.25rem;color:var(--ink);}
+.modal-actions{display:flex;gap:0.75rem;justify-content:flex-end;margin-top:1.25rem;}
+
+/* Revenue chart bars */
+.bar-chart{display:flex;align-items:flex-end;gap:6px;height:120px;padding:0 4px;}
+.bar-col{display:flex;flex-direction:column;align-items:center;flex:1;gap:4px;}
+.bar{width:100%;background:linear-gradient(180deg,#d4dde8,#0b5ed7);border-radius:3px 3px 0 0;transition:height 0.6s ease;min-height:4px;}
+.bar-lbl{font-size:0.65rem;color:var(--smoke);font-family:'Nunito Sans',sans-serif;font-weight:600;text-transform:uppercase;}
+.bar-val{font-size:0.65rem;color:var(--steel);font-family:'Nunito Sans',sans-serif;font-weight:700;}
+
+/* Notification dot */
+.notif{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--red);margin-left:4px;vertical-align:middle;}
+
+@media(max-width:640px){
+  .header-info .shop-stat{display:none;}
+  .header-info{border-left:none;margin-left:0;padding-left:0;}
+  .container{padding:1rem;}
+  .grid-4{grid-template-columns:repeat(2,1fr);}
+}
+</style>
+</head>
+<body>
+
+<!-- Login (shown first; same flow as NailGlow Studio) -->
+<div id="loginScreen" style="display:flex;position:fixed;inset:0;background:linear-gradient(135deg,#0a1628,#0b5ed7);z-index:10000;align-items:center;justify-content:center;flex-direction:column;">
+  <div style="background:#ffffff;border-radius:20px;padding:2.5rem;width:min(380px,90vw);box-shadow:0 24px 60px rgba(11,94,215,0.35);">
+    <div style="text-align:center;margin-bottom:1.5rem;">
+      <div style="font-size:2.5rem;">✂️</div>
+      <div style="font-family:'Pacifico',cursive;font-size:1.75rem;color:#0a1628;">BarberBook Pro</div>
+      <div style="font-size:0.72rem;color:#5a6b82;letter-spacing:0.12em;text-transform:uppercase;">Shop Management</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:0.75rem;">
+      <div>
+        <label style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#152a45;">Email</label>
+        <input id="login-email" type="email" placeholder="owner@barberbook.com" value="owner@barberbook.com" style="width:100%;background:#f2f5fb;border:1px solid #c1cedf;border-radius:8px;padding:10px 14px;font-size:0.9rem;margin-top:4px;outline:none;font-family:'Nunito',sans-serif;">
+      </div>
+      <div>
+        <label style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#152a45;">Password</label>
+        <input id="login-pass" type="password" placeholder="••••••••" value="barberbook123" style="width:100%;background:#f2f5fb;border:1px solid #c1cedf;border-radius:8px;padding:10px 14px;font-size:0.9rem;margin-top:4px;outline:none;font-family:'Nunito',sans-serif;">
+      </div>
+      <div id="login-err" style="color:#dc2626;font-size:0.8rem;min-height:1rem;"></div>
+      <button type="button" onclick="doLogin()" class="btn btn-primary" style="width:100%;padding:12px;border-radius:8px;">Sign In ✂️</button>
+      <div style="text-align:center;font-size:0.72rem;color:#5a6b82;">Default: owner@barberbook.com / barberbook123</div>
+    </div>
+  </div>
+</div>
+
+<div id="appScreen" style="display:none;">
+
+<!-- Modals -->
+<div class="modal-bg" id="apptModal">
+  <div class="modal">
+    <h3>✂️ New Appointment</h3>
+    <div class="form-grid">
+      <div class="field"><label>Client Name</label><input id="appt-client" placeholder="John Smith"></div>
+      <div class="field"><label>Phone</label><input id="appt-phone" placeholder="(504) 555-0100"></div>
+      <div class="field"><label>Service</label>
+        <select id="appt-service"></select>
+      </div>
+      <div class="field"><label>Barber</label>
+        <select id="appt-barber"><option>Any Available</option></select>
+      </div>
+      <div class="field"><label>Date</label><input type="date" id="appt-date"></div>
+      <div class="field"><label>Time</label>
+        <select id="appt-time">
+          <option>9:00 AM</option><option>9:30 AM</option><option>10:00 AM</option><option>10:30 AM</option>
+          <option>11:00 AM</option><option>11:30 AM</option><option>12:00 PM</option><option>12:30 PM</option>
+          <option>1:00 PM</option><option>1:30 PM</option><option>2:00 PM</option><option>2:30 PM</option>
+          <option>3:00 PM</option><option>3:30 PM</option><option>4:00 PM</option><option>4:30 PM</option>
+          <option>5:00 PM</option><option>5:30 PM</option>
+        </select>
+      </div>
+      <div class="field" style="grid-column:1/-1"><label>Notes</label><textarea id="appt-notes" placeholder="Special requests, preferred style..."></textarea></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('apptModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveAppt()">Book Appointment</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="clientModal">
+  <div class="modal">
+    <h3>👤 Add Client</h3>
+    <div class="form-grid">
+      <div class="field"><label>Full Name</label><input id="cl-name" placeholder="John Smith"></div>
+      <div class="field"><label>Phone</label><input id="cl-phone" placeholder="(504) 555-0100"></div>
+      <div class="field"><label>Email</label><input id="cl-email" placeholder="john@email.com"></div>
+      <div class="field"><label>Preferred Barber</label><select id="cl-barber"><option>No Preference</option></select></div>
+      <div class="field" style="grid-column:1/-1"><label>Preferred Style / Notes</label><textarea id="cl-notes" placeholder="Always gets a #2 fade, beard lined up..."></textarea></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('clientModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveClient()">Add Client</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="barberModal">
+  <div class="modal">
+    <h3>✂️ Add Barber</h3>
+    <div class="form-grid">
+      <div class="field"><label>Full Name</label><input id="br-name" placeholder="Marcus Williams"></div>
+      <div class="field"><label>Phone</label><input id="br-phone" placeholder="(504) 555-0200"></div>
+      <div class="field"><label>Specialty</label><input id="br-specialty" placeholder="Fades, Designs"></div>
+      <div class="field"><label>Commission %</label><input id="br-commission" type="number" placeholder="60" value="60"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('barberModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveBarber()">Add Barber</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="checkoutModal">
+  <div class="modal">
+    <h3>💈 Checkout</h3>
+    <div id="checkoutContent"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('checkoutModal')">Cancel</button>
+      <button class="btn btn-gold" onclick="completeCheckout()">✓ Complete & Pay</button>
+    </div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-stripe"></div>
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">✂️</div>
+      <div><div class="logo-text">BarberBook Pro</div><div class="logo-sub">Shop Management System</div></div>
+    </div>
+    <div class="header-info">
+      <div class="shop-stat"><div class="shop-stat-val" id="hdr-today">$0</div><div class="shop-stat-lbl">Today's Revenue</div></div>
+      <div class="shop-stat"><div class="shop-stat-val" id="hdr-appts">0</div><div class="shop-stat-lbl">Today's Appts</div></div>
+      <div class="shop-stat"><div class="shop-stat-val" id="hdr-queue">0</div><div class="shop-stat-lbl">In Queue</div></div>
+      <div style="border-left:1px solid rgba(148,163,184,0.35);padding-left:1.25rem;margin-left:0.5rem;display:flex;align-items:center;gap:0.75rem;">
+        <div style="text-align:right;">
+          <div id="current-user-name" style="font-size:0.8rem;color:#e2e8f0;font-weight:600;">—</div>
+          <div id="current-user-role" style="font-size:0.65rem;color:#94a3b8;text-transform:uppercase;letter-spacing:0.08em;">—</div>
+        </div>
+        <button type="button" onclick="doLogout()" class="btn btn-ghost btn-sm" style="color:#e2e8f0;border-color:rgba(226,232,240,0.35);white-space:nowrap;">Logout</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav>
+  <div class="nav-inner">
+    <button class="nav-btn active" onclick="showPanel('dashboard',this)">📊 Dashboard</button>
+    <button class="nav-btn" onclick="showPanel('appointments',this)">📅 Appointments</button>
+    <button class="nav-btn" onclick="showPanel('walkin',this)">🚶 Walk-Ins</button>
+    <button class="nav-btn" onclick="showPanel('clients',this)">👥 Clients</button>
+    <button class="nav-btn" onclick="showPanel('barbers',this)">✂️ Barbers</button>
+    <button class="nav-btn" onclick="showPanel('services',this)">💈 Services</button>
+    <button class="nav-btn" onclick="showPanel('inventory',this)">📦 Inventory</button>
+    <button class="nav-btn" onclick="showPanel('reports',this)">📈 Reports</button>
+    <button class="nav-btn" onclick="showPanel('settings',this)">⚙️ Settings</button>
+  </div>
+</nav>
+
+<div class="container">
+
+<!-- DASHBOARD -->
+<div id="panel-dashboard" class="panel active">
+  <div class="section-hdr">
+    <div class="section-title">Today's <span>Overview</span></div>
+    <div style="display:flex;gap:0.75rem;">
+      <button class="btn btn-ghost btn-sm" onclick="showPanel('walkin',document.querySelector('.nav-btn:nth-child(3)'))">+ Walk-In</button>
+      <button class="btn btn-primary btn-sm" onclick="openModal('apptModal')">+ Book Appointment</button>
+    </div>
+  </div>
+  <div class="grid-4" style="margin-bottom:1.5rem;">
+    <div class="card"><div class="kpi-lbl">Today's Revenue</div><div class="kpi-val" id="dash-rev">$0</div><div class="kpi-change pos" id="dash-rev-ch">↑ 0 appointments</div></div>
+    <div class="card"><div class="kpi-lbl">Appointments</div><div class="kpi-val" id="dash-appts">0</div><div class="kpi-change" id="dash-appt-ch" style="color:var(--smoke)">scheduled today</div></div>
+    <div class="card"><div class="kpi-lbl">Clients Served</div><div class="kpi-val" id="dash-served">0</div><div class="kpi-change pos">today</div></div>
+    <div class="card"><div class="kpi-lbl">Active Barbers</div><div class="kpi-val" id="dash-barbers">0</div><div class="kpi-change" style="color:var(--smoke)">on the floor</div></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">Today's Schedule</span><button class="btn btn-primary btn-sm" onclick="openModal('apptModal')">+ Add</button></div>
+      <div id="todaySchedule"><div style="color:var(--smoke);font-style:italic;font-size:0.85rem;padding:1rem 0;">No appointments yet. Book one or add a walk-in!</div></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">Weekly Revenue</span></div>
+      <div class="bar-chart" id="weeklyChart"></div>
+      <div style="margin-top:1rem;border-top:1px solid var(--cream);padding-top:0.75rem;display:flex;justify-content:space-between;">
+        <div><div style="font-size:0.72rem;color:var(--smoke);text-transform:uppercase;letter-spacing:0.05em">This Week</div><div style="font-family:'Pacifico',cursive;font-size:1.4rem;color:var(--red)" id="weekTotal">$0</div></div>
+        <div style="text-align:right"><div style="font-size:0.72rem;color:var(--smoke);text-transform:uppercase;letter-spacing:0.05em">Monthly Est.</div><div style="font-family:'Pacifico',cursive;font-size:1.4rem;color:var(--steel)" id="monthEst">$0</div></div>
+      </div>
+    </div>
+  </div>
+  <div style="margin-top:1.5rem;"></div>
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">Top Services Today</span></div>
+      <div id="topServices"><div style="color:var(--smoke);font-style:italic;font-size:0.82rem;">No data yet</div></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">Barber Performance</span></div>
+      <div id="barberPerf"><div style="color:var(--smoke);font-style:italic;font-size:0.82rem;">Add barbers to track performance</div></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">Quick Actions</span></div>
+      <div style="display:flex;flex-direction:column;gap:0.5rem;">
+        <button class="btn btn-primary" onclick="openModal('apptModal')">📅 Book Appointment</button>
+        <button class="btn btn-gold" onclick="showPanel('walkin',document.querySelector('.nav-btn:nth-child(3)'))">🚶 Add Walk-In</button>
+        <button class="btn btn-ghost" onclick="openModal('clientModal')">👤 New Client</button>
+        <button class="btn btn-ghost" onclick="showPanel('reports',document.querySelector('.nav-btn:nth-child(8)'))">📈 View Reports</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- APPOINTMENTS -->
+<div id="panel-appointments" class="panel">
+  <div class="section-hdr">
+    <div class="section-title">Appointments</div>
+    <button class="btn btn-primary" onclick="openModal('apptModal')">+ New Appointment</button>
+  </div>
+  <div class="card" style="margin-bottom:1.5rem;">
+    <div class="form-grid" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr));">
+      <div class="field"><label>Filter Date</label><input type="date" id="filterDate" oninput="renderAppointments()"></div>
+      <div class="field"><label>Filter Barber</label><select id="filterBarber" onchange="renderAppointments()"><option value="">All Barbers</option></select></div>
+      <div class="field"><label>Status</label><select id="filterStatus" onchange="renderAppointments()"><option value="">All</option><option>Scheduled</option><option>Completed</option><option>No-Show</option></select></div>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table><thead><tr><th>Time</th><th>Client</th><th>Service</th><th>Barber</th><th>Price</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody id="apptTable"><tr><td colspan="7" style="text-align:center;color:var(--smoke);padding:2rem;font-style:italic;">No appointments yet. Click "+ New Appointment" to get started.</td></tr></tbody></table>
+  </div>
+</div>
+
+<!-- WALK-IN QUEUE -->
+<div id="panel-walkin" class="panel">
+  <div class="section-hdr">
+    <div class="section-title">Walk-In <span>Queue</span></div>
+    <button class="btn btn-primary" onclick="addWalkin()">+ Add to Queue</button>
+  </div>
+  <div class="grid-2" style="margin-bottom:1.5rem;">
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">Add Walk-In</span></div>
+      <div class="form-grid">
+        <div class="field"><label>Name (or "Guest")</label><input id="wi-name" placeholder="Guest or John S."></div>
+        <div class="field"><label>Service</label>
+          <select id="wi-service"></select>
+        </div>
+        <div class="field"><label>Assign Barber</label><select id="wi-barber"><option>Next Available</option></select></div>
+        <div class="field"><label>Phone (optional)</label><input id="wi-phone" placeholder="(504) 555-0100"></div>
+      </div>
+      <div style="margin-top:1rem;"><button class="btn btn-primary" style="width:100%" onclick="addWalkin()">Add to Queue</button></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">Current Queue</span><span id="queueCount" style="font-family:'Pacifico',cursive;font-size:1.5rem;color:var(--red)">0</span></div>
+      <div id="walkinQueue"><div style="color:var(--smoke);font-style:italic;font-size:0.85rem;padding:1rem 0;">Queue is empty. Walk-ins will appear here.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- CLIENTS -->
+<div id="panel-clients" class="panel">
+  <div class="section-hdr">
+    <div class="section-title">Client <span>Book</span></div>
+    <button class="btn btn-primary" onclick="openModal('clientModal')">+ Add Client</button>
+  </div>
+  <div class="card" style="margin-bottom:1rem;">
+    <input style="width:100%;background:var(--cream);border:1px solid var(--border);border-radius:4px;padding:10px 14px;font-family:'Nunito',sans-serif;font-size:0.875rem;" placeholder="🔍 Search clients by name or phone..." oninput="renderClients(this.value)" id="clientSearch">
+  </div>
+  <div class="table-wrap">
+    <table><thead><tr><th>Name</th><th>Phone</th><th>Preferred Barber</th><th>Visits</th><th>Total Spent</th><th>Last Visit</th><th>Notes</th><th>Actions</th></tr></thead>
+    <tbody id="clientTable"><tr><td colspan="8" style="text-align:center;color:var(--smoke);padding:2rem;font-style:italic;">No clients yet.</td></tr></tbody></table>
+  </div>
+</div>
+
+<!-- BARBERS -->
+<div id="panel-barbers" class="panel">
+  <div class="section-hdr">
+    <div class="section-title">Barber <span>Team</span></div>
+    <button class="btn btn-primary" onclick="openModal('barberModal')">+ Add Barber</button>
+  </div>
+  <div class="grid-3" id="barberCards"><div style="color:var(--smoke);font-style:italic;">No barbers added yet.</div></div>
+</div>
+
+<!-- SERVICES -->
+<div id="panel-services" class="panel">
+  <div class="section-hdr"><div class="section-title">Services & <span>Pricing</span></div></div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">Add Service</span></div>
+      <div class="form-grid">
+        <div class="field"><label>Service Name</label><input id="svc-name" placeholder="Fade"></div>
+        <div class="field"><label>Price ($)</label><input id="svc-price" type="number" placeholder="30"></div>
+        <div class="field"><label>Duration (min)</label><input id="svc-duration" type="number" placeholder="30"></div>
+        <div class="field"><label>Category</label>
+          <select id="svc-cat"><option>Haircut</option><option>Beard</option><option>Color</option><option>Shave</option><option>Package</option></select>
+        </div>
+      </div>
+      <div style="margin-top:1rem;"><button class="btn btn-primary" onclick="addService()">Add Service</button></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">Current Menu</span></div>
+      <div id="serviceList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- INVENTORY -->
+<div id="panel-inventory" class="panel">
+  <div class="section-hdr"><div class="section-title">Inventory & <span>Supplies</span></div></div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">Add Item</span></div>
+      <div class="form-grid">
+        <div class="field"><label>Item Name</label><input id="inv-name" placeholder="Clippers Oil"></div>
+        <div class="field"><label>Category</label><select id="inv-cat"><option>Clippers & Tools</option><option>Hair Products</option><option>Beard Products</option><option>Towels & Capes</option><option>Retail</option><option>Cleaning</option></select></div>
+        <div class="field"><label>Quantity</label><input id="inv-qty" type="number" placeholder="10"></div>
+        <div class="field"><label>Low Stock Alert</label><input id="inv-low" type="number" placeholder="3"></div>
+        <div class="field"><label>Cost per Unit ($)</label><input id="inv-cost" type="number" placeholder="5.99"></div>
+        <div class="field"><label>Supplier</label><input id="inv-supplier" placeholder="Beauty Supply Co."></div>
+      </div>
+      <div style="margin-top:1rem;"><button class="btn btn-primary" onclick="addInventory()">Add Item</button></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">Stock Levels</span></div>
+      <div id="inventoryList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- REPORTS -->
+<div id="panel-reports" class="panel">
+  <div class="section-hdr"><div class="section-title">Business <span>Reports</span></div></div>
+  <div class="grid-4" style="margin-bottom:1.5rem;">
+    <div class="card"><div class="kpi-lbl">Today</div><div class="kpi-val" id="rep-today">$0</div></div>
+    <div class="card"><div class="kpi-lbl">This Week</div><div class="kpi-val" id="rep-week">$0</div></div>
+    <div class="card"><div class="kpi-lbl">This Month</div><div class="kpi-val" id="rep-month">$0</div></div>
+    <div class="card"><div class="kpi-lbl">Total Clients</div><div class="kpi-val" id="rep-clients">0</div></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">Revenue by Service</span></div>
+      <div id="revenueByService"></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">Barber Earnings</span></div>
+      <div id="barberEarnings"></div>
+    </div>
+  </div>
+  <div style="margin-top:1.5rem;"></div>
+  <div class="card">
+    <div class="card-hdr"><span class="card-title">All Transactions</span></div>
+    <div class="table-wrap">
+      <table><thead><tr><th>Date</th><th>Client</th><th>Service</th><th>Barber</th><th>Amount</th><th>Method</th></tr></thead>
+      <tbody id="transactionTable"><tr><td colspan="6" style="text-align:center;color:var(--smoke);padding:1rem;font-style:italic;">No transactions yet.</td></tr></tbody></table>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div id="panel-settings" class="panel">
+  <div class="section-hdr"><div class="section-title">Shop <span>Settings</span></div></div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">Shop Info</span></div>
+      <div class="form-grid">
+        <div class="field" style="grid-column:1/-1"><label>Shop Name</label><input id="set-name" placeholder="Fresh Cuts Barbershop" value="Fresh Cuts Barbershop"></div>
+        <div class="field"><label>Phone</label><input id="set-phone" placeholder="(504) 555-1000"></div>
+        <div class="field"><label>Address</label><input id="set-addr" placeholder="123 Main St"></div>
+        <div class="field"><label>Open Time</label><input type="time" id="set-open" value="09:00"></div>
+        <div class="field"><label>Close Time</label><input type="time" id="set-close" value="19:00"></div>
+      </div>
+      <div style="margin-top:1rem;"><button class="btn btn-primary" onclick="saveSettings()">Save Settings</button></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">Payment Methods</span></div>
+      <div style="display:flex;flex-direction:column;gap:0.75rem;">
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;"><input type="checkbox" checked> <span>Cash</span></label>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;"><input type="checkbox" checked> <span>Card (Stripe)</span></label>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;"><input type="checkbox" checked> <span>Cash App</span></label>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;"><input type="checkbox"> <span>Venmo</span></label>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;"><input type="checkbox"> <span>Zelle</span></label>
+      </div>
+      <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--cream);">
+        <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--steel);margin-bottom:0.5rem;">Tax Rate</div>
+        <div style="display:flex;align-items:center;gap:8px;"><input style="width:80px;background:var(--cream);border:1px solid var(--border);border-radius:4px;padding:8px 10px;font-family:'Nunito',sans-serif;font-size:0.875rem;" type="number" id="taxRate" value="0" placeholder="0"><span style="color:var(--smoke);">%</span></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:1.5rem;">
+      <div class="card-hdr"><span class="card-title">Data backup (SaaS-ready export)</span></div>
+      <p style="font-size:0.82rem;color:var(--smoke);margin-bottom:0.75rem;">Download JSON for your records or to migrate to a hosted multi-tenant backend later.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:0.75rem;align-items:center;">
+        <button type="button" class="btn btn-gold" onclick="exportBarberBookData()">⬇ Export backup</button>
+        <input type="file" id="bb-import-backup" accept="application/json,.json" style="display:none" onchange="importBarberBookData(event)">
+        <button type="button" class="btn btn-ghost" onclick="document.getElementById('bb-import-backup').click()">⬆ Import backup</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+</div><!-- /appScreen -->
+
+<script>
+const ROLES = { owner: 'Owner', manager: 'Manager', barber: 'Barber' };
+const STORE_KEY = 'barberbook_pro_v1';
+
+/** Default state (new installs + merge baseline). */
+const DEFAULT_BB = {
+  users: [
+    { id: 1, name: 'Shop Owner', email: 'owner@barberbook.com', password: 'barberbook123', role: 'owner' }
+  ],
+  appointments: [], clients: [], barbers: [], walkin: [],
+  services: [
+    {id:1,name:'Haircut',price:25,duration:30,cat:'Haircut'},
+    {id:2,name:'Fade',price:30,duration:45,cat:'Haircut'},
+    {id:3,name:'Beard Trim',price:15,duration:20,cat:'Beard'},
+    {id:4,name:'Haircut + Beard',price:40,duration:50,cat:'Package'},
+    {id:5,name:'Shape Up',price:20,duration:20,cat:'Haircut'},
+    {id:6,name:"Kids Cut",price:18,duration:25,cat:'Haircut'},
+    {id:7,name:'Hot Towel Shave',price:35,duration:40,cat:'Shave'},
+    {id:8,name:'Color',price:60,duration:60,cat:'Color'},
+  ],
+  inventory: [
+    {id:1,name:'Andis Master Clippers',cat:'Clippers & Tools',qty:3,low:1,cost:89.99,supplier:'Sally Beauty'},
+    {id:2,name:'Clipper Oil',cat:'Clippers & Tools',qty:8,low:2,cost:3.99,supplier:'Beauty Supply Co.'},
+    {id:3,name:'Barber Capes',cat:'Towels & Capes',qty:12,low:4,cost:5.99,supplier:'Amazon'},
+    {id:4,name:'Shampoo (gallon)',cat:'Hair Products',qty:2,low:1,cost:14.99,supplier:'CosmoProf'},
+  ],
+  transactions: [],
+  settings: {
+    shopName: 'Fresh Cuts Barbershop',
+    phone: '',
+    address: '',
+    open: '09:00',
+    close: '19:00',
+    taxRate: 0
+  },
+  weeklyRevenue: [0, 0, 0, 0, 0, 0, 0]
+};
+
+let DB;
+let currentUser = null;
+let checkoutApptId = null;
+
+function loadDB() {
+  DB = JSON.parse(JSON.stringify(DEFAULT_BB));
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (!raw) return;
+    const p = JSON.parse(raw);
+    DB.users = (p.users && p.users.length) ? p.users : DEFAULT_BB.users;
+    DB.appointments = p.appointments || [];
+    DB.clients = p.clients || [];
+    DB.barbers = p.barbers || [];
+    DB.walkin = p.walkin || [];
+    DB.services = (p.services && p.services.length) ? p.services : DEFAULT_BB.services;
+    DB.inventory = (p.inventory && p.inventory.length) ? p.inventory : DEFAULT_BB.inventory;
+    DB.transactions = p.transactions || [];
+    DB.settings = Object.assign({}, DEFAULT_BB.settings, p.settings || {});
+    DB.weeklyRevenue = Array.isArray(p.weeklyRevenue) && p.weeklyRevenue.length === 7
+      ? p.weeklyRevenue
+      : [...DEFAULT_BB.weeklyRevenue];
+  } catch (e) {
+    console.warn('BarberBook loadDB:', e);
+  }
+}
+
+function saveDB() {
+  try {
+    localStorage.setItem(STORE_KEY, JSON.stringify(DB));
+  } catch (e) {
+    console.warn('BarberBook saveDB:', e);
+  }
+}
+
+loadDB();
+
+// ── LOGIN (match NailGlow: gate app until sign-in) ─────────────────────────────
+function showLogin() {
+  const loginEl = document.getElementById('loginScreen');
+  const appEl = document.getElementById('appScreen');
+  if (loginEl) loginEl.style.display = 'flex';
+  if (appEl) appEl.style.display = 'none';
+}
+
+function hideLogin() {
+  const loginEl = document.getElementById('loginScreen');
+  const appEl = document.getElementById('appScreen');
+  if (loginEl) loginEl.style.display = 'none';
+  if (appEl) appEl.style.display = 'block';
+}
+
+function doLogin() {
+  const email = document.getElementById('login-email').value.trim().toLowerCase();
+  const pass = document.getElementById('login-pass').value;
+  const errEl = document.getElementById('login-err');
+  const user = DB.users.find(u => u.email.toLowerCase() === email && u.password === pass);
+  if (!user) {
+    if (errEl) errEl.textContent = 'Invalid email or password.';
+    return;
+  }
+  currentUser = user;
+  if (errEl) errEl.textContent = '';
+  const nameEl = document.getElementById('current-user-name');
+  const roleEl = document.getElementById('current-user-role');
+  if (nameEl) nameEl.textContent = user.name;
+  if (roleEl) roleEl.textContent = ROLES[user.role] || user.role;
+  hideLogin();
+  afterLoginInit();
+}
+
+function doLogout() {
+  currentUser = null;
+  showLogin();
+}
+
+/** First paint of main UI after successful login */
+function afterLoginInit() {
+  const d = document.getElementById('appt-date');
+  if (d && !d.value) d.value = new Date().toISOString().split('T')[0];
+  loadSettingsForm();
+  populateServiceSelects();
+  populateBarberSelects();
+  renderServices();
+  renderInventory();
+  updateDashboard();
+}
+
+// ── NAV ───────────────────────────────────────────────────────────────────────
+function showPanel(id, btn) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  if(btn) btn.classList.add('active');
+  updateDashboard();
+  if(id==='appointments') renderAppointments();
+  if(id==='clients') renderClients('');
+  if(id==='barbers') renderBarbers();
+  if(id==='services') renderServices();
+  if(id==='inventory') renderInventory();
+  if(id==='reports') renderReports();
+  if(id==='settings') loadSettingsForm();
+}
+
+// ── MODALS ─────────────────────────────────────────────────────────────────────
+function openModal(id) {
+  populateBarberSelects();
+  populateServiceSelects();
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-bg').forEach(m=>m.addEventListener('click',e=>{if(e.target===m) m.classList.remove('open');}));
+
+function serviceMenuLabel(s) { return s.name + ' — $' + s.price; }
+
+function populateServiceSelects() {
+  ['appt-service', 'wi-service'].forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    const prev = sel.value;
+    if (!DB.services.length) {
+      sel.innerHTML = '<option>No services — add in Services tab</option>';
+      return;
+    }
+    sel.innerHTML = DB.services.map(s => '<option>' + serviceMenuLabel(s) + '</option>').join('');
+    const match = [...sel.options].find(o => o.text === prev);
+    if (match) sel.value = match.text;
+  });
+}
+
+function populateBarberSelects() {
+  ['appt-barber','wi-barber','cl-barber','filterBarber'].forEach(id=>{
+    const sel = document.getElementById(id); if(!sel) return;
+    const val = sel.value;
+    sel.innerHTML = id==='filterBarber'?'<option value="">All Barbers</option>':'<option>'+('appt-barber'===id?'Any Available':'Next Available')+'</option>';
+    DB.barbers.forEach(b=>{ const o=document.createElement('option'); o.value=b.name; o.textContent=b.name; sel.appendChild(o); });
+    const has = [...sel.options].some(o => o.text === val);
+    if (has) sel.value = val;
+  });
+}
+
+// ── APPOINTMENTS ──────────────────────────────────────────────────────────────
+function saveAppt() {
+  const svc = document.getElementById('appt-service').value;
+  const price = parseFloat(svc.match(/\$(\d+)/)?.[1]||0);
+  DB.appointments.push({
+    id: Date.now(),
+    client: document.getElementById('appt-client').value||'Guest',
+    phone: document.getElementById('appt-phone').value,
+    service: svc.split(' — ')[0],
+    price,
+    barber: document.getElementById('appt-barber').value||'Any Available',
+    date: document.getElementById('appt-date').value||new Date().toISOString().split('T')[0],
+    time: document.getElementById('appt-time').value,
+    notes: document.getElementById('appt-notes').value,
+    status: 'Scheduled'
+  });
+  closeModal('apptModal');
+  updateDashboard(); renderAppointments();
+  ['appt-client','appt-phone','appt-notes'].forEach(id=>document.getElementById(id).value='');
+  saveDB();
+}
+
+function renderAppointments() {
+  const dateF = document.getElementById('filterDate')?.value;
+  const barberF = document.getElementById('filterBarber')?.value;
+  const statusF = document.getElementById('filterStatus')?.value;
+  let list = [...DB.appointments, ...DB.walkin.map(w=>({...w,type:'walkin'}))];
+  if(dateF) list=list.filter(a=>a.date===dateF);
+  if(barberF) list=list.filter(a=>a.barber===barberF);
+  if(statusF) list=list.filter(a=>a.status===statusF);
+  list.sort((a,b)=>a.time>b.time?1:-1);
+  const tb = document.getElementById('apptTable');
+  if(!list.length){tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--smoke);padding:2rem;font-style:italic;">No appointments found.</td></tr>';return;}
+  tb.innerHTML = list.map(a=>`<tr>
+    <td><b>${a.time||'Walk-In'}</b></td>
+    <td>${a.client}${a.phone?`<div style="font-size:0.72rem;color:var(--smoke)">${a.phone}</div>`:''}</td>
+    <td>${a.service}</td><td>${a.barber}</td>
+    <td>$${a.price||0}</td>
+    <td><span class="badge ${a.status==='Completed'?'badge-green':a.status==='No-Show'?'badge-red':'badge-yellow'}">${a.status}</span></td>
+    <td style="display:flex;gap:4px;">
+      ${a.status==='Scheduled'?`<button class="btn btn-gold btn-sm" onclick="checkout(${a.id})">Checkout</button>`:''} 
+      <button class="btn btn-danger btn-sm" onclick="cancelAppt(${a.id})">✕</button>
+    </td>
+  </tr>`).join('');
+}
+
+function cancelAppt(id) {
+  DB.appointments = DB.appointments.filter(a=>a.id!==id);
+  DB.walkin = DB.walkin.filter(a=>a.id!==id);
+  renderAppointments(); updateDashboard();
+  saveDB();
+}
+
+function checkout(id) {
+  const appt = DB.appointments.find(a=>a.id===id)||DB.walkin.find(a=>a.id===id);
+  if(!appt) return;
+  checkoutApptId = id;
+  const taxR = parseFloat(DB.settings.taxRate) || 0;
+  const tax = Math.round(appt.price * (taxR / 100) * 100) / 100;
+  const taxLine = tax > 0
+    ? `<div style="display:flex;justify-content:space-between;font-size:0.82rem;color:var(--smoke);margin-top:6px;"><span>Tax (${taxR}%)</span><span>$${tax.toFixed(2)}</span></div>`
+    : '';
+  document.getElementById('checkoutContent').innerHTML = `
+    <div style="background:var(--cream);border-radius:8px;padding:1rem;margin-bottom:1rem;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-weight:600">${appt.service}</span><span style="font-family:'Pacifico',cursive;font-size:1.3rem;color:var(--red)">$${appt.price}</span></div>
+      ${taxLine}
+      <div style="font-size:0.82rem;color:var(--smoke);margin-top:8px;">Client: ${appt.client} · Barber: ${appt.barber}</div>
+    </div>
+    <div class="field"><label>Tip ($)</label><input id="co-tip" type="number" placeholder="0" value="0"></div>
+    <div class="field" style="margin-top:0.75rem"><label>Payment Method</label>
+      <select id="co-method"><option>Cash</option><option>Card (Stripe)</option><option>Cash App</option><option>Venmo</option><option>Zelle</option></select>
+    </div>
+    <p style="font-size:0.72rem;color:var(--smoke);margin-top:0.5rem;">Card (Stripe): local demo records the sale; real charges need a backend — see SaaS doc bundled with BradleyVS App Dashboard.</p>`;
+  openModal('checkoutModal');
+}
+
+function completeCheckout() {
+  const appt = DB.appointments.find(a=>a.id===checkoutApptId)||DB.walkin.find(a=>a.id===checkoutApptId);
+  if(!appt) return;
+  const tip = parseFloat(document.getElementById('co-tip').value)||0;
+  const method = document.getElementById('co-method').value;
+  const taxR = parseFloat(DB.settings.taxRate) || 0;
+  const tax = Math.round(appt.price * (taxR / 100) * 100) / 100;
+  const total = Math.round((appt.price + tax + tip) * 100) / 100;
+
+  appt.status = 'Completed';
+  appt.tip = tip;
+  appt.tax = tax;
+  appt.grandTotal = total;
+
+  DB.transactions.push({
+    date: new Date().toLocaleDateString(),
+    client: appt.client,
+    service: appt.service,
+    barber: appt.barber,
+    amount: total,
+    method,
+    tip,
+    tax
+  });
+  DB.weeklyRevenue[new Date().getDay()] += total;
+
+  const bName = appt.barber;
+  if (bName && bName !== 'Any Available' && bName !== 'Next Available') {
+    const barber = DB.barbers.find(b => b.name === bName);
+    if (barber) {
+      barber.cuts = (barber.cuts || 0) + 1;
+      const pct = parseFloat(barber.commission) || 0;
+      barber.earned = Math.round((barber.earned + appt.price * (pct / 100)) * 100) / 100;
+    }
+  }
+
+  const digits = (p) => (p || '').replace(/\D/g, '');
+  const aphone = digits(appt.phone);
+  let client = DB.clients.find(c => c.name === appt.client && (!aphone || digits(c.phone) === aphone));
+  if (!client) client = DB.clients.find(c => c.name === appt.client);
+  if (client) {
+    client.visits = (client.visits || 0) + 1;
+    client.spent = Math.round((client.spent + total) * 100) / 100;
+    client.lastVisit = new Date().toLocaleDateString();
+  }
+
+  if (method === 'Card (Stripe)') {
+    console.log('[BarberBook] Stripe: record local payment', total, appt.service, '(use Checkout Sessions + webhook for SaaS)');
+  }
+
+  saveDB();
+  closeModal('checkoutModal'); renderAppointments(); updateDashboard(); renderReports();
+}
+
+// ── WALK-IN ───────────────────────────────────────────────────────────────────
+function addWalkin() {
+  const svc = document.getElementById('wi-service').value;
+  const price = parseFloat(svc.match(/\$(\d+)/)?.[1]||0);
+  const wi = {
+    id:Date.now(), client:document.getElementById('wi-name').value||'Guest',
+    phone:document.getElementById('wi-phone').value,
+    service:svc.split(' — ')[0], price,
+    barber:document.getElementById('wi-barber').value||'Next Available',
+    date:new Date().toISOString().split('T')[0], time:'Walk-In',
+    status:'Scheduled', queued:new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})
+  };
+  DB.walkin.push(wi); renderWalkin(); updateDashboard();
+  document.getElementById('wi-name').value=''; document.getElementById('wi-phone').value='';
+  saveDB();
+}
+
+function renderWalkin() {
+  const q = DB.walkin.filter(w=>w.status==='Scheduled');
+  document.getElementById('queueCount').textContent = q.length;
+  document.getElementById('hdr-queue').textContent = q.length;
+  if(!q.length){document.getElementById('walkinQueue').innerHTML='<div style="color:var(--smoke);font-style:italic;font-size:0.85rem;padding:1rem 0;">Queue is empty.</div>';return;}
+  document.getElementById('walkinQueue').innerHTML = q.map((w,i)=>`
+    <div style="display:flex;align-items:center;gap:1rem;padding:10px 12px;border:1px solid var(--border);border-radius:6px;margin-bottom:6px;background:var(--cream);">
+      <div style="font-family:'Pacifico',cursive;font-size:1.5rem;color:var(--red);min-width:28px;">${i+1}</div>
+      <div style="flex:1"><div style="font-weight:600">${w.client}</div><div style="font-size:0.75rem;color:var(--smoke)">${w.service} · ${w.barber} · In at ${w.queued}</div></div>
+      <div style="font-weight:700;color:var(--steel)">$${w.price}</div>
+      <button class="btn btn-gold btn-sm" onclick="checkout(${w.id})">Checkout</button>
+    </div>`).join('');
+}
+
+// ── CLIENTS ───────────────────────────────────────────────────────────────────
+function saveClient() {
+  DB.clients.push({id:Date.now(),name:document.getElementById('cl-name').value,phone:document.getElementById('cl-phone').value,email:document.getElementById('cl-email').value,barber:document.getElementById('cl-barber').value,notes:document.getElementById('cl-notes').value,visits:0,spent:0,lastVisit:'—'});
+  closeModal('clientModal'); renderClients('');
+  ['cl-name','cl-phone','cl-email','cl-notes'].forEach(id=>document.getElementById(id).value='');
+  saveDB();
+}
+
+function renderClients(search) {
+  let list = search ? DB.clients.filter(c=>c.name.toLowerCase().includes(search.toLowerCase())||c.phone.includes(search)) : DB.clients;
+  const tb = document.getElementById('clientTable');
+  if(!list.length){tb.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--smoke);padding:2rem;font-style:italic;">No clients yet.</td></tr>';return;}
+  tb.innerHTML=list.map(c=>`<tr>
+    <td><b>${c.name}</b></td><td>${c.phone}</td><td>${c.barber}</td>
+    <td><span class="badge badge-blue">${c.visits}</span></td>
+    <td><b>$${c.spent}</b></td><td>${c.lastVisit}</td>
+    <td style="max-width:160px;font-size:0.75rem;color:var(--smoke)">${c.notes||'—'}</td>
+    <td><button class="btn btn-danger btn-sm" onclick="deleteClient(${c.id})">✕</button></td>
+  </tr>`).join('');
+}
+function deleteClient(id){DB.clients=DB.clients.filter(c=>c.id!==id);renderClients('');saveDB();}
+
+// ── BARBERS ───────────────────────────────────────────────────────────────────
+function saveBarber() {
+  DB.barbers.push({id:Date.now(),name:document.getElementById('br-name').value,phone:document.getElementById('br-phone').value,specialty:document.getElementById('br-specialty').value,commission:document.getElementById('br-commission').value,cuts:0,earned:0});
+  closeModal('barberModal'); renderBarbers(); populateBarberSelects();
+  ['br-name','br-phone','br-specialty'].forEach(id=>document.getElementById(id).value='');
+  saveDB();
+}
+
+function renderBarbers() {
+  const c = document.getElementById('barberCards');
+  if(!DB.barbers.length){c.innerHTML='<div style="color:var(--smoke);font-style:italic;">No barbers added yet.</div>';return;}
+  c.innerHTML=DB.barbers.map(b=>`
+    <div class="card" style="border-top:4px solid var(--red);">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:1rem;">
+        <div style="width:44px;height:44px;border-radius:50%;background:var(--steel);display:flex;align-items:center;justify-content:center;font-family:'Pacifico',cursive;font-size:1.2rem;color:var(--white);">${b.name[0]}</div>
+        <div><div style="font-weight:700;font-size:1rem;">${b.name}</div><div style="font-size:0.75rem;color:var(--smoke)">${b.specialty||'All Services'}</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1rem;">
+        <div><div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--smoke)">Cuts Today</div><div style="font-family:'Pacifico',cursive;font-size:1.4rem;color:var(--red)">${b.cuts}</div></div>
+        <div><div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--smoke)">Earned</div><div style="font-family:'Pacifico',cursive;font-size:1.4rem;color:var(--steel)">$${b.earned}</div></div>
+      </div>
+      <div style="font-size:0.78rem;color:var(--smoke);margin-bottom:0.5rem">Commission: ${b.commission}% · ${b.phone}</div>
+      <button class="btn btn-danger btn-sm" style="width:100%" onclick="deleteBarber(${b.id})">Remove Barber</button>
+    </div>`).join('');
+}
+function deleteBarber(id){DB.barbers=DB.barbers.filter(b=>b.id!==id);renderBarbers();saveDB();}
+
+// ── SERVICES ──────────────────────────────────────────────────────────────────
+function addService() {
+  const name=document.getElementById('svc-name').value;
+  const price=parseFloat(document.getElementById('svc-price').value)||0;
+  if(!name) return;
+  DB.services.push({id:Date.now(),name,price,duration:parseInt(document.getElementById('svc-duration').value)||30,cat:document.getElementById('svc-cat').value});
+  renderServices(); populateServiceSelects();
+  ['svc-name','svc-price','svc-duration'].forEach(id=>document.getElementById(id).value='');
+  saveDB();
+}
+
+function renderServices() {
+  document.getElementById('serviceList').innerHTML = DB.services.map(s=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--cream);">
+      <div><div style="font-weight:600">${s.name}</div><div style="font-size:0.72rem;color:var(--smoke)">${s.cat} · ${s.duration} min</div></div>
+      <div style="display:flex;align-items:center;gap:8px;"><span style="font-family:'Pacifico',cursive;font-size:1.2rem;color:var(--red)">$${s.price}</span><button class="btn btn-danger btn-sm" onclick="deleteService(${s.id})">✕</button></div>
+    </div>`).join('');
+}
+function deleteService(id){DB.services=DB.services.filter(s=>s.id!==id);renderServices();populateServiceSelects();saveDB();}
+
+// ── INVENTORY ─────────────────────────────────────────────────────────────────
+function addInventory() {
+  DB.inventory.push({id:Date.now(),name:document.getElementById('inv-name').value,cat:document.getElementById('inv-cat').value,qty:parseInt(document.getElementById('inv-qty').value)||0,low:parseInt(document.getElementById('inv-low').value)||2,cost:parseFloat(document.getElementById('inv-cost').value)||0,supplier:document.getElementById('inv-supplier').value});
+  renderInventory();
+  ['inv-name','inv-qty','inv-low','inv-cost','inv-supplier'].forEach(id=>document.getElementById(id).value='');
+  saveDB();
+}
+
+function renderInventory() {
+  document.getElementById('inventoryList').innerHTML = DB.inventory.map(i=>{
+    const low = i.qty<=i.low;
+    return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--cream);">
+      <div style="flex:1"><div style="font-weight:600;font-size:0.875rem">${i.name}</div><div style="font-size:0.72rem;color:var(--smoke)">${i.cat} · ${i.supplier}</div></div>
+      <div style="min-width:80px"><div style="font-size:0.68rem;color:var(--smoke)">Qty</div>
+        <input style="width:60px;background:${low?'#fde8e8':'var(--cream)'};border:1px solid ${low?'var(--red)':'var(--border)'};border-radius:4px;padding:4px 6px;font-size:0.82rem;text-align:center;" type="number" value="${i.qty}" onchange="updateQty(${i.id},this.value)">
+      </div>
+      ${low?`<span class="badge badge-red">Low</span>`:`<span class="badge badge-green">OK</span>`}
+      <button class="btn btn-danger btn-sm" onclick="deleteInventory(${i.id})">✕</button>
+    </div>`;
+  }).join('');
+}
+function updateQty(id,val){const i=DB.inventory.find(x=>x.id===id);if(i)i.qty=parseInt(val)||0;renderInventory();saveDB();}
+function deleteInventory(id){DB.inventory=DB.inventory.filter(i=>i.id!==id);renderInventory();saveDB();}
+
+// ── REPORTS ───────────────────────────────────────────────────────────────────
+function renderReports() {
+  const todayRev=DB.transactions.reduce((s,t)=>s+t.amount,0);
+  const weekRev=DB.weeklyRevenue.reduce((a,b)=>a+b,0);
+  document.getElementById('rep-today').textContent='$'+todayRev.toFixed(0);
+  document.getElementById('rep-week').textContent='$'+weekRev.toFixed(0);
+  document.getElementById('rep-month').textContent='$'+(weekRev*4).toFixed(0);
+  document.getElementById('rep-clients').textContent=DB.clients.length;
+
+  // Revenue by service
+  const svcRev={};
+  DB.transactions.forEach(t=>{svcRev[t.service]=(svcRev[t.service]||0)+t.amount;});
+  const maxSvc=Math.max(...Object.values(svcRev),1);
+  document.getElementById('revenueByService').innerHTML=Object.entries(svcRev).length?
+    Object.entries(svcRev).sort((a,b)=>b[1]-a[1]).map(([s,v])=>`
+      <div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:3px;"><span>${s}</span><b>$${v.toFixed(0)}</b></div>
+      <div class="prog-wrap"><div class="prog-bar" style="width:${v/maxSvc*100}%"></div></div></div>`).join(''):
+    '<div style="color:var(--smoke);font-style:italic;font-size:0.82rem;">No data yet.</div>';
+
+  // Barber earnings
+  document.getElementById('barberEarnings').innerHTML=DB.barbers.length?
+    DB.barbers.map(b=>`<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:3px;"><span>${b.name}</span><b>$${b.earned.toFixed(0)}</b></div><div class="prog-wrap"><div class="prog-bar" style="width:${DB.barbers.length?b.earned/Math.max(...DB.barbers.map(x=>x.earned),1)*100:0}%"></div></div></div>`).join(''):
+    '<div style="color:var(--smoke);font-style:italic;font-size:0.82rem;">No barbers added.</div>';
+
+  // Transactions
+  document.getElementById('transactionTable').innerHTML=DB.transactions.length?
+    [...DB.transactions].reverse().map(t=>`<tr><td>${t.date}</td><td>${t.client}</td><td>${t.service}</td><td>${t.barber}</td><td><b>$${t.amount.toFixed(2)}</b>${t.tip>0?` <span style="font-size:0.72rem;color:#27ae60">(+$${t.tip} tip)</span>`:''}</td><td><span class="badge badge-blue">${t.method}</span></td></tr>`).join(''):
+    '<tr><td colspan="6" style="text-align:center;color:var(--smoke);padding:1rem;font-style:italic;">No transactions yet.</td></tr>';
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────────────
+function lineTotal(a) {
+  if (a.grandTotal != null) return a.grandTotal;
+  return a.price + (a.tip || 0) + (a.tax || 0);
+}
+
+function updateDashboard() {
+  const todayStr=new Date().toISOString().split('T')[0];
+  const todayAppts=[...DB.appointments,...DB.walkin].filter(a=>a.date===todayStr);
+  const completed=todayAppts.filter(a=>a.status==='Completed');
+  const rev=completed.reduce((s,a)=>s+lineTotal(a),0);
+  const queue=DB.walkin.filter(w=>w.status==='Scheduled').length;
+
+  document.getElementById('hdr-today').textContent='$'+rev.toFixed(0);
+  document.getElementById('hdr-appts').textContent=todayAppts.length;
+  document.getElementById('hdr-queue').textContent=queue;
+  document.getElementById('dash-rev').textContent='$'+rev.toFixed(0);
+  document.getElementById('dash-appts').textContent=todayAppts.length;
+  document.getElementById('dash-served').textContent=completed.length;
+  document.getElementById('dash-barbers').textContent=DB.barbers.length;
+  document.getElementById('dash-rev-ch').textContent=`↑ ${completed.length} completed`;
+
+  // Today schedule
+  const sched=todayAppts.sort((a,b)=>a.time>b.time?1:-1);
+  document.getElementById('todaySchedule').innerHTML=sched.length?sched.map(a=>`
+    <div class="time-slot">
+      <div class="slot-time">${a.time||'Walk-In'}</div>
+      <div><div class="slot-client">${a.client}</div><div class="slot-service">${a.service} · ${a.barber}</div></div>
+      <span class="badge ${a.status==='Completed'?'badge-green':a.status==='No-Show'?'badge-red':'badge-yellow'}" style="margin-left:auto;">${a.status}</span>
+      <div class="slot-price">${a.status==='Completed'?'$'+lineTotal(a).toFixed(0):'$'+a.price}</div>
+    </div>`).join(''):
+    '<div style="color:var(--smoke);font-style:italic;font-size:0.85rem;padding:1rem 0;">No appointments today.</div>';
+
+  // Weekly chart
+  const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const maxW=Math.max(...DB.weeklyRevenue,1);
+  const weekTotal=DB.weeklyRevenue.reduce((a,b)=>a+b,0);
+  document.getElementById('weekTotal').textContent='$'+weekTotal.toFixed(0);
+  document.getElementById('monthEst').textContent='$'+(weekTotal*4).toFixed(0);
+  document.getElementById('weeklyChart').innerHTML=DB.weeklyRevenue.map((v,i)=>`
+    <div class="bar-col">
+      <div class="bar-val">$${v}</div>
+      <div class="bar" style="height:${Math.max(v/maxW*100,4)}px"></div>
+      <div class="bar-lbl">${days[i]}</div>
+    </div>`).join('');
+
+  // Top services
+  const svcCount={};
+  [...DB.appointments,...DB.walkin].forEach(a=>{if(a.status==='Completed') svcCount[a.service]=(svcCount[a.service]||0)+1;});
+  document.getElementById('topServices').innerHTML=Object.entries(svcCount).length?
+    Object.entries(svcCount).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([s,c])=>`
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--cream);">
+        <span style="font-size:0.85rem">${s}</span><span class="badge badge-blue">${c}x</span>
+      </div>`).join(''):
+    '<div style="color:var(--smoke);font-style:italic;font-size:0.82rem;">Complete some appointments first.</div>';
+
+  // Barber performance
+  document.getElementById('barberPerf').innerHTML=DB.barbers.length?
+    DB.barbers.map(b=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--cream);"><span style="font-weight:600;font-size:0.85rem">${b.name}</span><div style="text-align:right"><div style="font-family:'Pacifico',cursive;color:var(--red)">${b.cuts} cuts</div><div style="font-size:0.72rem;color:var(--smoke)">$${b.earned} today</div></div></div>`).join(''):
+    '<div style="color:var(--smoke);font-style:italic;font-size:0.82rem;">Add barbers to see performance.</div>';
+}
+
+function loadSettingsForm() {
+  const s = DB.settings;
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = v != null ? v : ''; };
+  set('set-name', s.shopName);
+  set('set-phone', s.phone);
+  set('set-addr', s.address);
+  set('set-open', s.open);
+  set('set-close', s.close);
+  set('taxRate', s.taxRate != null ? s.taxRate : 0);
+}
+
+function saveSettings() {
+  DB.settings.shopName = document.getElementById('set-name').value;
+  DB.settings.phone = document.getElementById('set-phone').value;
+  DB.settings.address = document.getElementById('set-addr').value;
+  DB.settings.open = document.getElementById('set-open').value;
+  DB.settings.close = document.getElementById('set-close').value;
+  DB.settings.taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
+  saveDB();
+  alert('Settings saved! ✓');
+}
+
+function exportBarberBookData() {
+  const blob = new Blob([JSON.stringify(DB, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'barberbook-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function importBarberBookData(ev) {
+  const f = ev.target.files[0];
+  if (!f) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const p = JSON.parse(reader.result);
+      if (!p || typeof p !== 'object') throw new Error('Invalid file');
+      if (!confirm('Replace ALL BarberBook data on this browser with this backup?')) return;
+      const merged = JSON.parse(JSON.stringify(DEFAULT_BB));
+      Object.keys(DEFAULT_BB).forEach(k => {
+        if (p[k] !== undefined) merged[k] = JSON.parse(JSON.stringify(p[k]));
+      });
+      if (!merged.users || !merged.users.length) merged.users = DEFAULT_BB.users;
+      if (!Array.isArray(merged.weeklyRevenue) || merged.weeklyRevenue.length !== 7) {
+        merged.weeklyRevenue = [...DEFAULT_BB.weeklyRevenue];
+      }
+      DB = merged;
+      saveDB();
+      loadSettingsForm();
+      populateServiceSelects();
+      populateBarberSelects();
+      renderServices();
+      renderInventory();
+      renderClients('');
+      renderBarbers();
+      renderAppointments();
+      renderWalkin();
+      renderReports();
+      updateDashboard();
+      alert('Import complete.');
+    } catch (err) {
+      alert('Import failed: ' + err.message);
+    }
+    ev.target.value = '';
+  };
+  reader.readAsText(f);
+}
+
+// INIT — login screen first (same pattern as NailGlow Studio)
+window.addEventListener('DOMContentLoaded', function() {
+  try {
+    showLogin();
+    const d = document.getElementById('appt-date');
+    if (d) d.value = new Date().toISOString().split('T')[0];
+  } catch (e) {
+    console.warn('BarberBook init:', e);
+  }
+});
+</script>
+</body>
+</html>
