@@ -7,7 +7,8 @@ export default defineConfig({
   retries: 0,
   use: {
     headless: true,
-    ignoreHTTPSErrors: true,
+    // Full maintenance: fail on invalid / untrusted TLS (turn on if a host uses broken certs).
+    ignoreHTTPSErrors: false,
     viewport: { width: 1280, height: 720 },
   },
 });

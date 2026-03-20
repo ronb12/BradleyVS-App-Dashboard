@@ -1,0 +1,13 @@
+{
+  "description": "Canonical Vercel preview/production URLs (*.vercel.app) in the portfolio. Must exactly match every Vercel URL in BVS_Dashboard_v2_1.html APPS (normalized). Update when you add, remove, or change path (e.g. /app) for a Vercel deployment.",
+  "version": 1,
+  "deploymentUrls": [
+    "https://aba-mastery.vercel.app/app",
+    "https://bradleyvs-app-dashboard.vercel.app/",
+    "https://bradleyvs-app-dashboard.vercel.app/BarberBook_Pro",
+    "https://nailglow-studio.vercel.app/",
+    "https://echodynamo.vercel.app/",
+    "https://guilty-pleasure-treats.vercel.app/",
+    "https://rentflow-property.vercel.app/"
+  ]
+}

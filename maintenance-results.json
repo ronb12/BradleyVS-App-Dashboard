@@ -1,0 +1,941 @@
+{
+  "generatedAt": "2026-03-20T15:27:22.334Z",
+  "githubOwner": "ronb12",
+  "summary": {
+    "apps": 28,
+    "repoMatched": 25,
+    "firebaseHostingApps": 14,
+    "firebaseProjectMatch100": 7,
+    "needsAction": 22,
+    "totalConsoleErrors": 9,
+    "totalNetworkFails": 6
+  },
+  "apps": [
+    {
+      "id": 1,
+      "name": "Holliday's Lawn & Garden",
+      "url": "https://ronb12.github.io/Holliday-Lawn-Garden/index.html",
+      "repo": "Holliday-Lawn-Garden",
+      "repoPushedAt": "2025-06-27T17:06:45Z",
+      "repoDays": 265,
+      "deploymentOk": true,
+      "httpStatus": 200,
+      "navError": null,
+      "firebase": {
+        "isFirebase": false,
+        "liveProjectId": null,
+        "repoProjectId": null,
+        "match": null,
+        "matchPercent": null,
+        "detail": null
+      },
+      "errors": {
+        "console": [],
+        "networkFailed": [],
+        "consoleCount": 0,
+        "networkFailCount": 0
+      },
+      "maintOffset": 30,
+      "maintDue": "2026-04-19T15:10:59.114Z",
+      "overdue": false,
+      "needsAction": true,
+      "reasons": [
+        "repo stale (265d)"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Bradley Health",
+      "url": "https://bradley-health.web.app/",
+      "repo": "Bradley-Health",
+      "repoPushedAt": "2025-09-06T01:27:27Z",
+      "repoDays": 195,
+      "deploymentOk": true,
+      "httpStatus": 200,
+      "navError": null,
+      "firebase": {
+        "isFirebase": true,
+        "liveProjectId": "bradley-health",
+        "repoProjectId": "bradley-health",
+        "match": true,
+        "matchPercent": 100,
+        "detail": null
+      },
+      "errors": {
+        "console": [
+          "Global error: SyntaxError: Identifier 'ChartManager' has already been declared",
+          "Global error: SyntaxError: Identifier 'ExportManager' has already been declared",
+          "Global error: SyntaxError: Identifier 'ChartManager' has already been declared",
+          "Global error: SyntaxError: Identifier 'ExportManager' has already been declared",
+          "Global error: SyntaxError: Unexpected token '<'",
+          "Global error: SyntaxError: Identifier 'ThemeManager' has already been declared",
+          "Global error: SyntaxError: Identifier 'NotificationManager' has already been declared",
+          "Unhandled promise rejection: FirebaseError: Missing or insufficient permissions."
+        ],
+        "networkFailed": [],
+        "consoleCount": 8,
+        "networkFailCount": 0
+      },
+      "maintOffset": 31,
+      "maintDue": "2026-04-20T15:11:04.064Z",
+      "overdue": false,
+      "needsAction": true,
+      "reasons": [
+        "Console: Global error: SyntaxError: Identifier 'ChartManager' has already been declared",
+        "Console: Global error: SyntaxError: Identifier 'ExportManager' has already been declared",
+        "repo stale (195d)"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "K&A Adventures",
+      "url": null,
+      "repo": "Kaden-Adelynn-Adventures",
+      "repoPushedAt": "2026-01-27T20:54:49Z",
+      "repoDays": 51,
+      "deploymentOk": null,
+      "httpStatus": null,
+      "navError": null,
+      "firebase": {
+        "isFirebase": false,
+        "liveProjectId": null,
+        "repoProjectId": null,
+        "match": null,
+        "matchPercent": null,
+        "detail": null
+      },
+      "errors": {
+        "console": [],
+        "networkFailed": [],
+        "consoleCount": 0,
+        "networkFailCount": 0
+      },
+      "maintOffset": 32,
+      "maintDue": "2026-04-21T15:11:04.064Z",
+      "overdue": false,
+      "needsAction": true,
+      "reasons": [
+        "no public URL — skipped deployment checks",
+        "repo stale (51d)"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Faith Journal",
+      "url": null,
+      "repo": "Faith-Journal",
+      "repoPushedAt": "2026-02-05T19:29:46Z",
+      "repoDays": 42,
+      "deploymentOk": null,
+      "httpStatus": null,
+      "navError": null,
+      "firebase": {
+        "isFirebase": false,
+        "liveProjectId": null,
+        "repoProjectId": null,
+        "match": null,
+        "matchPercent": null,
+        "detail": null
+      },
+      "errors": {
+        "console": [],
+        "networkFailed": [],
+        "consoleCount": 0,
+        "networkFailCount": 0
+      },
+      "maintOffset": 33,
+      "maintDue": "2026-04-22T15:11:04.064Z",
+      "overdue": false,
+      "needsAction": true,
+      "reasons": [
+        "no public URL — skipped deployment checks",
+        "repo stale (42d)"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Amplifi",
+      "url": "https://amplifi-a54d9.web.app/index.html",
+      "repo": "Amplifi",
+      "repoPushedAt": "2025-09-09T20:42:16Z",
+      "repoDays": 191,
+      "deploymentOk": true,
+      "httpStatus": 200,
+      "navError": null,
+      "firebase": {
+        "isFirebase": true,
+        "liveProjectId": "amplifi-a54d9",
+        "repoProjectId": "amplifi-a54d9",
+        "match": true,
+        "matchPercent": 100,
+        "detail": null
+      },
+      "errors": {
+        "console": [],
+        "networkFailed": [],
+        "consoleCount": 0,
+        "networkFailCount": 0
+      },
+      "maintOffset": 34,
+      "maintDue": "2026-04-23T15:25:08.945Z",
+      "overdue": false,
+      "needsAction": true,
+      "reasons": [
+        "repo stale (191d)"
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Adelynn's Jungle Dash",
+      "url": "https://ronb12.github.io/Adelynn-Jungle-Dash/",
+      "repo": "Adelynn-Jungle-Dash",
+      "repoPushedAt": "2025-09-09T11:54:25Z",
+      "repoDays": 192,
+      "deploymentOk": true,
+      "httpStatus": 200,
+      "navError": null,
+      "firebase": {
+        "isFirebase": false,
+        "liveProjectId": null,
+        "repoProjectId": null,
+        "match": null,
+        "matchPercent": null,
+        "detail": null
+      },
+      "errors": {
+        "console": [],
+        "networkFailed": [],
+        "consoleCount": 0,
+        "networkFailCount": 0
+      },
+      "maintOffset": 35,
+      "maintDue": "2026-04-24T15:25:12.290Z",
+      "overdue": false,
+      "needsAction": true,
+      "reasons": [
+        "repo stale (192d)"
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Bradley's Finance Hub",
+      "url": "https://mobile-debt-tracker.web.app/index.html",
+      "repo": "Bradleys-Financial-Hub",
+      "repoPushedAt": "2026-01-19T00:33:08Z",
+      "repoDays": 60,
+      "deploymentOk": true,
+      "httpStatus": 200,
+      "navError": null,
+      "firebase": {
+        "isFirebase": true,
+        "liveProjectId": "mobile-debt-tracker",
+        "repoProjectId": "mobile-debt-tracker",
+        "match": true,
+        "matchPercent": 100,
+        "detail": null
+      },
+      "errors": {
+        "console": [],
+        "networkFailed": [],
+        "consoleCount": 0,
+        "networkFailCount": 0
+      },
+      "maintOffset": 36,
+      "maintDue": "2026-04-25T15:25:34.042Z",
+      "overdue": false,
+      "needsAction": true,
+      "reasons": [
+        "repo stale (60d)"
+      ]
+    },
+    {
+      "id": 8,
+      "name": "Bradley Travel Planner",
+      "url": "https://bradleys-travel-planner.web.app/",
+      "repo": "Bradley-s-Travel-Planner",
+      "repoPushedAt": "2025-09-06T19:16:14Z",
+      "repoDays": 194,
+      "deploymentOk": true,
+      "httpStatus": 200,
+      "navError": null,
+      "firebase": {
+        "isFirebase": true,
+        "liveProjectId": "bradleys-travel-planner",
+        "repoProjectId": null,
+        "match": false,
+        "matchPercent": 0,
+        "detail": null
+      },
+      "errors": {
+        "console": [],
+        "networkFailed": [],
+        "consoleCount": 0,
+        "networkFailCount": 0
+      },
+      "maintOffset": 37,
+      "maintDue": "2026-04-26T15:25:39.743Z",
+      "overdue": false,
+      "needsAction": true,
+      "reasons": [
+        "Repo Firebase config: no .firebaserc in repo",
+        "repo stale (194d)"
+      ]
+    },
+    {
+      "id": 9,
+      "name": "DreamBuild",
+      "url": "https://dreambuild-2024-app.web.app/",
+      "repo": "DreamBuild",
+      "repoPushedAt": "2025-10-04T16:55:48Z",
+      "repoDays": 166,
+      "deploymentOk": true,
+      "httpStatus": 200,
+      "navError": null,
+      "firebase": {
+        "isFirebase": true,
+        "liveProjectId": "dreambuild-2024-app",
+        "repoProjectId": "dreambuild-2024-app",
+        "match": true,
+        "matchPercent": 100,
+        "detail": null
+      },
+      "errors": {
+        "console": [],
+        "networkFailed": [],
+        "consoleCount": 0,
+        "networkFailCount": 0
+      },
+      "maintOffset": null,
+      "maintDue": "TBD",
+      "overdue": false,
+      "needsAction": true,
+      "reasons": [
+        "repo stale (166d)"
+      ]
+    },
+    {
+      "id": 10,
+      "name": "FitFlow Pro",
+      "url": "https://fitflow-pro-dreambuild.web.app/",
+      "repo": "fitflow-pro",
+      "repoPushedAt": "2025-08-12T21:13:15Z",
+      "repoDays": 219,
+      "deploymentOk": true,
+      "httpStatus": 200,
+      "navError": null,
+      "firebase": {
+        "isFirebase": true,
+        "liveProjectId": "fitflow-pro-dreambuild",
+        "repoProjectId": "fitflow-pro-fitness",
+        "match": false,
+        "matchPercent": 0,
+        "detail": null
+      },
+      "errors": {
+        "console": [],
+        "networkFailed": [],
+        "consoleCount": 0,
+        "networkFailCount": 0
+      },
+      "maintOffset": 39,
+      "maintDue": "2026-04-28T15:25:50.167Z",
+      "overdue": false,
+      "needsAction": true,
+      "reasons": [
+        "Firebase project mismatch: live fitflow-pro-dreambuild vs repo fitflow-pro-fitness",
+        "repo stale (219d)"
+      ]
+    },
+    {
+      "id": 11,
+      "name": "Bradley Gig-Runner",
+      "url": "https://bradley-gigrunner.web.app/",
+      "repo": "Bradley-GigRunner",
+      "repoPushedAt": "2025-09-10T01:21:27Z",
+      "repoDays": 191,
+      "deploymentOk": true,
+      "httpStatus": 200,
+      "navError": null,
+      "firebase": {
+        "isFirebase": true,
+        "liveProjectId": "bradley-gigrunner",
+        "repoProjectId": "bradley-gigrunner",
+        "match": true,
+        "matchPercent": 100,
+        "detail": null
+      },
+      "errors": {
+        "console": [],
+        "networkFailed": [],
+        "consoleCount": 0,
+        "networkFailCount": 0
+      },
+      "maintOffset": null,
+      "maintDue": "TBD",
+      "overdue": false,
+      "needsAction": true,
+      "reasons": [
+        "repo stale (191d)"
+      ]
+    },
+    {
+      "id": 12,
+      "name": "ProcureFlow",
+      "url": "https://procureflow-demo.web.app/login/",
+      "repo": "ProcureFlow",
+      "repoPushedAt": "2025-09-17T22:35:32Z",
+      "repoDays": 183,
+      "deploymentOk": true,
+      "httpStatus": 200,
+      "navError": null,
+      "firebase": {
+        "isFirebase": true,
+        "liveProjectId": "procureflow-demo",
+        "repoProjectId": "procureflow-demo",
+        "match": true,
+        "matchPercent": 100,
+        "detail": null
+      },
+      "errors": {
+        "console": [],
+        "networkFailed": [],
+        "consoleCount": 0,
+        "networkFailCount": 0
+      },
+      "maintOffset": 41,
+      "maintDue": "2026-04-30T15:26:18.930Z",
+      "overdue": false,
+      "needsAction": true,
+      "reasons": [
+        "repo stale (183d)"
+      ]
+    },
+    {
+      "id": 13,
+      "name": "MindGlow",
+      "url": "https://mindglow-wellness.web.app/",
+      "repo": "MindGlow",
+      "repoPushedAt": "2026-03-11T19:58:24Z",
+      "repoDays": 8,
+      "deploymentOk": true,
+      "httpStatus": 200,
+      "navError": null,
+      "firebase": {
+        "isFirebase": true,
+        "liveProjectId": "mindglow-wellness",
+        "repoProjectId": "mindglow-wellness",
+        "match": true,
+        "matchPercent": 100,
+        "detail": null
+      },
+      "errors": {
+        "console": [],
+        "networkFailed": [],
+        "consoleCount": 0,
+        "networkFailCount": 0
+      },
+      "maintOffset": 42,
+      "maintDue": "2026-05-01T15:26:45.997Z",
+      "overdue": false,
+      "needsAction": false,
+      "reasons": []
+    },
+    {
+      "id": 14,
+      "name": "TaskPilot",
+      "url": "https://taskpilot-ronb12.web.app/",
+      "repo": "TaskPilot",
+      "repoPushedAt": "2025-10-13T22:04:46Z",
+      "repoDays": 157,
+      "deploymentOk": true,
+      "httpStatus": 200,
+      "navError": null,
+      "firebase": {
+        "isFirebase": true,
+        "liveProjectId": "taskpilot-ronb12",
+        "repoProjectId": null,
+        "match": false,
+        "matchPercent": 0,
+        "detail": null
+      },
+      "errors": {
+        "console": [],
+        "networkFailed": [],
+        "consoleCount": 0,
+        "networkFailCount": 0
+      },
+      "maintOffset": 43,
+      "maintDue": "2026-05-02T15:26:50.814Z",
+      "overdue": false,
+      "needsAction": true,
+      "reasons": [
+        "Repo Firebase config: no .firebaserc in repo",
+        "repo stale (157d)"
+      ]
+    },
+    {
+      "id": 15,
+      "name": "HomeFlow Pro",
+      "url": "https://homeflow-pro-1760475179.web.app/",
+      "repo": "homeflow-pro",
+      "repoPushedAt": "2025-10-15T13:32:05Z",
+      "repoDays": 156,
+      "deploymentOk": true,
+      "httpStatus": 200,
+      "navError": null,
+      "firebase": {
+        "isFirebase": true,
+        "liveProjectId": "homeflow-pro-1760475179",
+        "repoProjectId": null,
+        "match": false,
+        "matchPercent": 0,
+        "detail": null
+      },
+      "errors": {
+        "console": [],
+        "networkFailed": [],
+        "consoleCount": 0,
+        "networkFailCount": 0
+      },
+      "maintOffset": 44,
+      "maintDue": "2026-05-03T15:26:55.283Z",
+      "overdue": false,
+      "needsAction": true,
+      "reasons": [
+        "Repo Firebase config: no .firebaserc in repo",
+        "repo stale (156d)"
+      ]
+    },
+    {
+      "id": 16,
+      "name": "ParentLink",
+      "url": "https://parentlink-2024-app.web.app/",
+      "repo": "ParentLink",
+      "repoPushedAt": "2025-10-15T15:21:53Z",
+      "repoDays": 156,
+      "deploymentOk": true,
+      "httpStatus": 200,
+      "navError": null,
+      "firebase": {
+        "isFirebase": true,
+        "liveProjectId": "parentlink-2024-app",
+        "repoProjectId": null,
+        "match": false,
+        "matchPercent": 0,
+        "detail": null
+      },
+      "errors": {
+        "console": [],
+        "networkFailed": [],
+        "consoleCount": 0,
+        "networkFailCount": 0
+      },
+      "maintOffset": 45,
+      "maintDue": "2026-05-04T15:26:59.762Z",
+      "overdue": false,
+      "needsAction": true,
+      "reasons": [
+        "Repo Firebase config: no .firebaserc in repo",
+        "repo stale (156d)"
+      ]
+    },
+    {
+      "id": 17,
+      "name": "ABA Mastery",
+      "url": "https://aba-mastery.vercel.app/app",
+      "repo": "ABA-Mastery",
+      "repoPushedAt": "2026-02-23T13:37:28Z",
+      "repoDays": 25,
+      "deploymentOk": true,
+      "httpStatus": 200,
+      "navError": null,
+      "firebase": {
+        "isFirebase": false,
+        "liveProjectId": null,
+        "repoProjectId": null,
+        "match": null,
+        "matchPercent": null,
+        "detail": null
+      },
+      "errors": {
+        "console": [],
+        "networkFailed": [],
+        "consoleCount": 0,
+        "networkFailCount": 0
+      },
+      "maintOffset": 46,
+      "maintDue": "2026-05-05T15:27:03.694Z",
+      "overdue": false,
+      "needsAction": false,
+      "reasons": []
+    },
+    {
+      "id": 18,
+      "name": "EchoDynamo",
+      "url": "https://echodynamo.vercel.app/",
+      "repo": "EchoDynamo",
+      "repoPushedAt": "2025-11-11T21:20:05Z",
+      "repoDays": 128,
+      "deploymentOk": true,
+      "httpStatus": 200,
+      "navError": null,
+      "firebase": {
+        "isFirebase": false,
+        "liveProjectId": null,
+        "repoProjectId": null,
+        "match": null,
+        "matchPercent": null,
+        "detail": null
+      },
+      "errors": {
+        "console": [],
+        "networkFailed": [],
+        "consoleCount": 0,
+        "networkFailCount": 0
+      },
+      "maintOffset": 47,
+      "maintDue": "2026-05-06T15:27:07.239Z",
+      "overdue": false,
+      "needsAction": true,
+      "reasons": [
+        "repo stale (128d)"
+      ]
+    },
+    {
+      "id": 19,
+      "name": "RentFlow",
+      "url": "https://rentflow-property.vercel.app/",
+      "repo": "rentflow",
+      "repoPushedAt": "2025-10-31T19:03:00Z",
+      "repoDays": 139,
+      "deploymentOk": true,
+      "httpStatus": 200,
+      "navError": null,
+      "firebase": {
+        "isFirebase": false,
+        "liveProjectId": null,
+        "repoProjectId": null,
+        "match": null,
+        "matchPercent": null,
+        "detail": null
+      },
+      "errors": {
+        "console": [],
+        "networkFailed": [],
+        "consoleCount": 0,
+        "networkFailCount": 0
+      },
+      "maintOffset": 48,
+      "maintDue": "2026-05-07T15:27:10.715Z",
+      "overdue": false,
+      "needsAction": true,
+      "reasons": [
+        "repo stale (139d)"
+      ]
+    },
+    {
+      "id": 20,
+      "name": "BradleyVS",
+      "url": "https://bradleyvs.web.app/",
+      "repo": "BradleyVS-App-Dashboard",
+      "repoPushedAt": "2026-03-20T15:01:23Z",
+      "repoDays": 0,
+      "deploymentOk": false,
+      "httpStatus": 404,
+      "navError": null,
+      "firebase": {
+        "isFirebase": true,
+        "liveProjectId": null,
+        "repoProjectId": null,
+        "match": false,
+        "matchPercent": 0,
+        "detail": "init.json HTTP 404"
+      },
+      "errors": {
+        "console": [
+          "Failed to load resource: the server responded with a status of 404 ()"
+        ],
+        "networkFailed": [],
+        "consoleCount": 1,
+        "networkFailCount": 0
+      },
+      "maintOffset": null,
+      "maintDue": "TBD",
+      "overdue": false,
+      "needsAction": true,
+      "reasons": [
+        "Firebase init: init.json HTTP 404",
+        "Repo Firebase config: no .firebaserc in repo",
+        "HTTP 404",
+        "Console: Failed to load resource: the server responded with a status of 404 ()"
+      ]
+    },
+    {
+      "id": 21,
+      "name": "NurseMaster",
+      "url": null,
+      "repo": null,
+      "repoPushedAt": null,
+      "repoDays": null,
+      "deploymentOk": null,
+      "httpStatus": null,
+      "navError": null,
+      "firebase": {
+        "isFirebase": false,
+        "liveProjectId": null,
+        "repoProjectId": null,
+        "match": null,
+        "matchPercent": null,
+        "detail": null
+      },
+      "errors": {
+        "console": [],
+        "networkFailed": [],
+        "consoleCount": 0,
+        "networkFailCount": 0
+      },
+      "maintOffset": null,
+      "maintDue": "TBD",
+      "overdue": false,
+      "needsAction": false,
+      "reasons": [
+        "no public URL — skipped deployment checks"
+      ]
+    },
+    {
+      "id": 22,
+      "name": "Bradley Digital Mktg Hub",
+      "url": null,
+      "repo": "Bradley-s-Digital-Marketing-Hub",
+      "repoPushedAt": "2025-12-04T02:25:34Z",
+      "repoDays": 106,
+      "deploymentOk": null,
+      "httpStatus": null,
+      "navError": null,
+      "firebase": {
+        "isFirebase": false,
+        "liveProjectId": null,
+        "repoProjectId": null,
+        "match": null,
+        "matchPercent": null,
+        "detail": null
+      },
+      "errors": {
+        "console": [],
+        "networkFailed": [],
+        "consoleCount": 0,
+        "networkFailCount": 0
+      },
+      "maintOffset": null,
+      "maintDue": "TBD",
+      "overdue": false,
+      "needsAction": true,
+      "reasons": [
+        "no public URL — skipped deployment checks",
+        "repo stale (106d)"
+      ]
+    },
+    {
+      "id": 23,
+      "name": "K.A.S Roblox",
+      "url": null,
+      "repo": null,
+      "repoPushedAt": null,
+      "repoDays": null,
+      "deploymentOk": null,
+      "httpStatus": null,
+      "navError": null,
+      "firebase": {
+        "isFirebase": false,
+        "liveProjectId": null,
+        "repoProjectId": null,
+        "match": null,
+        "matchPercent": null,
+        "detail": null
+      },
+      "errors": {
+        "console": [],
+        "networkFailed": [],
+        "consoleCount": 0,
+        "networkFailCount": 0
+      },
+      "maintOffset": null,
+      "maintDue": "TBD",
+      "overdue": false,
+      "needsAction": false,
+      "reasons": [
+        "no public URL — skipped deployment checks"
+      ]
+    },
+    {
+      "id": 24,
+      "name": "BarberBook",
+      "url": null,
+      "repo": "Barberbook",
+      "repoPushedAt": "2025-11-28T20:27:14Z",
+      "repoDays": 111,
+      "deploymentOk": null,
+      "httpStatus": null,
+      "navError": null,
+      "firebase": {
+        "isFirebase": false,
+        "liveProjectId": null,
+        "repoProjectId": null,
+        "match": null,
+        "matchPercent": null,
+        "detail": null
+      },
+      "errors": {
+        "console": [],
+        "networkFailed": [],
+        "consoleCount": 0,
+        "networkFailCount": 0
+      },
+      "maintOffset": null,
+      "maintDue": "TBD",
+      "overdue": false,
+      "needsAction": true,
+      "reasons": [
+        "no public URL — skipped deployment checks",
+        "repo stale (111d)"
+      ]
+    },
+    {
+      "id": 25,
+      "name": "80's Jitterbug",
+      "url": "https://jitterbug80s.web.app/",
+      "repo": "80-s-Jitterbug",
+      "repoPushedAt": "2026-03-12T12:53:50Z",
+      "repoDays": 8,
+      "deploymentOk": true,
+      "httpStatus": 200,
+      "navError": null,
+      "firebase": {
+        "isFirebase": true,
+        "liveProjectId": "jitterbug80s",
+        "repoProjectId": null,
+        "match": false,
+        "matchPercent": 0,
+        "detail": null
+      },
+      "errors": {
+        "console": [],
+        "networkFailed": [
+          "https://jitterbug80s.web.app/booking/ — net::ERR_ABORTED",
+          "https://jitterbug80s.web.app/contact/ — net::ERR_ABORTED",
+          "https://jitterbug80s.web.app/gallery/ — net::ERR_ABORTED",
+          "https://jitterbug80s.web.app/packages/ — net::ERR_ABORTED",
+          "https://jitterbug80s.web.app/ — net::ERR_ABORTED",
+          "https://jitterbug80s.web.app/about/ — net::ERR_ABORTED"
+        ],
+        "consoleCount": 0,
+        "networkFailCount": 6
+      },
+      "maintOffset": 49,
+      "maintDue": "2026-05-08T15:27:18.931Z",
+      "overdue": false,
+      "needsAction": true,
+      "reasons": [
+        "Repo Firebase config: no .firebaserc in repo",
+        "Network: https://jitterbug80s.web.app/booking/ — net::ERR_ABORTED",
+        "Network: https://jitterbug80s.web.app/contact/ — net::ERR_ABORTED",
+        "Network: https://jitterbug80s.web.app/gallery/ — net::ERR_ABORTED"
+      ]
+    },
+    {
+      "id": 26,
+      "name": "Guilty Pleasure Treats",
+      "url": "https://guilty-pleasure-treats.vercel.app/",
+      "repo": "Guilty-Pleasure-Treats",
+      "repoPushedAt": "2026-03-20T11:41:08Z",
+      "repoDays": 0,
+      "deploymentOk": true,
+      "httpStatus": 200,
+      "navError": null,
+      "firebase": {
+        "isFirebase": false,
+        "liveProjectId": null,
+        "repoProjectId": null,
+        "match": null,
+        "matchPercent": null,
+        "detail": null
+      },
+      "errors": {
+        "console": [],
+        "networkFailed": [],
+        "consoleCount": 0,
+        "networkFailCount": 0
+      },
+      "maintOffset": null,
+      "maintDue": "TBD",
+      "overdue": false,
+      "needsAction": false,
+      "reasons": []
+    },
+    {
+      "id": 27,
+      "name": "BarberBook Pro",
+      "url": "BarberBook_Pro.html",
+      "repo": "Barberbook",
+      "repoPushedAt": "2025-11-28T20:27:14Z",
+      "repoDays": 111,
+      "deploymentOk": null,
+      "httpStatus": null,
+      "navError": null,
+      "firebase": {
+        "isFirebase": false,
+        "liveProjectId": null,
+        "repoProjectId": null,
+        "match": null,
+        "matchPercent": null,
+        "detail": null
+      },
+      "errors": {
+        "console": [],
+        "networkFailed": [],
+        "consoleCount": 0,
+        "networkFailCount": 0
+      },
+      "maintOffset": 50,
+      "maintDue": "2026-05-09T15:27:22.334Z",
+      "overdue": false,
+      "needsAction": true,
+      "reasons": [
+        "non-http URL (local file) — skipped Playwright/Firebase live checks",
+        "repo stale (111d)"
+      ]
+    },
+    {
+      "id": 28,
+      "name": "NailGlow Studio",
+      "url": "NailGlow_Studio.html",
+      "repo": null,
+      "repoPushedAt": null,
+      "repoDays": null,
+      "deploymentOk": null,
+      "httpStatus": null,
+      "navError": null,
+      "firebase": {
+        "isFirebase": false,
+        "liveProjectId": null,
+        "repoProjectId": null,
+        "match": null,
+        "matchPercent": null,
+        "detail": null
+      },
+      "errors": {
+        "console": [],
+        "networkFailed": [],
+        "consoleCount": 0,
+        "networkFailCount": 0
+      },
+      "maintOffset": 51,
+      "maintDue": "2026-05-10T15:27:22.334Z",
+      "overdue": false,
+      "needsAction": false,
+      "reasons": [
+        "non-http URL (local file) — skipped Playwright/Firebase live checks"
+      ]
+    }
+  ]
+}

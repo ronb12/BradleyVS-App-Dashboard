@@ -127,6 +127,7 @@
   .link-btn:hover{color:var(--accent2);}
   .subs-input{width:58px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:4px 8px;color:var(--text);font-family:'DM Mono',monospace;font-size:0.78rem;text-align:center;outline:none;transition:border-color 0.2s;}
   .subs-input:focus{border-color:var(--accent);}
+  .price-input{width:76px;}
   .rev-calc{font-family:'DM Mono',monospace;font-size:0.8rem;color:var(--green);font-weight:500;}
   .notes-btn{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:3px 8px;color:var(--text2);font-size:0.72rem;cursor:pointer;transition:all 0.2s;font-family:'DM Sans',sans-serif;}
   .notes-btn:hover,.notes-btn.has-note{border-color:var(--yellow);color:var(--yellow);}
@@ -236,6 +237,38 @@
 .admin-login-gate input[type="password"]:focus{border-color:var(--accent);}
 .admin-login-error{color:var(--red);font-size:0.8rem;margin-bottom:0.75rem;min-height:1.2em;}
 .admin-login-actions{display:flex;gap:0.75rem;flex-wrap:wrap;}
+
+/* Features catalog */
+.features-toolbar{display:flex;gap:0.75rem;align-items:center;margin-bottom:1rem;flex-wrap:wrap;}
+.features-search{flex:1;min-width:200px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;color:var(--text);font-size:0.875rem;outline:none;}
+.features-search:focus{border-color:var(--accent);}
+.feat-intro{font-size:0.82rem;color:var(--text2);line-height:1.55;max-width:920px;margin-bottom:1.25rem;}
+.feat-grid{display:flex;flex-direction:column;gap:1rem;}
+.feat-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.15rem 1.25rem;page-break-inside:avoid;}
+.feat-card-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:0.5rem;margin-bottom:0.65rem;border-bottom:1px solid var(--border);padding-bottom:0.65rem;}
+.feat-card-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;color:var(--text);}
+.feat-card-meta{font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--text3);}
+.feat-card-desc{font-size:0.8rem;color:var(--text2);margin-bottom:0.65rem;}
+.feat-list{margin:0;padding-left:1.15rem;font-size:0.82rem;color:var(--text2);line-height:1.55;}
+.feat-list li{margin-bottom:0.35rem;}
+.feat-link{font-size:0.75rem;color:var(--accent);}
+.feat-empty{font-size:0.8rem;color:var(--text3);font-style:italic;}
+.catalog-meta{font-size:0.72rem;color:var(--text3);font-family:'DM Mono',monospace;margin-top:0.5rem;}
+
+@media print{
+  .glow-orb,header,.tabs,.page-title,footer,.save-indicator,.header-date{display:none!important;}
+  body{background:#fff!important;color:#111!important;overflow:visible!important;}
+  body::before{display:none!important;}
+  .container{max-width:100%!important;padding:0.75rem!important;}
+  .panel{display:none!important;}
+  #panel-features{display:block!important;}
+  .no-print{display:none!important;}
+  .feat-card{border:1px solid #ccc!important;background:#fff!important;box-shadow:none!important;}
+  .feat-card-title{color:#111!important;}
+  .feat-list,.feat-card-desc,.feat-intro{color:#333!important;}
+  .feat-card-meta,.catalog-meta{color:#666!important;}
+  .features-toolbar{border-bottom:1px solid #ccc;padding-bottom:8px;margin-bottom:12px;}
+}
 </style>
 </head>
 <body>
@@ -276,6 +309,7 @@
     <button class="tab" onclick="showTab('marketing',this)">📣 Marketing</button>
     <button class="tab" onclick="showTab('versions',this)">🗂️ Versions</button>
     <button class="tab" onclick="showTab('roadmap',this)">🚀 Roadmap</button>
+    <button class="tab" onclick="showTab('features',this)">📋 Features</button>
     <button class="tab" onclick="showTab('admin',this)">🔐 Admin</button>
   </div>
 
@@ -316,13 +350,14 @@
 
     <div class="section-title">🔴 Immediate Actions</div>
     <div class="actions-list">
-      <div class="action-item fade-in"><div class="action-dot" style="background:var(--red)"></div><div class="action-text">Activate Stripe/PayPal on <strong>Holliday's Lawn & Garden</strong> — $500/mo potential</div><span class="action-badge badge-high">HIGH</span></div>
+      <div class="action-item fade-in"><div class="action-dot" style="background:var(--red)"></div><div class="action-text"><strong>Security:</strong> Remove plaintext <strong>test / demo logins</strong> from public HTML on <strong>TaskPilot</strong>, <strong>ParentLink</strong>, <strong>HomeFlow Pro</strong> (use first-run setup or private docs only — see <code>docs/CREDENTIALS.md</code>)</div><span class="action-badge badge-high">HIGH</span></div>
+      <div class="action-item fade-in"><div class="action-dot" style="background:var(--red)"></div><div class="action-text"><strong>Holliday's Lawn &amp; Garden:</strong> Site is <strong>marketing + pay bill + login</strong> — align portfolio price with a real <strong>SaaS or booking</strong> tier, or mark revenue model as services-led</div><span class="action-badge badge-high">HIGH</span></div>
       <div class="action-item fade-in"><div class="action-dot" style="background:var(--red)"></div><div class="action-text">Add Apple subscription to <strong>Faith Journal</strong> — already on App Store</div><span class="action-badge badge-high">HIGH</span></div>
       <div class="action-item fade-in"><div class="action-dot" style="background:var(--red)"></div><div class="action-text">Add billing to <strong>Bradley Health, Finance Hub, Travel Planner</strong></div><span class="action-badge badge-high">HIGH</span></div>
-      <div class="action-item fade-in"><div class="action-dot" style="background:var(--orange)"></div><div class="action-text">Fix <strong>ProcureFlow</strong> connection error — $149.99/mo enterprise app</div><span class="action-badge badge-high">HIGH</span></div>
+      <div class="action-item fade-in"><div class="action-dot" style="background:var(--orange)"></div><div class="action-text"><strong>ProcureFlow:</strong> Demo login is <strong>reachable</strong> — use <strong>$149.99/mo as demo/SMB tier</strong> in collateral; real DoD production deals differ from portfolio row</div><span class="action-badge badge-high">HIGH</span></div>
       <div class="action-item fade-in"><div class="action-dot" style="background:var(--orange)"></div><div class="action-text">Complete & relaunch <strong>DreamBuild</strong> — AI builder at $49.99/mo</div><span class="action-badge badge-high">HIGH</span></div>
       <div class="action-item fade-in"><div class="action-dot" style="background:var(--yellow)"></div><div class="action-text">Activate <strong>AdSense on Amplifi</strong> social platform</div><span class="action-badge badge-med">MED</span></div>
-      <div class="action-item fade-in"><div class="action-dot" style="background:var(--yellow)"></div><div class="action-text">Fix <strong>RentFlow</strong> email sending bug &amp; GitHub issue</div><span class="action-badge badge-med">MED</span></div>
+      <div class="action-item fade-in"><div class="action-dot" style="background:var(--yellow)"></div><div class="action-text"><strong>RentFlow:</strong> Confirm <code>rentflow-property.vercel.app</code> reliability (cold start/timeouts) &amp; email pipeline; fix GitHub issue if mail still failing</div><span class="action-badge badge-med">MED</span></div>
     </div>
   </div>
 
@@ -413,6 +448,20 @@
     <div class="section-title">📱 Platform Breakdown</div>
     <div class="tracker-grid" id="platformGrid"></div>
   </div>
+
+  <!-- ══════════════ FEATURES CATALOG ══════════════ -->
+  <div id="panel-features" class="panel">
+    <div class="section-title">📋 App Features Catalog</div>
+    <p class="feat-intro">Master list of <strong>documented features</strong> per portfolio app (for sales, investors, and internal planning). Use <strong>Print</strong> and choose <strong>Save as PDF</strong> in the print dialog, or download the Markdown file for GitHub/docs.</p>
+    <div class="features-toolbar no-print">
+      <input type="search" class="features-search" id="featuresSearchInput" placeholder="🔍 Filter by app name, category, or feature text…" oninput="renderFeatureCatalog()" autocomplete="off">
+      <button type="button" class="export-btn" onclick="printFeatureCatalog()">🖨️ Print / Save as PDF</button>
+      <button type="button" class="btn-secondary" onclick="downloadFeatureCatalogMd()">⬇️ Download .md</button>
+    </div>
+    <p id="featuresCatalogMeta" class="catalog-meta no-print" aria-live="polite"></p>
+    <div class="feat-grid" id="featuresCatalogBody"></div>
+  </div>
+
   <!-- ══════════════ ADMIN ══════════════ -->
   <div id="panel-admin" class="panel">
     <div id="admin-login-gate" class="admin-login-gate">
@@ -559,34 +608,65 @@
 <script>
 // ── DATA ──────────────────────────────────────────────────────────────────────
 const APPS = [
-  {id:1, name:"Holliday's Lawn & Garden",desc:"Landscaping Business App",      url:"https://ronb12.github.io/Holliday-Lawn-Garden/index.html",status:"live", cat:"Business",    price:49.99,pri:"High",    maintOffset:30},
-  {id:2, name:"Bradley Health",          desc:"Medical Health Tracking",        url:"https://bradley-health.web.app/",                         status:"live", cat:"Health",      price:14.99,pri:"High",    maintOffset:31},
+  {id:1, name:"Holliday's Lawn & Garden",desc:"Landscaping business site · services, pay bill, client login (GitHub Pages)", url:"https://ronb12.github.io/Holliday-Lawn-Garden/index.html",status:"live", cat:"Business",    price:49.99,pri:"High",    maintOffset:30},
+  {id:2, name:"Bradley Health",          desc:"Medical Health Tracking",        url:"https://bradley-health.web.app/",                         status:"live", cat:"Health",      price:19.99,pri:"High",    maintOffset:31},
   {id:3, name:"K&A Adventures",          desc:"Space Ship Adventure Game",      url:null,                                                      status:"live", cat:"Gaming",      price:2.99, pri:"Medium",  maintOffset:32},
   {id:4, name:"Faith Journal",           desc:"Religious Journal App",          url:null,                                                      status:"live", cat:"Lifestyle",   price:9.99, pri:"High",    maintOffset:33},
   {id:5, name:"Amplifi",                 desc:"Social Media / Creator Platform",url:"https://amplifi-a54d9.web.app/index.html",                status:"live", cat:"Social",      price:9.99, pri:"High",    maintOffset:34},
   {id:6, name:"Adelynn's Jungle Dash",   desc:"Kids Memory Card Game",          url:"https://ronb12.github.io/Adelynn-Jungle-Dash/",           status:"live", cat:"Kids/Gaming", price:1.99, pri:"Low",     maintOffset:35},
   {id:7, name:"Bradley's Finance Hub",   desc:"Budget & Finance App",           url:"https://mobile-debt-tracker.web.app/index.html",          status:"live", cat:"Finance",     price:12.99,pri:"High",    maintOffset:36},
-  {id:8, name:"Bradley Travel Planner",  desc:"Travel Planner App",             url:"https://bradleys-travel-planner.web.app/",                status:"live", cat:"Travel",      price:6.99, pri:"Medium",  maintOffset:37},
+  {id:8, name:"Bradley Travel Planner",  desc:"Travel Planner App",             url:"https://bradleys-travel-planner.web.app/",                status:"live", cat:"Travel",      price:8.99, pri:"Medium",  maintOffset:37},
   {id:9, name:"DreamBuild",              desc:"AI App & Website Builder",       url:"https://dreambuild-2024-app.web.app/",                    status:"maint",cat:"Dev Tools",   price:49.99,pri:"High",    maintOffset:null},
   {id:10,name:"FitFlow Pro",             desc:"AI-Powered Fitness App",         url:"https://fitflow-pro-dreambuild.web.app/",                 status:"live", cat:"Health",      price:9.99, pri:"Medium",  maintOffset:39},
   {id:11,name:"Bradley Gig-Runner",      desc:"Food Delivery App",              url:"https://bradley-gigrunner.web.app/",                      status:"maint",cat:"Delivery",    price:null, pri:"High",    maintOffset:null},
-  {id:12,name:"ProcureFlow",             desc:"DoD MWR Purchasing Software",    url:"https://procureflow-demo.web.app/login/",                 status:"live", cat:"Enterprise",  price:149.99,pri:"Critical",maintOffset:41},
-  {id:13,name:"MindGlow",                desc:"Wellness & Meditation App",      url:"https://mindglow-wellness.web.app/",                      status:"live", cat:"Wellness",    price:9.99, pri:"Medium",  maintOffset:42},
+  {id:12,name:"ProcureFlow",             desc:"DoD MWR purchasing · demo environment (not production)", url:"https://procureflow-demo.web.app/login/",                 status:"live", cat:"Enterprise",  price:149.99,pri:"Critical",maintOffset:41},
+  {id:13,name:"MindGlow",                desc:"Wellness & Meditation App",      url:"https://mindglow-wellness.web.app/",                      status:"live", cat:"Wellness",    price:14.99, pri:"Medium",  maintOffset:42},
   {id:14,name:"TaskPilot",               desc:"Project & Production Manager",   url:"https://taskpilot-ronb12.web.app/",                      status:"live", cat:"Productivity",price:30.00,pri:"High",    maintOffset:43},
   {id:15,name:"HomeFlow Pro",            desc:"Home Management Dashboard",      url:"https://homeflow-pro-1760475179.web.app/",                status:"live", cat:"Home",        price:30.00,pri:"Medium",  maintOffset:44},
   {id:16,name:"ParentLink",              desc:"Education Communication App",    url:"https://parentlink-2024-app.web.app/",                    status:"live", cat:"Education",   price:30.00,pri:"High",    maintOffset:45},
   {id:17,name:"ABA Mastery",             desc:"ABA Therapist Study App",        url:"https://aba-mastery.vercel.app/app",                      status:"live", cat:"Education",   price:30.00,pri:"Critical",maintOffset:46},
-  {id:18,name:"EchoDynamo",              desc:"Messaging App",                  url:"https://echodynamo.vercel.app/",                          status:"live", cat:"Social",      price:30.00,pri:"High",    maintOffset:47},
+  {id:18,name:"EchoDynamo",              desc:"Messaging App",                  url:"https://echodynamo.vercel.app/",                          status:"live", cat:"Social",      price:39.00,pri:"High",    maintOffset:47},
   {id:19,name:"RentFlow",                desc:"Property Management App",        url:"https://rentflow-property.vercel.app/",                   status:"live", cat:"Real Estate", price:30.00,pri:"High",    maintOffset:48},
   {id:20,name:"BradleyVS",               desc:"App Portfolio Dashboard (this site)", url:"https://bradleyvs-app-dashboard.vercel.app/",         status:"maint",cat:"Productivity",price:9.99, pri:"Medium",  maintOffset:null},
-  {id:21,name:"NurseMaster",             desc:"Nursing Study App",              url:null,                                                      status:"maint",cat:"Education",   price:14.99,pri:"High",    maintOffset:null},
+  {id:21,name:"NurseMaster",             desc:"Nursing Study App",              url:null,                                                      status:"maint",cat:"Education",   price:24.99,pri:"High",    maintOffset:null},
   {id:22,name:"Bradley Digital Mktg Hub",desc:"Digital Marketing App",          url:null,                                                      status:"maint",cat:"Marketing",   price:39.99,pri:"High",    maintOffset:null},
   {id:23,name:"K.A.S Roblox",            desc:"Roblox Game",                    url:null,                                                      status:"maint",cat:"Gaming",      price:null, pri:"Low",     maintOffset:null},
   {id:25,name:"80's Jitterbug",          desc:"Retro 360 Photo Booth App",      url:"https://jitterbug80s.web.app/",                           status:"live", cat:"Events",      price:null, pri:"High",    maintOffset:49},
-  {id:26,name:"Guilty Pleasure Treats",  desc:"Baking Shop App",                url:"https://guilty-pleasure-treats.vercel.app/",              status:"maint",cat:"E-Commerce",  price:14.99,pri:"Medium",  maintOffset:null},
+  {id:26,name:"Guilty Pleasure Treats",  desc:"Bakery marketing · App Store ordering, custom cakes (consumer D2C)", url:"https://guilty-pleasure-treats.vercel.app/",              status:"maint",cat:"E-Commerce",  price:14.99,pri:"Medium",  maintOffset:null},
   {id:27,name:"BarberBook Pro",              desc:"Complete Barber Shop Management · standalone repo + Vercel", url:"https://bradleyvs-app-dashboard.vercel.app/BarberBook_Pro", status:"live", cat:"Business",    price:49.99,pri:"High",    maintOffset:50},
-  {id:28,name:"NailGlow Studio",             desc:"Nail Shop Business Management · standalone repo + Vercel",   url:"https://bradleyvs-app-dashboard.vercel.app/NailGlow_Studio", status:"live", cat:"Business",    price:39.99,pri:"High",    maintOffset:51},
+  {id:28,name:"NailGlow Studio",             desc:"Nail Shop Business Management · standalone repo + Vercel",   url:"https://bradleyvs-app-dashboard.vercel.app/NailGlow_Studio", status:"live", cat:"Business",    price:49.99,pri:"High",    maintOffset:51},
 ];
+
+/** Feature bullets per app id for the Features catalog (print / PDF / Markdown). Update when shipping major features. */
+const APP_FEATURE_CATALOG = {
+  1: { features: ['Public marketing site: services (lawn, landscape design, pressure washing)', 'Quote & contact flows', 'Pay bill page', 'Customer login area', 'GitHub Pages hosting', 'Portfolio $/mo row = optional SaaS/booking tier model — align with real revenue approach'] },
+  2: { features: ['Auth: login, register, password reset', 'Blood pressure logging, trends, history', 'Medications list, adherence, reminders', 'Mood tracking + trends + journal', 'Women’s health: cycle, fertility, screenings, STI, PCOS, thyroid logs', 'Limb / prosthetic care, pain tracking, equipment & maintenance queue', 'Nutrition & meals with cholesterol estimation', 'Weight-loss goals with AI meal & exercise plans', 'Health insights / scoring, data export, printable medical reports', 'Profile, emergency contact, dark mode, PWA install'] },
+  3: { features: ['Space-themed memory / card-matching game', 'Difficulty tiers (easy → legendary pair counts)', 'Session statistics, achievements', 'Sound toggle', 'Static GitHub Pages'] },
+  4: { features: ['Faith-based digital journaling (portfolio positioning)', 'Apple App Store distribution (per roadmap notes)', 'Offline / PWA — verify in repo'] },
+  5: { features: ['Creator landing: video, live, short-form positioning', 'Information architecture: feed, trending, search, upload, editor, schedule', 'Library & profile routes', 'Legal pages: about, privacy, terms'] },
+  6: { features: ['Kid-friendly memory safari theme', 'Multiple difficulty presets', 'Local stats: games played, win rate, streaks, achievements'] },
+  7: { features: ['Debt tracker', 'Budget tracker', 'Debt velocity / payoff calculator', 'Net worth tracker', '1099 / W-2 style tax calculator', 'Savings goals', 'Firebase-hosted; sign-in + dashboard demo routes'] },
+  8: { features: ['Trip creation, upcoming trips, templates', 'Budget totals, spend vs remaining, analytics charts', 'Travel calendar view', 'Packing lists', 'Travel document vault', 'Multi-currency settings (large currency list)', 'Data export & offline/PWA messaging'] },
+  9: { features: ['AI-assisted dev positioning: code generation, templates', 'Collaboration, integrated terminal, Git/GitHub story', 'Desktop app download CTA', 'Tech stack / analytics messaging', 'Status: maintenance — re-verify production feature parity'] },
+  10: { features: ['AI-powered fitness branding', 'PWA install prompts', 'Offline messaging — expand in app repo'] },
+  11: { features: ['Three-sided marketplace positioning: customers, drivers, restaurants', 'Order & delivery story', 'Auth entry (login / signup)', 'Status: maintenance'] },
+  12: { features: ['MWR purchase-card workflow positioning (requester role)', 'Demo disclaimer on login', 'OAuth placeholders (Google/Microsoft)', 'Not for production use — enterprise pricing reflects demo tier'] },
+  13: { features: ['Meditation sessions, custom timer, ambient soundscapes', 'Breathing exercises (box, 4-7-8, calm)', 'Mood, stress, habits, water, sleep, screen time', 'Gratitude, affirmations, personal notes', 'Community: friends, challenges, group sessions', 'Wellness library + mindful eating guide', 'Optional commerce: products, cart, checkout tax, orders, inventory (owner tools)', 'Google auth, data export, reminders, offline mode'] },
+  14: { features: ['Project / production management (TaskPilot)', 'Email + password auth', 'Security: remove any plaintext test accounts from public login HTML (rotate passwords if exposed)', 'Roadmap: expand task/kanban docs in repo'] },
+  15: { features: ['Home management dashboard', 'Auth + first-run or demo flow', 'Security: do not ship demo passwords in page source — use BarberBook-style owner setup or private docs', 'Feature depth documented in HomeFlow repo'] },
+  16: { features: ['Parent ↔ teacher communication', 'Role-based sign-in', 'Security: remove shared parent/teacher test passwords from public HTML; use invite-only or seed via admin', 'Messaging & announcements — align with ParentLink repo'] },
+  17: { features: ['BCBA / BCaBA exam modes & timers', 'Topic study, practice exams, flashcards', 'Clinical scenario quizzes (large scenario bank)', 'Published case-studies module', 'AI study coach & readiness metrics', 'Achievements, XP, streaks', 'Study groups, bookmarks, progress export', 'PWA install'] },
+  18: { features: ['Rich messaging (media, voice, GIFs, polls, reactions)', 'Voice/video (WebRTC) & screen share', 'Stripe Connect payments & subscriptions story', 'Family safety: parent/child linking & controls', 'E2EE & 2FA messaging on positioning', 'PWA / offline story'] },
+  19: { features: ['Property management positioning', 'Tenants, leases, maintenance — confirm in RentFlow repo', 'Email integrations noted on dashboard maintenance list'] },
+  20: { features: ['Portfolio KPIs & app table (status, category, price, subs, revenue)', 'Revenue goal, scenarios, expenses, marketing trackers', 'Version history, roadmap, maintenance automation UI', 'Admin auth (local + optional cloud API)', 'CSV / JSON export, cloud portfolio sync hooks', 'Feature catalog with print & Markdown export (this tab)', 'Policy: external Firebase apps should follow docs/CREDENTIALS.md (no hardcoded demo passwords)'] },
+  21: { features: ['Nursing exam / study companion (NurseMaster)', 'Detailed modules in app repo — link when URL live'] },
+  22: { features: ['Digital marketing hub: campaigns, assets, analytics (per product intent)', 'URL TBD — update catalog when deployed'] },
+  23: { features: ['Roblox game (K.A.S)', 'Live Roblox experience — pricing varies / not SaaS monthly'] },
+  25: { features: ['Event photo booth marketing site', 'Packages (basic / standard / VIP)', 'Booking & quote requests', 'Gallery & testimonials block', 'Pricing: typically event-based (Varies in portfolio)'] },
+  26: { features: ['Bakery menu storytelling (cupcakes, cookies, cakes, brownies)', 'Custom cakes + AI-assist positioning', 'Online ordering CTA, App Store download link', 'Pickup & delivery copy, social & email contact'] },
+  27: { features: ['Owner login + first-run password setup (localStorage)', 'Dashboard: today’s revenue, appts, walk-ins, barber stats', 'Booking & walk-in queue, client CRM', 'Barber team, services & categories, retail inventory', 'Business reports, transactions, tax rate, payment methods', 'Stripe-ready checkout story, JSON backup import/export', 'PWA / shop settings'] },
+  28: { features: ['Owner login + first-run password setup (localStorage)', 'Studio dashboard: appointments, walk-ins, technicians, nail-inspo gallery', 'Client profiles with allergies & style notes', 'Services with descriptions; retail / polish inventory', 'Staff accounts (owner/manager/tech), reports & tips', 'Stripe + Twilio fields, cancellation policy, tax', 'JSON backup import/export, SaaS migration notes in docs'] },
+};
 
 // State stored in memory
 const state = {
@@ -871,8 +951,8 @@ function syncPortfolioEditMode() {
   const hint = $('appsEditHint');
   if (hint) {
     hint.textContent = ed
-      ? '💡 Edit subscribers & ratings inline · Click 📝 for notes · Red rows = overdue maintenance'
-      : '👁️ View-only — Open 🔐 Admin and sign in to edit status, subs, ratings, notes, exports, revenue goal, expenses, marketing, and versions.';
+      ? '💡 Edit price, subscribers & ratings inline (empty price = Varies) · Click 📝 for notes · Red rows = overdue maintenance'
+      : '👁️ View-only — Open 🔐 Admin and sign in to edit status, price, subs, ratings, notes, exports, revenue goal, expenses, marketing, and versions.';
   }
 }
 
@@ -957,7 +1037,11 @@ function isOverdue(offset) {
   return d < new Date(Date.now() + 7 * 86400000); // within 7 days = alert
 }
 function calcRevenue() {
-  return APPS.reduce((s,a) => s + (a.price && state.subs[a.id] ? a.price * state.subs[a.id] : 0), 0);
+  return APPS.reduce((s, a) => {
+    const p = a.price != null && Number.isFinite(Number(a.price)) ? Number(a.price) : null;
+    const sub = state.subs[a.id] || 0;
+    return s + (p != null && sub ? p * sub : 0);
+  }, 0);
 }
 function calcExpenses() {
   return Object.values(state.expenses).reduce((s,e) => {
@@ -973,6 +1057,84 @@ function showSave() {
   if (canEditPortfolio()) persistPortfolioToStorage();
 }
 
+// ── FEATURES CATALOG (print / PDF / Markdown) ─────────────────────────────────
+function catalogPriceLabel(a) {
+  if (a.price != null && Number.isFinite(Number(a.price))) return `$${Number(a.price).toFixed(2)}/mo (portfolio model)`;
+  return 'Varies / not set';
+}
+function getFeatureListForApp(a) {
+  const row = APP_FEATURE_CATALOG[a.id];
+  if (row && Array.isArray(row.features) && row.features.length) return row.features;
+  return [`Core: ${a.desc}`, 'Add bullets to APP_FEATURE_CATALOG in BVS_Dashboard_v2_1.html'];
+}
+function renderFeatureCatalog() {
+  const body = $('featuresCatalogBody');
+  const meta = $('featuresCatalogMeta');
+  if (!body) return;
+  const q = ($('featuresSearchInput')?.value || '').trim().toLowerCase();
+  const list = [...APPS].sort((a, b) => a.id - b.id).filter(a => {
+    if (!q) return true;
+    const hay = [
+      a.name, a.desc, a.cat, catalogPriceLabel(a), a.url || '',
+      ...getFeatureListForApp(a),
+    ].join('\n').toLowerCase();
+    return hay.includes(q);
+  });
+  body.innerHTML = list.map(a => {
+    const feats = getFeatureListForApp(a);
+    const urlLine = a.url
+      ? `<a class="feat-link no-print" href="${a.url}" target="_blank" rel="noopener">Live link ↗</a>`
+      : '<span class="feat-card-meta">No URL in portfolio</span>';
+    const li = feats.map(f => `<li>${String(f).replace(/</g, '&lt;')}</li>`).join('');
+    return `<div class="feat-card" data-app-id="${a.id}">
+      <div class="feat-card-head">
+        <div><span class="feat-card-title">${a.name}</span> <span class="feat-card-meta">· ${a.cat} · ${a.status}</span></div>
+        <div class="feat-card-meta">${catalogPriceLabel(a)}</div>
+      </div>
+      <div class="feat-card-desc">${a.desc}</div>
+      <div class="no-print" style="margin-bottom:8px;">${urlLine}</div>
+      <ul class="feat-list">${li}</ul>
+    </div>`;
+  }).join('');
+  if (meta) meta.textContent = q ? `${list.length} app(s) match filter · ${APPS.length} total` : `${APPS.length} apps · Bradley Virtual Solutions — ${new Date().toLocaleDateString()}`;
+}
+function printFeatureCatalog() {
+  const tabBtn = Array.from(document.querySelectorAll('.tab')).find(t => /Features/i.test(t.textContent || ''));
+  const panel = $('panel-features');
+  const already = panel && panel.classList.contains('active');
+  if (!already && tabBtn) tabBtn.click();
+  setTimeout(() => window.print(), already ? 0 : 200);
+}
+function downloadFeatureCatalogMd() {
+  const lines = [
+    '# BradleyVS App Feature Catalog',
+    '',
+    `_Generated ${new Date().toISOString().slice(0, 10)} · ${APPS.length} apps_`,
+    '',
+    '> Source of truth: `APP_FEATURE_CATALOG` in `BVS_Dashboard_v2_1.html`. Edit there to update this export.',
+    '',
+  ];
+  [...APPS].sort((a, b) => a.id - b.id).forEach(a => {
+    lines.push(`## ${a.name} (#${a.id})`);
+    lines.push('');
+    lines.push(`- **Category:** ${a.cat}`);
+    lines.push(`- **Status:** ${a.status}`);
+    lines.push(`- **Portfolio price:** ${catalogPriceLabel(a)}`);
+    lines.push(`- **URL:** ${a.url || '—'}`);
+    lines.push(`- **Summary:** ${a.desc}`);
+    lines.push('');
+    getFeatureListForApp(a).forEach(f => lines.push(`- ${f}`));
+    lines.push('');
+  });
+  const blob = new Blob([lines.join('\n')], { type: 'text/markdown;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `BVS_App_Features_${new Date().toISOString().slice(0, 10)}.md`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 // ── TABS ──────────────────────────────────────────────────────────────────────
 function showTab(id, btn) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -984,6 +1146,7 @@ function showTab(id, btn) {
   if (id==='marketing') renderMarketing();
   if (id==='versions') renderVersionsPanel();
   if (id==='roadmap') renderRoadmap();
+  if (id==='features') renderFeatureCatalog();
   if (id==='admin') {
     syncAdminGate();
     if (isAdminAuthenticated()) renderAdminPanel();
@@ -1037,7 +1200,7 @@ function renderApps() {
     let va,vb;
     if(sortCol===0){va=a.id;vb=b.id;}
     else if(sortCol===1){va=a.name;vb=b.name;}
-    else if(sortCol===4){va=a.price||0;vb=b.price||0;}
+    else if(sortCol===4){va=a.price!=null&&Number.isFinite(Number(a.price))?Number(a.price):0;vb=b.price!=null&&Number.isFinite(Number(b.price))?Number(b.price):0;}
     else return 0;
     return sortAsc?(va>vb?1:-1):(va<vb?1:-1);
   });
@@ -1045,7 +1208,7 @@ function renderApps() {
   $('appsBody').innerHTML = list.map(a => {
     const overdue = isOverdue(a.maintOffset);
     const subs = state.subs[a.id]||0;
-    const rev = a.price&&subs ? a.price*subs : 0;
+    const rev = a.price!=null&&Number.isFinite(Number(a.price))&&subs ? Number(a.price)*subs : 0;
     const rating = state.ratings[a.id]||0;
     const note = state.notes[a.id]||'';
     const statusClsCol = overdue ? 'status-alert' : a.status==='live' ? 'status-live' : a.status==='coming' ? 'status-coming-badge' : 'status-maint';
@@ -1077,12 +1240,16 @@ function renderApps() {
           <option value="Low"      ${a.pri==='Low'     ?'selected':''}>⚪ Low</option>
         </select>`
       : `<span class="priority-badge ${priCls}" style="font-size:0.72rem">${priLabel}</span>`;
+    const hasPrice = a.price != null && Number.isFinite(Number(a.price));
+    const priceCell = canEdit
+      ? `<input class="subs-input price-input" type="number" step="0.01" min="0" placeholder="—" title="Monthly $ / sub · leave empty for Varies" value="${hasPrice ? Number(a.price) : ''}" onchange="setAppPrice(${a.id},this.value)">`
+      : (hasPrice ? `<span class="price-val">$${Number(a.price).toFixed(2)}</span>` : `<span class="price-none">Varies</span>`);
     return `<tr data-id="${a.id}" class="${overdue?'alert-row':''}">
       <td style="color:var(--text3);font-family:'DM Mono',monospace;font-size:0.78rem">${a.id}</td>
       <td><div class="app-name">${a.name}</div><div class="app-desc">${a.desc}</div></td>
       <td>${statusCell}</td>
       <td style="font-size:0.78rem;color:var(--text2)">${a.cat}</td>
-      <td>${a.price?`<span class="price-val">$${a.price.toFixed(2)}</span>`:`<span class="price-none">Varies</span>`}</td>
+      <td>${priceCell}</td>
       <td>${subsCell}</td>
       <td id="rev-${a.id}">${rev>0?`<span class="rev-calc">${fmt(rev)}</span>`:`<span style="color:var(--text3)">—</span>`}</td>
       <td><div class="${starWrapCls}">${stars}</div></td>
@@ -1110,10 +1277,32 @@ function setSubs(id,val) {
   if (!canEditPortfolio()) return;
   state.subs[id] = parseInt(val)||0;
   const a = APPS.find(x=>x.id===id);
-  const rev = a&&a.price&&state.subs[id] ? a.price*state.subs[id] : 0;
+  const rev = a&&a.price!=null&&Number.isFinite(Number(a.price))&&state.subs[id] ? Number(a.price)*state.subs[id] : 0;
   const cell = $('rev-'+id);
   if(cell) cell.innerHTML = rev>0 ? `<span class="rev-calc">${fmt(rev)}</span>` : `<span style="color:var(--text3)">—</span>`;
   updateAll(); showSave();
+  if (isAdminAuthenticated()) renderAdminPanel();
+}
+
+function setAppPrice(id, val) {
+  if (!canEditPortfolio()) return;
+  const app = APPS.find(a => a.id === id);
+  if (!app) return;
+  const s = String(val ?? '').trim();
+  if (s === '') {
+    app.price = null;
+  } else {
+    const n = parseFloat(s.replace(/,/g, ''));
+    if (!Number.isFinite(n) || n < 0) return;
+    app.price = Math.round(n * 100) / 100;
+  }
+  const subs = state.subs[id]||0;
+  const rev = app.price != null && Number.isFinite(Number(app.price)) && subs ? Number(app.price) * subs : 0;
+  const cell = $('rev-'+id);
+  if (cell) cell.innerHTML = rev > 0 ? `<span class="rev-calc">${fmt(rev)}</span>` : `<span style="color:var(--text3)">—</span>`;
+  updateAll();
+  showSave();
+  renderApps();
   if (isAdminAuthenticated()) renderAdminPanel();
 }
 
@@ -1171,9 +1360,11 @@ function exportCSV() {
   const headers = ['ID','App Name','Description','Category','Status','Price/mo','Subscribers','Monthly Revenue','Rating','Priority','Notes','Next Maintenance'];
   const rows = APPS.map(a => {
     const subs = state.subs[a.id]||0;
-    const rev = a.price&&subs ? (a.price*subs).toFixed(2) : '0.00';
+    const p = a.price != null && Number.isFinite(Number(a.price)) ? Number(a.price) : null;
+    const rev = p != null && subs ? (p*subs).toFixed(2) : '0.00';
+    const priceCol = p != null ? p : 'Varies';
     const maint = formatDate(getMaintDate(a.maintOffset));
-    return [a.id, `"${a.name}"`, `"${a.desc}"`, a.cat, a.status, a.price||'Varies', subs, rev, state.ratings[a.id]||0, a.pri, `"${(state.notes[a.id]||'').replace(/"/g,"'")}"`, maint];
+    return [a.id, `"${a.name}"`, `"${a.desc}"`, a.cat, a.status, priceCol, subs, rev, state.ratings[a.id]||0, a.pri, `"${(state.notes[a.id]||'').replace(/"/g,"'")}"`, maint];
   });
   const csv = [headers, ...rows].map(r=>r.join(',')).join('\n');
   const blob = new Blob([csv],{type:'text/csv'});
@@ -1184,11 +1375,13 @@ function exportCSV() {
 
 // ── REVENUE TAB ───────────────────────────────────────────────────────────────
 function renderRevenue() {
-  const maxRev = Math.max(...APPS.filter(a=>a.price).map(a=>(a.price||0)*10), 1);
-  const sorted = [...APPS].filter(a=>a.price).sort((a,b)=>(b.price*(state.subs[b.id]||0))-(a.price*(state.subs[a.id]||0)));
+  const priced = a => a.price != null && Number.isFinite(Number(a.price));
+  const maxRev = Math.max(...APPS.filter(priced).map(a=>Number(a.price)*10), 1);
+  const sorted = [...APPS].filter(priced).sort((a,b)=>(Number(b.price)*(state.subs[b.id]||0))-(Number(a.price)*(state.subs[a.id]||0)));
   $('revenueBreakdown').innerHTML = sorted.map(a => {
-    const rev = a.price*(state.subs[a.id]||0);
-    const pot = a.price*10;
+    const mp = Number(a.price);
+    const rev = mp*(state.subs[a.id]||0);
+    const pot = mp*10;
     return `<div style="display:flex;align-items:center;gap:1rem;padding:0.75rem 1rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;">
       <div style="width:170px;font-size:0.8rem;font-weight:600;flex-shrink:0">${a.name}</div>
       <div style="flex:1">
@@ -1208,7 +1401,7 @@ function renderRevenue() {
 
   const months = ['Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb'];
   const cur = calcRevenue();
-  const growth = APPS.filter(a=>a.price).length * 10;
+  const growth = APPS.filter(a => a.price != null && Number.isFinite(Number(a.price))).length * 10;
   $('monthlyProjections').innerHTML = months.map((m,i) => {
     const proj = cur + i*growth;
     return `<div class="tracker-card">
@@ -1227,7 +1420,8 @@ function renderExpenses() {
   $('expenseCards').innerHTML = APPS.map(a => {
     const e = state.expenses[a.id]||{hosting:'',domain:'',other:''};
     const total = (parseFloat(e.hosting)||0)+(parseFloat(e.domain)||0)+(parseFloat(e.other)||0);
-    const rev = a.price&&state.subs[a.id] ? a.price*state.subs[a.id] : 0;
+    const mp = a.price != null && Number.isFinite(Number(a.price)) ? Number(a.price) : null;
+    const rev = mp != null && state.subs[a.id] ? mp*state.subs[a.id] : 0;
     const profit = rev - total;
     const exAttr = canEdit ? `oninput="setExpense(${a.id},'hosting',this.value)"` : 'disabled';
     const exAttr2 = canEdit ? `oninput="setExpense(${a.id},'domain',this.value)"` : 'disabled';
@@ -1260,7 +1454,8 @@ function setExpense(id,field,val) {
   const e = state.expenses[id];
   const total=(parseFloat(e.hosting)||0)+(parseFloat(e.domain)||0)+(parseFloat(e.other)||0);
   const a=APPS.find(x=>x.id===id);
-  const rev=a&&a.price&&state.subs[id]?a.price*state.subs[id]:0;
+  const mp=a&&a.price!=null&&Number.isFinite(Number(a.price))?Number(a.price):null;
+  const rev=mp!=null&&state.subs[id]?mp*state.subs[id]:0;
   const profit=rev-total;
 }
 
@@ -1359,7 +1554,7 @@ function renderRoadmap() {
         <div class="roadmap-name">${a.name}</div>
         <div class="roadmap-meta">🔧 ${rd.blocker} · Effort: <span style="color:${effortColor[rd.effort]}">${rd.effort}</span> · <span style="color:${priColor}">${a.pri}</span></div>
       </div>
-      <div class="roadmap-price">${a.price?`$${a.price.toFixed(2)}/mo`:'Variable'}</div>
+      <div class="roadmap-price">${a.price!=null&&Number.isFinite(Number(a.price))?`$${Number(a.price).toFixed(2)}/mo`:'Variable'}</div>
       <div class="roadmap-launch">🗓 ${rd.launch}</div>
     </div>`;
   }).join('');
@@ -1408,7 +1603,7 @@ function renderAdminPanel() {
   set('admin-alerts',alerts);
 
   // Portfolio health score
-  const monetized = APPS.filter(a=>a.price&&a.status==='live').length;
+  const monetized = APPS.filter(a=>a.price!=null&&Number.isFinite(Number(a.price))&&a.status==='live').length;
   const withSubs  = APPS.filter(a=>(state.subs[a.id]||0)>0).length;
   const score = Math.round(
     (live/APPS.length)*30 +
@@ -1441,7 +1636,8 @@ function renderAdminPanel() {
   if(ab) {
     ab.innerHTML = APPS.map(a=>{
       const subs = state.subs[a.id]||0;
-      const rev  = a.price&&subs ? a.price*subs : 0;
+      const hasP = a.price != null && Number.isFinite(Number(a.price));
+      const rev  = hasP && subs ? Number(a.price)*subs : 0;
       const note = state.notes[a.id]||'';
       const rating = state.ratings[a.id]||0;
       return `<tr>
@@ -1462,7 +1658,7 @@ function renderAdminPanel() {
             <option value="Low"      ${a.pri==='Low'     ?'selected':''}>⚪ Low</option>
           </select>
         </td>
-        <td style="font-family:'DM Mono',monospace;color:var(--green);font-size:0.8rem">${a.price?`$${a.price.toFixed(2)}`:'-'}</td>
+        <td><input class="subs-input price-input" type="number" step="0.01" min="0" placeholder="—" title="Monthly $ · empty = Varies" value="${hasP ? Number(a.price) : ''}" onchange="setAppPrice(${a.id},this.value)"></td>
         <td><input class="subs-input" type="number" min="0" value="${subs}" onchange="setSubs(${a.id},this.value);renderAdminPanel()"></td>
         <td style="font-family:'DM Mono',monospace;font-size:0.8rem;color:${rev>0?'var(--green)':'var(--text3)'}">${rev>0?`$${rev.toFixed(2)}`:'—'}</td>
         <td style="font-size:0.9rem">${[1,2,3,4,5].map(s=>`<span style="color:${s<=rating?'var(--gold)':'var(--text3)'};cursor:pointer" onclick="setRating(${a.id},${s});renderAdminPanel()">★</span>`).join('')}</td>
@@ -1481,8 +1677,8 @@ function bulkSetStatus(status) {
 
 function bulkSetSubs(n) {
   if (!canEditPortfolio()) return;
-  APPS.forEach(a=>{ if(a.price) state.subs[a.id]=n; });
-  renderApps(); renderAdminPanel(); updateRevenueBanners(); showSave();
+  APPS.forEach(a=>{ if(a.price!=null&&Number.isFinite(Number(a.price))) state.subs[a.id]=n; });
+  renderApps(); renderAdminPanel(); updateAll(); showSave();
 }
 
 function clearAllNotes() {
@@ -1498,13 +1694,17 @@ function addNewApp() {
   const desc  = $('new-app-desc')?.value?.trim();
   const url   = $('new-app-url')?.value?.trim();
   const cat   = $('new-app-cat')?.value?.trim();
-  const price = parseFloat($('new-app-price')?.value)||null;
+  const priceRaw = $('new-app-price')?.value?.trim();
+  const price = priceRaw === '' ? null : (() => {
+    const n = parseFloat(priceRaw);
+    return Number.isFinite(n) && n >= 0 ? Math.round(n * 100) / 100 : null;
+  })();
   const status= $('new-app-status')?.value||'maint';
   if(!name){alert('App name is required');return;}
   const newId = Math.max(...APPS.map(a=>a.id))+1;
   APPS.push({id:newId,name,desc:desc||'New App',url:url||null,status,cat:cat||'General',price,pri:'Medium',subs:0,action:'Set up app',maintOffset:30+newId});
   ['new-app-name','new-app-desc','new-app-url','new-app-cat','new-app-price'].forEach(id=>{const el=$(id);if(el)el.value='';});
-  renderApps(); renderAdminPanel(); updateRevenueBanners(); showSave();
+  renderApps(); renderAdminPanel(); updateAll(); showSave();
   alert(`✅ "${name}" added to portfolio! Total: ${APPS.length} apps`);
 }
 
@@ -1970,6 +2170,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   updateAll();
   if (isAdminAuthenticated()) renderAdminPanel();
   renderMaintenanceChecks();
+  renderFeatureCatalog();
   setTimeout(animateFadeIns, 100);
 });
 </script>

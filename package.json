@@ -1,0 +1,11 @@
+{
+  "name": "bradleyvs-app-dashboard",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/write-cloud-config.mjs"
+  },
+  "dependencies": {
+    "@upstash/redis": "^1.34.0"
+  }
+}
