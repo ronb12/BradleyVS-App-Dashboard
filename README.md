@@ -54,8 +54,11 @@ In **Vercel → Project → Settings → Environment Variables**, add:
 | `POST` | `/api/bvs-auth` | Body `{ "password": "…" }` → `{ ok, token }` (12h session) |
 | `GET` | `/api/portfolio` | `Authorization: Bearer <token>` → last saved portfolio JSON |
 | `POST` | `/api/portfolio` | Same auth → save portfolio JSON (replaces previous server copy) |
+| `GET` | `/api/manifests` | **Public** — Firebase / Vercel / runtime-check JSON for the **Maintenance** tab (serverless; no secrets) |
 
 CORS is open so **GitHub Pages** can call your Vercel API.
+
+**Dynamic manifests:** With `cloud-config.js` setting `window.BVS_CLOUD_API_BASE`, the dashboard loads these files via `/api/manifests` instead of static `./data/*.json`. You can optionally set **full JSON strings** in Vercel env to override without redeploying: `BVS_VERCEL_MANIFEST_JSON`, `BVS_FIREBASE_MANIFEST_JSON`, `BVS_RUNTIME_CHECK_JSON`. If unset, the API serves the same `data/*.json` shipped with the repo.
 
 ### 4. Point the dashboard at Vercel
 

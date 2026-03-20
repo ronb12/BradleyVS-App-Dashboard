@@ -1786,6 +1786,35 @@ async function fetchJson(path) {
   return res.json();
 }
 
+/**
+ * When BVS_CLOUD_API_BASE is set, load maintenance JSON from GET /api/manifests (serverless).
+ * Otherwise use static ./data/*.json (local file or static hosting).
+ */
+async function fetchMaintenanceDataBundle() {
+  const base = getCloudApiBase();
+  if (base) {
+    try {
+      const r = await fetch(`${base}/api/manifests`, { cache: 'no-store' });
+      const j = await r.json().catch(() => ({}));
+      if (r.ok && j.ok) {
+        return {
+          firebase: j.firebase != null ? j.firebase : null,
+          vercel: j.vercel != null ? j.vercel : null,
+          runtime: j.runtime != null ? j.runtime : null,
+        };
+      }
+    } catch (e) {
+      console.warn('BVS: /api/manifests failed, using static ./data files', e);
+    }
+  }
+  const [firebase, vercel, runtime] = await Promise.all([
+    fetchJson('./data/firebase-hosting-manifest.json'),
+    fetchJson('./data/vercel-deployment-manifest.json'),
+    fetchJson('./data/latest-runtime-check.json'),
+  ]);
+  return { firebase, vercel, runtime };
+}
+
 function parseFirebaseManifest(data) {
   if (!data || !Array.isArray(data.hostingUrls)) return null;
   const set = new Set();
@@ -2056,12 +2085,13 @@ async function runMaintenanceChecks() {
   renderMaintenanceChecks();
 
   try {
-    const [repos, manifestData, vercelManifestData, runtimePayload] = await Promise.all([
+    const [repos, bundle] = await Promise.all([
       fetchRonb12Repos(),
-      fetchJson('./data/firebase-hosting-manifest.json'),
-      fetchJson('./data/vercel-deployment-manifest.json'),
-      fetchJson('./data/latest-runtime-check.json'),
+      fetchMaintenanceDataBundle(),
     ]);
+    const manifestData = bundle.firebase;
+    const vercelManifestData = bundle.vercel;
+    const runtimePayload = bundle.runtime;
 
     const repoIndex = buildRepoIndex(repos);
     const appFbSet = hostingUrlSetFromApps();
