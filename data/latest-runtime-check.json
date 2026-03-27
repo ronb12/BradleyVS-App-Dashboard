@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-26T10:52:25.841Z",
+  "generatedAt": "2026-03-27T10:49:46.538Z",
   "source": "Playwright monitor/smoke.spec.ts (full maintenance)",
   "limits": {
     "maxLoadMs": 15000,
